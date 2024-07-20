@@ -1,7 +1,7 @@
 import 'package:car_wash/Widgets/ButtonWidget.dart';
 import 'package:car_wash/Widgets/CreateCustomerCard.dart';
 import 'package:car_wash/Widgets/TextFieldWidget.dart';
-import 'package:car_wash/Widgets/UpwardMenu.dart';
+import 'package:car_wash/Widgets/header.dart';
 import 'package:car_wash/pages/Customer/customer.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:car_wash/utils/constants.dart';
@@ -19,6 +19,8 @@ class CreateCustomer extends ConsumerStatefulWidget {
 }
 
 class _CreateCustomerState extends ConsumerState<CreateCustomer> {
+  TextEditingController customerController = TextEditingController();
+  TextEditingController mobileController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -64,80 +66,7 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 100.h,
-              width: 360.w,
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  colors: const [
-                    Color.fromARGB(255, 0, 52, 182),
-                    AppTemplate.bgClr,
-                    AppTemplate.bgClr,
-                    AppTemplate.bgClr,
-                    AppTemplate.bgClr,
-                  ],
-                  focal: Alignment(0.8.w, -0.1.h),
-                  radius: 1.5.r,
-                  tileMode: TileMode.clamp,
-                ),
-              ),
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 35.h,
-                  ),
-                  Stack(
-                    children: [
-                      ListTile(
-                        leading: GestureDetector(
-                          onTap: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const Customer(),
-                              ),
-                            );
-                          },
-                          child: const Image(
-                            image: AssetImage('assets/images/backward.png'),
-                          ),
-                        ),
-                        title: Text(
-                          'Create Customer',
-                          style: GoogleFonts.inter(
-                            color: AppTemplate.primaryClr,
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        right: 5.w,
-                        bottom: -2.5.h,
-                        child: GestureDetector(
-                          onTap: () => Menu.showMenu(context),
-                          child: SizedBox(
-                            height: 50.h,
-                            width: 60.w,
-                            child: Padding(
-                              padding: EdgeInsets.all(12.w),
-                              child: Image(
-                                image:
-                                    const AssetImage('assets/images/menu1.png'),
-                                height: 22.h,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 20.h,
-                  ),
-                ],
-              ),
-            ),
+            const Header(txt: 'Create Customer'),
             SizedBox(
               height: 20.h,
             ),
@@ -157,7 +86,8 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 25.w),
-              child: const Textfieldwidget(
+              child: Textfieldwidget(
+                controller: customerController,
                 labelTxt: 'Customer Name',
                 labelTxtClr: Color(0xFF929292),
                 enabledBorderClr: Color(0xFFD4D4D4),
@@ -169,7 +99,8 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 25.w),
-              child: const Textfieldwidget(
+              child: Textfieldwidget(
+                controller: mobileController,
                 labelTxt: 'Mobile Number',
                 labelTxtClr: Color(0xFF929292),
                 enabledBorderClr: Color(0xFFD4D4D4),

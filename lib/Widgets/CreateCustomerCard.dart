@@ -26,8 +26,13 @@ class CreateCustomerCard extends ConsumerStatefulWidget {
   _CreateCustomerCardState createState() => _CreateCustomerCardState();
 }
 
+double? lat;
+double? long;
+
 class _CreateCustomerCardState extends ConsumerState<CreateCustomerCard> {
   File? imageFile;
+  TextEditingController vehiclenoController = TextEditingController();
+  TextEditingController carmodelController = TextEditingController();
 
   Future<void> _requestPermissions() async {
     var status = await perm_handler.Permission.locationWhenInUse.status;
@@ -70,6 +75,8 @@ class _CreateCustomerCardState extends ConsumerState<CreateCustomerCard> {
     ref.read(locationProvider.notifier).updateLocation(position);
     print(
         'Current location: Lat: ${position.latitude}, Long: ${position.longitude}');
+    lat = position.latitude;
+    long = position.longitude;
 
     _showLocationDialog(context, position.latitude, position.longitude);
   }
@@ -203,14 +210,16 @@ class _CreateCustomerCardState extends ConsumerState<CreateCustomerCard> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Textfieldwidget(
+                    Textfieldwidget(
+                      controller: carmodelController,
                       labelTxt: 'Car Model',
                       labelTxtClr: Color(0xFF929292),
                       enabledBorderClr: Color(0xFFD4D4D4),
                       focusedBorderClr: Color(0xFFD4D4D4),
                     ),
                     SizedBox(height: 25.h),
-                    const Textfieldwidget(
+                    Textfieldwidget(
+                      controller: vehiclenoController,
                       labelTxt: 'Vehicle No',
                       labelTxtClr: Color(0xFF929292),
                       enabledBorderClr: Color(0xFFD4D4D4),

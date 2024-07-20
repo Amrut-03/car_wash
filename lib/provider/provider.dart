@@ -50,3 +50,15 @@ class LocationNotifier extends StateNotifier<Position?> {
     state = position;
   }
 }
+
+final dropdownProvider = StateNotifierProvider<DropdownNotifier, String>((ref) {
+  return DropdownNotifier();
+});
+
+class DropdownNotifier extends StateNotifier<String> {
+  DropdownNotifier() : super('Employee');
+
+  void setDropdownValue(String value) {
+    state = value;
+  }
+}

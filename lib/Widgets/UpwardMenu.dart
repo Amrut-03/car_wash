@@ -1,4 +1,5 @@
 import 'package:car_wash/pages/Customer/customer.dart';
+import 'package:car_wash/pages/Employee/employee.dart';
 import 'package:car_wash/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -88,41 +89,49 @@ class Menu {
                     SizedBox(
                       height: 15.h,
                     ),
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 13.w,
-                        ),
-                        Stack(
-                          children: [
-                            Image(
-                              image: const AssetImage(
-                                  "assets/images/employee.png"),
-                              height: 19.h,
-                            ),
-                            Positioned(
-                              right: 1.2.w,
-                              bottom: 1.5.w,
-                              child: Image(
-                                image:
-                                    const AssetImage("assets/images/bag.png"),
-                                height: 7.h,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          width: 12.w,
-                        ),
-                        Text(
-                          'Employee',
-                          style: GoogleFonts.inter(
-                            color: AppTemplate.textClr,
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w500,
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const Employee()));
+                      },
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 13.w,
                           ),
-                        )
-                      ],
+                          Stack(
+                            children: [
+                              Image(
+                                image: const AssetImage(
+                                    "assets/images/employee.png"),
+                                height: 19.h,
+                              ),
+                              Positioned(
+                                right: 1.2.w,
+                                bottom: 1.5.w,
+                                child: Image(
+                                  image:
+                                      const AssetImage("assets/images/bag.png"),
+                                  height: 7.h,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            width: 12.w,
+                          ),
+                          Text(
+                            'Employee',
+                            style: GoogleFonts.inter(
+                              color: AppTemplate.textClr,
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          )
+                        ],
+                      ),
                     ),
                     SizedBox(
                       height: 15.h,

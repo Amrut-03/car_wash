@@ -1,96 +1,31 @@
 import 'package:car_wash/Widgets/ListedCarsList.dart';
+import 'package:car_wash/Widgets/RecentWashesList.dart';
 import 'package:car_wash/Widgets/UpwardMenu.dart';
-import 'package:car_wash/pages/dashboard.dart';
+import 'package:car_wash/Widgets/header.dart';
 import 'package:car_wash/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class CustomerProfile extends StatelessWidget {
-  const CustomerProfile({super.key});
+class CustomerProfile extends StatefulWidget {
+  CustomerProfile({super.key});
+
+  @override
+  State<CustomerProfile> createState() => _CustomerProfileState();
+}
+
+class _CustomerProfileState extends State<CustomerProfile> {
+  bool isCarWashed = true;
 
   @override
   Widget build(BuildContext context) {
-    bool isCarWashes = true;
-
     return Scaffold(
       backgroundColor: AppTemplate.primaryClr,
       body: Center(
         child: Column(
           children: [
-            Container(
-              height: 100.h,
-              width: 360.w,
-              decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                      colors: const [
-                    Color.fromARGB(255, 0, 52, 182),
-                    AppTemplate.bgClr,
-                    AppTemplate.bgClr,
-                    AppTemplate.bgClr,
-                    AppTemplate.bgClr
-                  ],
-                      focal: Alignment(0.8.w, -0.1.h),
-                      radius: 1.5.r,
-                      tileMode: TileMode.clamp)),
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 35.h,
-                  ),
-                  Stack(
-                    children: [
-                      ListTile(
-                        leading: GestureDetector(
-                          onTap: () {
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const DashBoard()));
-                          },
-                          child: const Image(
-                            image: AssetImage('assets/images/backward.png'),
-                          ),
-                        ),
-                        title: Text(
-                          'Customer Profile',
-                          style: GoogleFonts.inter(
-                              color: AppTemplate.primaryClr,
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w800),
-                        ),
-                      ),
-                      Positioned(
-                        right: 5.w,
-                        bottom: -2.5.h,
-                        child: GestureDetector(
-                          onTap: () => Menu.showMenu(context),
-                          child: SizedBox(
-                            height: 50.h,
-                            width: 60.w,
-                            child: Padding(
-                              padding: EdgeInsets.all(12.w),
-                              child: Image(
-                                image:
-                                    const AssetImage('assets/images/menu1.png'),
-                                height: 22.h,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 20.h,
-                  ),
-                ],
-              ),
-            ),
-            Card(
-              child: Container(),
-            ),
+            const Header(txt: 'Customer Profile'),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 25.w, vertical: 25.h),
               child: Container(
@@ -141,7 +76,7 @@ class CustomerProfile extends StatelessWidget {
                                     fontWeight: FontWeight.w800),
                               )
                             ],
-                          )
+                          ),
                         ],
                       ),
                       SizedBox(
@@ -163,52 +98,84 @@ class CustomerProfile extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
-                    width: 130.w,
-                    height: 38.h,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5.r),
-                        color: const Color(0xFF001C63)),
-                    child: Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
-                      child: Center(
-                        child: Text(
-                          'Recent Washes',
-                          style: GoogleFonts.inter(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w800,
-                              color: AppTemplate.primaryClr),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      isCarWashed = !isCarWashed;
+                    });
+                  },
+                  child: Container(
+                      width: 135.w,
+                      height: 38.h,
+                      decoration: BoxDecoration(
+                          border: Border.all(
+                              color: isCarWashed
+                                  ? Colors.transparent
+                                  : const Color(0xFF001C63)),
+                          borderRadius: BorderRadius.circular(5.r),
+                          color: isCarWashed
+                              ? const Color(0xFF001C63)
+                              : AppTemplate.primaryClr),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 10.w, vertical: 3.h),
+                        child: Center(
+                          child: Text('Recent Washes',
+                              style: GoogleFonts.inter(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w800,
+                                color: isCarWashed
+                                    ? AppTemplate.primaryClr
+                                    : const Color(0xFF001C63),
+                              )),
                         ),
-                      ),
-                    )),
+                      )),
+                ),
                 SizedBox(
                   width: 10.w,
                 ),
-                Container(
-                    width: 130.w,
-                    height: 38.h,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5.r),
-                        border: Border.all(
-                            color: const Color(0xFF001C63), width: 2.w),
-                        color: AppTemplate.primaryClr),
-                    child: Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
-                      child: Center(
-                        child: Text(
-                          'Listed Cars',
-                          style: GoogleFonts.inter(
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      isCarWashed = !isCarWashed;
+                    });
+                  },
+                  child: Container(
+                      width: 130.w,
+                      height: 38.h,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5.r),
+                          border: Border.all(
+                              color: !isCarWashed
+                                  ? Colors.transparent
+                                  : const Color(0xFF001C63),
+                              width: 2.w),
+                          color: !isCarWashed
+                              ? const Color(0xFF001C63)
+                              : AppTemplate.primaryClr),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 10.w, vertical: 3.h),
+                        child: Center(
+                          child: Text(
+                            'Listed Cars',
+                            style: GoogleFonts.inter(
                               fontSize: 13.sp,
                               fontWeight: FontWeight.w800,
-                              color: const Color(0xFF001C63)),
+                              color: !isCarWashed
+                                  ? AppTemplate.primaryClr
+                                  : const Color(0xFF001C63),
+                            ),
+                          ),
                         ),
-                      ),
-                    )),
+                      )),
+                ),
               ],
             ),
-            Listedcarslist()
+            SizedBox(
+              height: 20.h,
+            ),
+            isCarWashed ? const RecentWashesList() : const Listedcarslist()
           ],
         ),
       ),

@@ -1,15 +1,13 @@
-import 'package:car_wash/Widgets/NameLists.dart';
-import 'package:car_wash/Widgets/UpwardMenu.dart';
+import 'package:car_wash/Widgets/EmployeeGridView.dart';
 import 'package:car_wash/Widgets/header.dart';
-import 'package:car_wash/pages/Customer/createCustomer.dart';
-import 'package:car_wash/pages/dashboard.dart';
+import 'package:car_wash/pages/Employee/createEmployee.dart';
 import 'package:car_wash/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class Customer extends StatelessWidget {
-  const Customer({super.key});
+class Employee extends StatelessWidget {
+  const Employee({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +16,7 @@ class Customer extends StatelessWidget {
       body: Center(
         child: Column(
           children: [
-            const Header(txt: 'Customer'),
+            const Header(txt: 'Employee'),
             SizedBox(
               height: 20.h,
             ),
@@ -28,7 +26,7 @@ class Customer extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Available Customers',
+                    'Available Employee',
                     style: GoogleFonts.inter(
                         color: AppTemplate.textClr,
                         fontSize: 20.sp,
@@ -38,7 +36,7 @@ class Customer extends StatelessWidget {
                     onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const CreateCustomer())),
+                            builder: (context) => CreateEmployee())),
                     child: Stack(
                       children: [
                         Image(
@@ -67,7 +65,7 @@ class Customer extends StatelessWidget {
                 cursorColor: AppTemplate.textClr,
                 cursorHeight: 20.h,
                 decoration: InputDecoration(
-                  hintText: '   Search by Name or Vehicle Number',
+                  hintText: '   Search by Employee Name',
                   hintStyle: GoogleFonts.inter(
                       fontSize: 12.sp,
                       color: const Color(0xFF929292),
@@ -110,7 +108,12 @@ class Customer extends StatelessWidget {
                 ],
               ),
             ),
-            const Namelists()
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.w),
+                child: const EmployeeGridView(),
+              ),
+            ),
           ],
         ),
       ),

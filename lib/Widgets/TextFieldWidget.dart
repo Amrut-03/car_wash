@@ -8,16 +8,20 @@ class Textfieldwidget extends StatelessWidget {
   final Color labelTxtClr;
   final Color enabledBorderClr;
   final Color focusedBorderClr;
-  const Textfieldwidget(
-      {super.key,
-      required this.labelTxt,
-      required this.labelTxtClr,
-      required this.enabledBorderClr,
-      required this.focusedBorderClr});
+  final TextEditingController controller;
+  const Textfieldwidget({
+    super.key,
+    required this.labelTxt,
+    required this.labelTxtClr,
+    required this.enabledBorderClr,
+    required this.focusedBorderClr,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: controller,
       cursorColor: AppTemplate.enabledBorderClr,
       decoration: InputDecoration(
         labelText: labelTxt,

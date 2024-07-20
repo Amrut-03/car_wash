@@ -1,95 +1,120 @@
 import 'package:car_wash/Widgets/ButtonWidget.dart';
-import 'package:car_wash/Widgets/UpwardMenu.dart';
-import 'package:car_wash/pages/dashboard.dart';
+import 'package:car_wash/Widgets/CreateCustomerCard.dart';
+import 'package:car_wash/Widgets/header.dart';
 import 'package:car_wash/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class CarWashedDetails extends StatelessWidget {
+TextEditingController issueController = TextEditingController();
+
+class CarWashedDetails extends StatefulWidget {
   const CarWashedDetails({super.key});
 
   @override
+  State<CarWashedDetails> createState() => _CarWashedDetailsState();
+}
+
+class _CarWashedDetailsState extends State<CarWashedDetails> {
+  String isTicket = 'Close Ticket';
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    isTicket;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    void _showModalBottomSheet(BuildContext context) {
+      showModalBottomSheet(
+        backgroundColor: AppTemplate.primaryClr,
+        context: context,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(20),
+          ),
+        ),
+        builder: (context) {
+          return Container(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    height: 10.h,
+                    width: 150.w,
+                    margin: const EdgeInsets.only(bottom: 20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF9B9B9B),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  SizedBox(height: 15.h),
+                  TextField(
+                    cursorColor: const Color(0xFFD4D4D4),
+                    controller: issueController,
+                    decoration: InputDecoration(
+                      labelText: 'Issue Remarks',
+                      labelStyle:
+                          GoogleFonts.inter(color: const Color(0xFF929292)),
+                      focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: const Color(0xFFD4D4D4), width: 1.5.w)),
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: const Color(0xFFD4D4D4), width: 1.5.w)),
+                    ),
+                    maxLines: 4,
+                  ),
+                  SizedBox(height: 20.h),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {});
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(227.w, 50.h),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5.r)),
+                      backgroundColor: const Color(0xFF1E3763),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 50.w,
+                        vertical: 15.h,
+                      ),
+                    ),
+                    child: Text(
+                      'Create Ticket',
+                      style: GoogleFonts.inter(
+                        fontSize: 16.sp,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 15.h),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppTemplate.primaryClr,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 100.h,
-              width: 360.w,
-              decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                      colors: const [
-                    Color.fromARGB(255, 0, 52, 182),
-                    AppTemplate.bgClr,
-                    AppTemplate.bgClr,
-                    AppTemplate.bgClr,
-                    AppTemplate.bgClr
-                  ],
-                      focal: Alignment(0.8.w, -0.1.h),
-                      radius: 1.5.r,
-                      tileMode: TileMode.clamp)),
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 35.h,
-                  ),
-                  Stack(
-                    children: [
-                      ListTile(
-                        leading: GestureDetector(
-                          onTap: () {
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const DashBoard()));
-                          },
-                          child: const Image(
-                            image: AssetImage('assets/images/backward.png'),
-                          ),
-                        ),
-                        title: Text(
-                          'Abinanthan',
-                          style: GoogleFonts.inter(
-                              color: AppTemplate.primaryClr,
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w800),
-                        ),
-                      ),
-                      Positioned(
-                        right: 5.w,
-                        bottom: -2.5.h,
-                        child: GestureDetector(
-                          onTap: () => Menu.showMenu(context),
-                          child: SizedBox(
-                            height: 50.h,
-                            width: 60.w,
-                            child: Padding(
-                              padding: EdgeInsets.all(12.w),
-                              child: Image(
-                                image:
-                                    const AssetImage('assets/images/menu1.png'),
-                                height: 22.h,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 20.h,
-                  ),
-                ],
-              ),
-            ),
-            Card(
-              child: Container(),
-            ),
+            const Header(txt: 'Abinanthan'),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 25.w, vertical: 25.h),
               child: Container(
@@ -133,7 +158,7 @@ class CarWashedDetails extends StatelessWidget {
                         style: GoogleFonts.inter(
                             fontSize: 13.sp,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF001C63)),
+                            color: const Color(0xFF001C63)),
                       ),
                       SizedBox(
                         height: 15.r,
@@ -477,27 +502,137 @@ class CarWashedDetails extends StatelessWidget {
                 ),
               ),
             ),
+            issueController.text.isNotEmpty
+                ? Padding(
+                    padding: EdgeInsets.all(25.w),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Ticket',
+                              style: GoogleFonts.inter(
+                                  color: AppTemplate.textClr,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13.sp,
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppTemplate.textClr),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text(
+                                        'Are You Sure?',
+                                        style: GoogleFonts.inter(
+                                            color: AppTemplate.textClr,
+                                            fontSize: 15.sp,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                      actions: <Widget>[
+                                        Center(
+                                          child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: [
+                                                ElevatedButton(
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              const Color(
+                                                                  0xFf1E3763)),
+                                                  child: Text(
+                                                    'Yes',
+                                                    style: GoogleFonts.inter(
+                                                        color: Colors.white),
+                                                  ),
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                    setState(() {
+                                                      isTicket =
+                                                          'Ticket Closed';
+                                                    });
+                                                  },
+                                                ),
+                                                SizedBox(
+                                                  width: 10.w,
+                                                ),
+                                                ElevatedButton(
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              const Color(
+                                                                  0xFf1E3763)),
+                                                  child: Text(
+                                                    'No',
+                                                    style: GoogleFonts.inter(
+                                                        color: Colors.white),
+                                                  ),
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                ),
+                                              ]),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              child: Text(
+                                isTicket,
+                                style: GoogleFonts.inter(
+                                  color: const Color(0xFFC80000),
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 12.sp,
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: const Color(0xFFC80000),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20.h,
+                        ),
+                        Text(
+                          issueController.text,
+                          style: GoogleFonts.inter(
+                              color: AppTemplate.textClr,
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w400),
+                        )
+                      ],
+                    ),
+                  )
+                : Container(),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 25.w, vertical: 10.h),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                      width: 69.w,
-                      height: 50.h,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5.r),
-                        border: Border.all(
-                          color: const Color(0xFFC80000),
-                          width: 1.5.w,
+                  GestureDetector(
+                    onTap: () => _showModalBottomSheet(context),
+                    child: Container(
+                        width: 69.w,
+                        height: 50.h,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5.r),
+                          border: Border.all(
+                            color: const Color(0xFFC80000),
+                            width: 1.5.w,
+                          ),
                         ),
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.all(15.w),
-                        child: SvgPicture.asset(
-                          'assets/svg/puzzle.svg',
-                        ),
-                      )),
+                        child: Padding(
+                          padding: EdgeInsets.all(15.w),
+                          child: SvgPicture.asset(
+                            'assets/svg/puzzle.svg',
+                          ),
+                        )),
+                  ),
                   Buttonwidget(
                     width: 227.w,
                     height: 50.h,
@@ -505,14 +640,7 @@ class CarWashedDetails extends StatelessWidget {
                     txt: 'Send to Whatsapp',
                     textClr: AppTemplate.primaryClr,
                     textSz: 16.sp,
-                    onClick: () {
-                      // Navigator.pushReplacement(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) => const Customer(),
-                      //   ),
-                      // );
-                    },
+                    onClick: () {},
                   ),
                 ],
               ),

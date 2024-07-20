@@ -11,6 +11,14 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <queries>
+    <intent>
+        <action android:name="android.intent.action.VIEW"/>
+        <data android:scheme="sms"/>
+    </intent>
+    </queries>
+
     <application
         android:enableOnBackInvokedCallback="true"
         android:label="car_wash"

@@ -1,39 +1,82 @@
-// import 'dart:io';
-
-// import 'package:car_wash/provider/provider.dart';
 // import 'package:flutter/material.dart';
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
+// import 'package:http/http.dart' as http;
+// import 'dart:convert';
 
-// @override
-// Widget build(BuildContext context, WidgetRef ref) {
-//   print('Building CreateCustomerCard widget');
-//   final customerCards = ref.watch(customerCardProvider);
+// // Your ApiService class
+// class ApiService {
+//   final String baseUrl;
 
-//   File? _imageFile;
-//   if (index < customerCards.length && customerCards[index].image != null) {
-//     _imageFile = customerCards[index].image!;
+//   ApiService(this.baseUrl);
+
+//   Future<http.Response> createAdmin() async {
+//     final url = Uri.parse('$baseUrl');
+//     final response = await http.post(
+//       url,
+//       headers: {'Content-Type': 'application/json'},
+//       body: jsonEncode({
+//         'emp_id': "1234",
+//         'emp_name': "Amrut",
+//         'phone_1': "1234567890",
+//         'phone_2': "",
+//         'password': "123456",
+//         'role': 'Admin',
+//         'emp_photo': "",
+//       }),
+//     );
+//     return response;
+//   }
+// }
+
+// // Main app widget
+// void main() {
+//   runApp(MyApp());
+// }
+
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       home: AdminPage(),
+//     );
+//   }
+// }
+
+// class AdminPage extends StatefulWidget {
+//   const AdminPage({super.key});
+
+//   @override
+//   _AdminPageState createState() => _AdminPageState();
+// }
+
+// class _AdminPageState extends State<AdminPage> {
+//   final ApiService apiService = ApiService(
+//       'https://wash.sortbe.com/API/Admin/User/Employee-Creation'); // Replace with your actual API endpoint
+
+//   void _createAdmin() async {
+//     final response = await apiService.createAdmin();
+//     if (response.statusCode == 200) {
+//       // Success logic
+//       ScaffoldMessenger.of(context)
+//           .showSnackBar(SnackBar(content: Text('Admin created successfully!')));
+//     } else {
+//       // Failure logic
+//       ScaffoldMessenger.of(context)
+//           .showSnackBar(SnackBar(content: Text('Failed to create admin')));
+//     }
 //   }
 
-//   return Center(
-//     child: Column(
-//       children: [
-//         GestureDetector(
-//           onTap: () => _pickImage(context, ref),
-//           child: Container(
-//             width: 120,
-//             height: 80,
-//             color: Colors.grey,
-//             child: _imageFile != null
-//                 ? Image.file(
-//                     _imageFile,
-//                     fit: BoxFit.cover,
-//                   )
-//                 : Icon(Icons.camera_alt),
-//           ),
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('Create Admin'),
+//       ),
+//       body: Center(
+//         child: ElevatedButton(
+//           onPressed: _createAdmin,
+//           child: Text('Submit'),
 //         ),
-//         if (_imageFile != null)
-//           Text('Image path: ${_imageFile.path}'),
-//       ],
-//     ),
-//   );
+//       ),
+//     );
+//   }
 // }
