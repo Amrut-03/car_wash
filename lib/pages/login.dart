@@ -1,15 +1,13 @@
-// import 'dart:convert';
 import 'dart:convert';
 
 import 'package:car_wash/Widgets/ButtonWidget.dart';
 import 'package:car_wash/Widgets/TextFieldWidget.dart';
 import 'package:car_wash/pages/dashboard.dart';
-import 'package:car_wash/pages/services/adminServices.dart';
 import 'package:car_wash/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-// import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,37 +17,43 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final ApiService apiService =
-      ApiService('https://wash.sortbe.com/API/Admin/Login/Login');
   final TextEditingController mobileController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  bool _isLoading = false;
+  bool isLoading = false;
 
-  // void _login() async {
-  //   final response = await apiService.login(
-  //     mobileController.text,
-  //     passwordController.text,
-  //   );
-  //   var temp = jsonDecode(response.body);
+  void _login(BuildContext context) async {
+    var request = http.MultipartRequest(
+        'POST', Uri.parse('https://wash.sortbe.com/API/Admin/Login/Login'));
+    request.fields.addAll({
+      'enc_key': 'C0oRAe1QNtn3zYNvJ8rv',
+      'mobile': mobileController.text,
+      'password': passwordController.text
+    });
 
-  //   // if (mobileController.text.isEmpty || passwordController.text.isEmpty) {
-  //   //   ScaffoldMessenger.of(context)
-  //   //       .showSnackBar(const SnackBar(content: Text('Login successful!')));
-  //   //   print('mobile and password should not empty');
-  //   // }
+    http.StreamedResponse response = await request.send();
+    isLoading = true;
 
-  //   if (temp["status"] == "Success" && response.statusCode == 200) {
-  //     ScaffoldMessenger.of(context)
-  //         .showSnackBar(const SnackBar(content: Text('Login successful!')));
-  //     Navigator.push(
-  //         context, MaterialPageRoute(builder: (context) => const DashBoard()));
-  //     print('Login successful!');
-  //   } else {
-  //     ScaffoldMessenger.of(context)
-  //         .showSnackBar(const SnackBar(content: Text('Failed to login')));
-  //     print('Failed to login');
-  //   }
-  // }
+    if (response.statusCode == 200) {
+      String responseBody = await response.stream.bytesToString();
+      var jsonResponse = json.decode(responseBody);
+      String status = jsonResponse['status'];
+      if (status == 'Success') {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Login Successfully')));
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => DashBoard()));
+      } else {
+        isLoading = false;
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(jsonResponse['remarks'])));
+      }
+    } else {
+      isLoading = false;
+      print(response.reasonPhrase);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Credentials are wrong')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       focusedBorderClr: const Color(0xFFD4D4D4),
                     ),
                     SizedBox(height: 30.h),
-                    _isLoading
+                    isLoading
                         ? const Center(child: CircularProgressIndicator())
                         : Buttonwidget(
                             width: 290.w,
@@ -124,11 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             textClr: AppTemplate.primaryClr,
                             textSz: 18.sp,
                             onClick: () {
-                              // _login();
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const DashBoard()));
+                              _login(context);
                             },
                           ),
                     SizedBox(height: 20.h),
