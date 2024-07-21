@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 
 class CreateCustomer extends ConsumerStatefulWidget {
   const CreateCustomer({super.key});
@@ -22,6 +23,31 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
   TextEditingController customerController = TextEditingController();
   TextEditingController mobileController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+
+  Future<void> creatCustomer() async {
+    var request = http.MultipartRequest('POST',
+        Uri.parse('https://wash.sortbe.com/API/Admin/Client/Client-Creation'));
+    request.fields.addAll({
+      'enc_key': 'C0oRAe1QNtn3zYNvJ8rv',
+      'emp_id': '123',
+      'client_name': customerController.text,
+      'mobile': mobileController.text,
+      'car_info':
+          '[\n    {\n        "model_name" : "santro",\n        "vehicle_no" : "TN 45 AK 1723",\n        "lat" : "10.12345",\n        "long" : "24.658705"\n    },\n    {\n        "model_name" : "verna",\n        "vehicle_no" : "TN 45 AK 6520",\n        "lat" : "10.19345",\n        "long" : "25.658705"\n    }\n]'
+    });
+    request.files.add(
+        await http.MultipartFile.fromPath('car_pic1', 'iIWDukDY2/ahmed.png'));
+    request.files.add(await http.MultipartFile.fromPath(
+        'car_pic2', '2Hi9BlZ7f/karunanidhi.png'));
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
 
   @override
   void dispose() {
