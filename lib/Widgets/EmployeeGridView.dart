@@ -18,6 +18,8 @@ class EmployeeGridView extends StatefulWidget {
   State<EmployeeGridView> createState() => _EmployeeGridViewState();
 }
 
+String? emp_id;
+
 class _EmployeeGridViewState extends State<EmployeeGridView> {
   final List<Map<String, String>> items = [
     {'name': 'Abinanthan', 'image': 'assets/images/p1.png'},
@@ -103,8 +105,7 @@ class _EmployeeGridViewState extends State<EmployeeGridView> {
                       style: GoogleFonts.inter(
                           fontWeight: FontWeight.w800, fontSize: 18.sp)),
                   onTap: () {
-                    // Handle remove employee
-                    Navigator.pop(context);
+                    removeEmployee();
                   },
                 ),
               ],
@@ -126,19 +127,26 @@ class _EmployeeGridViewState extends State<EmployeeGridView> {
     });
 
     http.StreamedResponse response = await request.send();
+    String temp = await response.stream.bytesToString();
+    var body = jsonDecode(temp);
 
     if (passwordController.text == reTypePasswordController.text) {
       if (response.statusCode == 200) {
-        print(await response.stream.bytesToString());
+        // print(await response.stream.bytesToString());
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Password changed Successfully')));
         Navigator.pop(context);
+        print(body['status']);
+        // print(response.reasonPhrase);
       } else {
-        print(response.reasonPhrase);
+        print(body['status']);
+        // print(response.reasonPhrase);
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Password and ReTyped Password does not match')));
+      // print(response.reasonPhrase);
+      print('Password and ReTyped Password does not match');
     }
   }
 
@@ -269,13 +277,14 @@ class _EmployeeGridViewState extends State<EmployeeGridView> {
                         scrollDirection: Axis.vertical,
                         itemCount: temp['data'].length,
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2, // Number of columns
+                          crossAxisCount: 2,
                           crossAxisSpacing: 10.w,
                           mainAxisSpacing: 10.h,
                           childAspectRatio: 150.w / 157.h,
                         ),
                         itemBuilder: (context, index) {
                           var employee = temp['data'][index];
+                          emp_id = employee['employee_id'];
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Container(
@@ -298,10 +307,9 @@ class _EmployeeGridViewState extends State<EmployeeGridView> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   CircleAvatar(
-                                    radius: 50.r,
-                                    backgroundImage:
-                                        AssetImage(employee['employee_pic']),
-                                  ),
+                                      radius: 50.r,
+                                      backgroundImage: NetworkImage(
+                                          employee['employee_pic'])),
                                   SizedBox(height: 10.h),
                                   Text(employee['employee_name'],
                                       style: GoogleFonts.inter(
@@ -320,5 +328,29 @@ class _EmployeeGridViewState extends State<EmployeeGridView> {
               ],
             ),
     );
+  }
+
+  void removeEmployee() async {
+    var request = http.MultipartRequest('POST',
+        Uri.parse('https://wash.sortbe.com/API/Admin/User/Employee-Remove'));
+    request.fields.addAll({
+      'enc_key': 'C0oRAe1QNtn3zYNvJ8rv',
+      'emp_id': '123',
+      'user_id': emp_id!,
+      'password': '12345665'
+    });
+
+    http.StreamedResponse response = await request.send();
+    String temp = await response.stream.bytesToString();
+    var body = jsonDecode(temp);
+
+    if (response.statusCode == 200 && body['status'] == 'Success') {
+      Navigator.pop(context);
+
+      print(body['status']);
+    } else {
+      print(body['status']);
+      print(response.reasonPhrase);
+    }
   }
 }

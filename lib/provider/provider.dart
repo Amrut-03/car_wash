@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -62,3 +63,18 @@ class DropdownNotifier extends StateNotifier<String> {
     state = value;
   }
 }
+
+// Text field controllers
+final employeeControllerProvider = Provider((ref) => TextEditingController());
+final dobControllerProvider = Provider((ref) => TextEditingController());
+final addressControllerProvider = Provider((ref) => TextEditingController());
+final phone1ControllerProvider = Provider((ref) => TextEditingController());
+final phone2ControllerProvider = Provider((ref) => TextEditingController());
+final passwordControllerProvider = Provider((ref) => TextEditingController());
+
+// Image files
+final aadharFrontProvider = StateProvider<File?>((ref) => null);
+final aadharBackProvider = StateProvider<File?>((ref) => null);
+final driveFrontProvider = StateProvider<File?>((ref) => null);
+final driveBackProvider = StateProvider<File?>((ref) => null);
+final employeePhotoProvider = StateProvider<File?>((ref) => null);

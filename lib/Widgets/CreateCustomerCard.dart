@@ -323,15 +323,6 @@ class _CreateCustomerCardState extends ConsumerState<CreateCustomerCard> {
                         ),
                       ],
                     ),
-                    // if (currentLocation != null)
-                    //   Text(
-                    //     'Lat: ${currentLocation.latitude}, Long: ${currentLocation.longitude}',
-                    //     style: GoogleFonts.inter(
-                    //       fontSize: 12.sp,
-                    //       color: const Color(0xFF6750A4),
-                    //       fontWeight: FontWeight.w600,
-                    //     ),
-                    //   ),
                   ],
                 ),
               ),

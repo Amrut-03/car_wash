@@ -1,14 +1,12 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import 'package:car_wash/Widgets/ButtonWidget.dart';
 import 'package:car_wash/Widgets/TextFieldWidget.dart';
 import 'package:car_wash/utils/constants.dart';
 import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart'; // Make sure this import points to the correct path
+import 'package:image_picker/image_picker.dart';
 
 class AdminTextField extends StatefulWidget {
   AdminTextField({
@@ -53,18 +51,20 @@ class _AdminTextFieldState extends State<AdminTextField> {
       'password': passwordController.text,
       'role': 'Admin'
     });
-    request.files
-        .add(await http.MultipartFile.fromPath('emp_photo', imageFile!.path));
+    if (imageFile != null) {
+      request.files
+          .add(await http.MultipartFile.fromPath('emp_photo', imageFile!.path));
+    }
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Login Successfully')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Admin created Successfully')));
       print(await response.stream.bytesToString());
     } else {
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Login Failed')));
+          .showSnackBar(const SnackBar(content: Text('Admin creation Failed')));
       print(response.reasonPhrase);
     }
   }
@@ -110,7 +110,7 @@ class _AdminTextFieldState extends State<AdminTextField> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 25.w),
           child: Text(
-            'Aadhaar Card',
+            'Admin Photo',
             style: GoogleFonts.inter(
               color: AppTemplate.textClr,
               fontSize: 12.sp,
@@ -142,27 +142,37 @@ class _AdminTextFieldState extends State<AdminTextField> {
                       ),
                     ],
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(5.r),
-                        child: Image.asset(
-                          'assets/images/Camera.png',
-                          height: 45.w,
-                          width: double.infinity,
+                  child: imageFile != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(5.r),
+                          child: Image.file(
+                            imageFile!,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                          ),
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(5.r),
+                              child: Image.asset(
+                                'assets/images/Camera.png',
+                                height: 45.w,
+                                width: double.infinity,
+                              ),
+                            ),
+                            Text(
+                              'Upload Side',
+                              style: GoogleFonts.inter(
+                                fontSize: 12.sp,
+                                color: const Color(0xFF6750A4),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      Text(
-                        'Front Side',
-                        style: GoogleFonts.inter(
-                          fontSize: 12.sp,
-                          color: const Color(0xFF6750A4),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
               ),
             ],
