@@ -7,4 +7,6 @@ class AppTemplate {
   static const Color buttonClr = Color(0xFF1E3763);
   static const Color bgClr = Color(0xFF021649);
   static const Color shadowClr = Color(0xFFE1E1E1);
+
+  // for Something Purpose.
 }

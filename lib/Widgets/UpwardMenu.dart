@@ -1,5 +1,8 @@
 import 'package:car_wash/pages/Customer/customer.dart';
 import 'package:car_wash/pages/Employee/employee.dart';
+import 'package:car_wash/pages/Planner/pages/planner_employee.dart';
+import 'package:car_wash/pages/attendance/attendance_page.dart';
+import 'package:car_wash/pages/salary/pages/employee_salary.dart';
 import 'package:car_wash/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -20,7 +23,7 @@ class Menu {
           child: Material(
             color: Colors.transparent,
             child: Container(
-              height: 310.h,
+              height: 330.h,
               width: MediaQuery.of(context).size.width,
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -136,50 +139,104 @@ class Menu {
                     SizedBox(
                       height: 15.h,
                     ),
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 15.w,
-                        ),
-                        const Image(
-                          image: AssetImage("assets/images/planner.png"),
-                        ),
-                        SizedBox(
-                          width: 10.w,
-                        ),
-                        Text(
-                          'Planner',
-                          style: GoogleFonts.inter(
-                            color: AppTemplate.textClr,
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w500,
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const EmployeePlanner(),
                           ),
-                        ),
-                      ],
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 15.w,
+                          ),
+                          const Image(
+                            image: AssetImage("assets/images/planner.png"),
+                          ),
+                          SizedBox(
+                            width: 10.w,
+                          ),
+                          Text(
+                            'Planner',
+                            style: GoogleFonts.inter(
+                              color: AppTemplate.textClr,
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     SizedBox(
                       height: 15.h,
                     ),
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 20.w,
-                        ),
-                        const Image(
-                          image: AssetImage("assets/images/salary.png"),
-                        ),
-                        SizedBox(
-                          width: 15.w,
-                        ),
-                        Text(
-                          'Salary',
-                          style: GoogleFonts.inter(
-                            color: AppTemplate.textClr,
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w500,
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const EmployeeSalary(),
                           ),
-                        ),
-                      ],
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 20.w,
+                          ),
+                          const Image(
+                            image: AssetImage("assets/images/salary.png"),
+                          ),
+                          SizedBox(
+                            width: 15.w,
+                          ),
+                          Text(
+                            'Salary',
+                            style: GoogleFonts.inter(
+                              color: AppTemplate.textClr,
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 15.h,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AttendancePage(),
+                          ),
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 18.w,
+                          ),
+                          const Image(
+                            image: AssetImage("assets/images/attendance.png"),
+                          ),
+                          SizedBox(
+                            width: 12.w,
+                          ),
+                          Text(
+                            'Attendance',
+                            style: GoogleFonts.inter(
+                              color: AppTemplate.textClr,
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     SizedBox(
                       height: 10.h,
