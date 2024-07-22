@@ -1,5 +1,5 @@
 import 'package:car_wash/pages/Customer/customer.dart';
-import 'package:car_wash/pages/Employee/employee.dart';
+import 'package:car_wash/pages/Employee/employee.dart' as emp;
 import 'package:car_wash/pages/Planner/pages/planner_employee.dart';
 import 'package:car_wash/pages/attendance/attendance_page.dart';
 import 'package:car_wash/pages/salary/pages/employee_salary.dart';
@@ -97,7 +97,7 @@ class Menu {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const Employee()));
+                                builder: (context) => const emp.Employee()));
                       },
                       child: Row(
                         children: [

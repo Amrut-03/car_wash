@@ -21,14 +21,14 @@ class EmployeeGridView extends StatefulWidget {
 String? emp_id;
 
 class _EmployeeGridViewState extends State<EmployeeGridView> {
-  final List<Map<String, String>> items = [
-    {'name': 'Abinanthan', 'image': 'assets/images/p1.png'},
-    {'name': 'Suresh', 'image': 'assets/images/p2.png'},
-    {'name': 'Abinanthan', 'image': 'assets/images/p1.png'},
-    {'name': 'Suresh', 'image': 'assets/images/p2.png'},
-    {'name': 'Abinanthan', 'image': 'assets/images/p1.png'},
-    {'name': 'Suresh', 'image': 'assets/images/p2.png'},
-  ];
+  // final List<Map<String, String>> items = [
+  //   {'name': 'Abinanthan', 'image': 'assets/images/p1.png'},
+  //   {'name': 'Suresh', 'image': 'assets/images/p2.png'},
+  //   {'name': 'Abinanthan', 'image': 'assets/images/p1.png'},
+  //   {'name': 'Suresh', 'image': 'assets/images/p2.png'},
+  //   {'name': 'Abinanthan', 'image': 'assets/images/p1.png'},
+  //   {'name': 'Suresh', 'image': 'assets/images/p2.png'},
+  // ];
 
   TextEditingController reTypePasswordController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -264,29 +264,42 @@ class _EmployeeGridViewState extends State<EmployeeGridView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTemplate.primaryClr,
       body: temp == null
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 200.h,
+                  ),
+                  const CircularProgressIndicator(
+                    color: Color.fromARGB(255, 0, 52, 182),
+                  ),
+                ],
+              ),
+            )
           : Column(
               children: [
                 Expanded(
-                  child: GestureDetector(
-                    onTap: () => showEmployeeOptions(context),
-                    child: Container(
-                      color: AppTemplate.primaryClr,
-                      child: GridView.builder(
-                        scrollDirection: Axis.vertical,
-                        itemCount: temp['data'].length,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 10.w,
-                          mainAxisSpacing: 10.h,
-                          childAspectRatio: 150.w / 157.h,
-                        ),
-                        itemBuilder: (context, index) {
-                          var employee = temp['data'][index];
-                          emp_id = employee['employee_id'];
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    color: AppTemplate.primaryClr,
+                    child: GridView.builder(
+                      scrollDirection: Axis.vertical,
+                      itemCount: temp['data'].length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10.w,
+                        mainAxisSpacing: 10.h,
+                        childAspectRatio: 150.w / 157.h,
+                      ),
+                      itemBuilder: (context, index) {
+                        var employee = temp['data'][index];
+                        emp_id = employee['employee_id'];
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: GestureDetector(
+                            onTap: () => showEmployeeOptions(context),
                             child: Container(
                               height: 157.h,
                               width: 150.w,
@@ -319,9 +332,9 @@ class _EmployeeGridViewState extends State<EmployeeGridView> {
                                 ],
                               ),
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
