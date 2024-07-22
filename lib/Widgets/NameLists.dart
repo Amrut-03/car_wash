@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:car_wash/pages/Customer/createProfile.dart';
 import 'package:car_wash/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

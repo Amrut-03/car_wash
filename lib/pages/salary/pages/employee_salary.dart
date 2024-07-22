@@ -1,6 +1,5 @@
 import 'package:car_wash/Widgets/TextFieldWidget.dart';
 import 'package:car_wash/Widgets/header.dart';
-import 'package:car_wash/pages/salary/pages/individual_salary.dart';
 import 'package:car_wash/pages/salary/pages/salary_calender.dart';
 import 'package:car_wash/utils/constants.dart';
 import 'package:flutter/material.dart';

@@ -27,7 +27,7 @@ class _CustomerState extends State<Customer> {
 
     // Add listener to searchController
     searchController.addListener(() {
-      filterCustomerList();
+      customerList();
     });
   }
 
@@ -39,63 +39,49 @@ class _CustomerState extends State<Customer> {
   }
 
   String? customerId;
-  List<dynamic> body = [];
-  List<dynamic> filteredBody = [];
-  var responseBody;
 
-  Future<void> customerList() async {
-    setState(() {
-      isLoading = true;
+  Future<void> removeCustomer() async {
+    var request = http.MultipartRequest('POST',
+        Uri.parse('https://wash.sortbe.com/API/Admin/Client/Client-Remove'));
+    request.fields.addAll({
+      'enc_key': 'C0oRAe1QNtn3zYNvJ8rv',
+      'emp_id': '123',
+      'customer_id': customerId!,
+      'password': '12345665'
     });
 
-    try {
-      var request = http.MultipartRequest(
-        'POST',
-        Uri.parse('https://wash.sortbe.com/API/Admin/Client/Client-List'),
-      );
-      request.fields.addAll({
-        'enc_key': 'C0oRAe1QNtn3zYNvJ8rv',
-        'emp_id': '123',
-        'search_name': searchController.text
-      });
+    http.StreamedResponse response = await request.send();
 
-      http.StreamedResponse response = await request.send();
-      String temp = await response.stream.bytesToString();
-      responseBody = jsonDecode(temp);
-
-      if (response.statusCode == 200) {
-        setState(() {
-          body = responseBody['data'] ?? [];
-          filteredBody = body;
-          isLoading = false;
-        });
-        print('Search results: ${body.length}');
-      } else {
-        setState(() {
-          body = [];
-          filteredBody = [];
-          isLoading = false;
-        });
-        print('Error: ${response.reasonPhrase}');
-      }
-    } catch (e) {
-      setState(() {
-        body = [];
-        filteredBody = [];
-        isLoading = false;
-      });
-      print('Exception: $e');
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+    } else {
+      print(response.reasonPhrase);
     }
   }
 
-  void filterCustomerList() {
-    setState(() {
-      filteredBody = body.where((customer) {
-        final name = customer['client_name']?.toLowerCase() ?? '';
-        final search = searchController.text.toLowerCase();
-        return name.contains(search);
-      }).toList();
+  List<dynamic> body = [];
+  var responseBody;
+
+  Future<void> customerList() async {
+    var request = http.MultipartRequest('POST',
+        Uri.parse('https://wash.sortbe.com/API/Admin/Client/Client-List'));
+    request.fields.addAll({
+      'enc_key': 'C0oRAe1QNtn3zYNvJ8rv',
+      'emp_id': '123',
+      'search_name': searchController.text
     });
+
+    http.StreamedResponse response = await request.send();
+    String temp = await response.stream.bytesToString();
+    responseBody = jsonDecode(temp);
+
+    if (response.statusCode == 200) {
+      setState(() {
+        body = responseBody['data'];
+      });
+    } else {
+      print(response.reasonPhrase);
+    }
   }
 
   @override
@@ -189,7 +175,7 @@ class _CustomerState extends State<Customer> {
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w400),
                   ),
-                  isLoading
+                  responseBody == null
                       ? Center(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
@@ -206,7 +192,7 @@ class _CustomerState extends State<Customer> {
                           ),
                         )
                       : Text(
-                          'Showing ${filteredBody.length} results',
+                          'Showing ${responseBody['data'].length} of 250',
                           style: GoogleFonts.inter(
                               color: AppTemplate.textClr,
                               fontSize: 12.sp,
@@ -215,20 +201,24 @@ class _CustomerState extends State<Customer> {
                 ],
               ),
             ),
-            filteredBody.isEmpty && !isLoading
-                ? Expanded(
-                    child: Center(
-                      child: Text(
-                        'No results found',
-                        style: TextStyle(color: Colors.white),
+            body.isEmpty
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        height: 200.h,
                       ),
-                    ),
+                      const CircularProgressIndicator(
+                        color: Color.fromARGB(255, 0, 52, 182),
+                      ),
+                    ],
                   )
                 : Expanded(
                     child: ListView.builder(
-                      itemCount: filteredBody.length,
+                      itemCount: body.length,
                       itemBuilder: (context, index) {
-                        var employee = filteredBody[index];
+                        var employee = body[index];
                         customerId = employee['customer_id'];
                         return Padding(
                           padding: EdgeInsets.symmetric(horizontal: 20.w),

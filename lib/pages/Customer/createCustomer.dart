@@ -20,7 +20,6 @@ class CreateCustomer extends ConsumerStatefulWidget {
   const CreateCustomer({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _CreateCustomerState createState() => _CreateCustomerState();
 }
 
@@ -30,6 +29,9 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
   final List<TextEditingController> carModelNameControllers = [];
   final List<TextEditingController> carNoControllers = [];
   final ScrollController _scrollController = ScrollController();
+  File? imageFile;
+  double lat = 0.0;
+  double long = 0.0;
   @override
   void initState() {
     super.initState();
@@ -67,13 +69,20 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
   }
 
   Future<void> creatCustomer() async {
+    if (lat == null || long == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content:
+              Text("Please fetch the location before creating the customer")));
+      return;
+    }
+
     List<Map<String, dynamic>> carInfoList = [];
     for (int i = 0; i < carModelNameControllers.length; i++) {
       carInfoList.add({
         'model_name': carModelNameControllers[i].text,
         'vehicle_no': carNoControllers[i].text,
-        'lat': '10.12345', // Replace with actual latitude
-        'long': '24.658705', // Replace with actual longitude
+        'lat': lat.toString(),
+        'long': long.toString(),
       });
     }
 
@@ -123,8 +132,6 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
     );
   }
 
-  File? imageFile;
-
   Future<void> _requestPermissions() async {
     var status = await perm_handler.Permission.locationWhenInUse.status;
     if (status.isDenied || status.isRestricted || status.isPermanentlyDenied) {
@@ -166,8 +173,10 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
     ref.read(locationProvider.notifier).updateLocation(position);
     print(
         'Current location: Lat: ${position.latitude}, Long: ${position.longitude}');
-    lat = position.latitude;
-    long = position.longitude;
+    setState(() {
+      lat = position.latitude;
+      long = position.longitude;
+    });
 
     _showLocationDialog(context, position.latitude, position.longitude);
   }
