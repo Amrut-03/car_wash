@@ -71,7 +71,6 @@ final addressControllerProvider = Provider((ref) => TextEditingController());
 final phone1ControllerProvider = Provider((ref) => TextEditingController());
 final phone2ControllerProvider = Provider((ref) => TextEditingController());
 final passwordControllerProvider = Provider((ref) => TextEditingController());
-
 // Image files
 final aadharFrontProvider = StateProvider<File?>((ref) => null);
 final aadharBackProvider = StateProvider<File?>((ref) => null);

@@ -22,15 +22,15 @@ class EmployeeTextfield extends ConsumerWidget {
     if (pickedFile != null) {
       final File file = File(pickedFile.path);
       ref.read(imageProvider.notifier).state = file;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Image Uploaded Successfully")));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Image Uploaded Successfully")));
     } else {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("No image picked")));
+          .showSnackBar(const SnackBar(content: Text("No image picked")));
     }
   }
 
-  void createEmployee(BuildContext context, WidgetRef ref) async {
+  Future<void> createEmployee(BuildContext context, WidgetRef ref) async {
     var request = http.MultipartRequest('POST',
         Uri.parse('https://wash.sortbe.com/API/Admin/User/Employee-Creation'));
     request.fields.addAll({
@@ -77,8 +77,8 @@ class EmployeeTextfield extends ConsumerWidget {
     var body = jsonDecode(temp);
 
     if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(body['status'])));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Employee Account Created Successfully")));
     } else {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(body['status'])));
@@ -124,7 +124,7 @@ class EmployeeTextfield extends ConsumerWidget {
             controller: ref.read(employeeControllerProvider),
           ),
         ),
-        SizedBox(height: 20.h),
+        SizedBox(height: 30.h),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 25.w),
           child: Textfieldwidget(
@@ -135,7 +135,7 @@ class EmployeeTextfield extends ConsumerWidget {
             focusedBorderClr: const Color(0xFFD4D4D4),
           ),
         ),
-        SizedBox(height: 20.h),
+        SizedBox(height: 30.h),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 25.w),
           child: TextField(
@@ -161,7 +161,7 @@ class EmployeeTextfield extends ConsumerWidget {
             ),
           ),
         ),
-        SizedBox(height: 20.h),
+        SizedBox(height: 30.h),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 25.w),
           child: Textfieldwidget(
@@ -172,7 +172,7 @@ class EmployeeTextfield extends ConsumerWidget {
             focusedBorderClr: const Color(0xFFD4D4D4),
           ),
         ),
-        SizedBox(height: 20.h),
+        SizedBox(height: 30.h),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 25.w),
           child: Textfieldwidget(
@@ -183,7 +183,7 @@ class EmployeeTextfield extends ConsumerWidget {
             focusedBorderClr: const Color(0xFFD4D4D4),
           ),
         ),
-        SizedBox(height: 20.h),
+        SizedBox(height: 30.h),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 25.w),
           child: Textfieldwidget(
@@ -345,7 +345,7 @@ class EmployeeTextfield extends ConsumerWidget {
                                 fontWeight: FontWeight.w600,
                               ),
                             )
-                          : Container()
+                          : Container(),
                     ],
                   ),
                 ),
@@ -466,8 +466,9 @@ class EmployeeTextfield extends ConsumerWidget {
               txt: 'Create',
               textClr: AppTemplate.primaryClr,
               textSz: 18.sp,
-              onClick: () {
-                createEmployee(context, ref);
+              onClick: () async {
+                await createEmployee(context, ref);
+                Navigator.pop(context);
               },
             ),
           ],
