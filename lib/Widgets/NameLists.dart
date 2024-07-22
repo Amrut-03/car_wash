@@ -47,7 +47,18 @@ class _NamelistsState extends State<Namelists> {
   @override
   Widget build(BuildContext context) {
     return body.isEmpty
-        ? Center(child: CircularProgressIndicator())
+        ? Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 200.h,
+              ),
+              const CircularProgressIndicator(
+                color: Color.fromARGB(255, 0, 52, 182),
+              ),
+            ],
+          )
         : Expanded(
             child: ListView.builder(
               itemCount: body.length,
@@ -58,10 +69,12 @@ class _NamelistsState extends State<Namelists> {
                   child: Column(
                     children: [
                       GestureDetector(
-                        onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => CustomerProfile())),
+                        // onTap: () => Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => CustomerProfile(customerName: employee['client_name'], customerPhone: employee['mobile'],),
+                        //   ),
+                        // ),
                         child: Container(
                           decoration: BoxDecoration(
                               color: AppTemplate.primaryClr,

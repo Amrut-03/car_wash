@@ -9,14 +9,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// ignore: must_be_immutable
-class CreateEmployee extends ConsumerWidget {
-  CreateEmployee({super.key});
+class CreateEmployee extends ConsumerStatefulWidget {
+  const CreateEmployee({super.key});
 
+  @override
+  _CreateEmployeeState createState() => _CreateEmployeeState();
+}
+
+class _CreateEmployeeState extends ConsumerState<CreateEmployee> {
   bool isEmployee = true;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final dropdownValue = ref.watch(dropdownProvider);
 
     return Scaffold(
@@ -30,26 +34,12 @@ class CreateEmployee extends ConsumerWidget {
             SizedBox(
               height: 20.h,
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25.w),
-              child: Text(
-                'Customer Creation',
-                style: GoogleFonts.inter(
-                  color: AppTemplate.textClr,
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 20.h,
-            ),
             const EmployeeDropdown(),
             SizedBox(
               height: 20.h,
             ),
             if (dropdownValue == 'Employee') const EmployeeTextfield(),
-            if (dropdownValue == 'Admin') AdminTextField(),
+            if (dropdownValue == 'Admin') const AdminTextField(),
           ],
         ),
       ),

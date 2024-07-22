@@ -119,7 +119,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     SizedBox(height: 30.h),
                     isLoading
-                        ? const Center(child: CircularProgressIndicator())
+                        ? const Center(
+                            child: CircularProgressIndicator(
+                              color: Color.fromARGB(255, 0, 52, 182),
+                            ),
+                          )
                         : Buttonwidget(
                             width: 290.w,
                             height: 50.h,
@@ -128,6 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             textClr: AppTemplate.primaryClr,
                             textSz: 18.sp,
                             onClick: () {
+                              FocusScope.of(context).unfocus();
                               _login(context);
                             },
                           ),

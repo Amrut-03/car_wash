@@ -9,37 +9,34 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
 class AdminTextField extends StatefulWidget {
-  AdminTextField({
-    Key? key,
-  }) : super(key: key);
+  const AdminTextField({Key? key}) : super(key: key);
 
   @override
-  State<AdminTextField> createState() => _AdminTextFieldState();
+  _AdminTextFieldState createState() => _AdminTextFieldState();
 }
 
 class _AdminTextFieldState extends State<AdminTextField> {
-  TextEditingController adminController = TextEditingController();
-  TextEditingController phone1Controller = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-
+  final TextEditingController adminController = TextEditingController();
+  final TextEditingController phone1Controller = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   File? imageFile;
 
   Future<void> _pickImage(BuildContext context) async {
-    print('_pickImage called');
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
-      final File file = File(pickedFile.path);
-      print('Picked image path: ${pickedFile.path}');
       setState(() {
-        imageFile = file;
+        imageFile = File(pickedFile.path);
       });
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Image Uploaded Successfully")));
     } else {
-      print('No image picked');
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("No image picked")));
     }
   }
 
-  void createAdmin() async {
+  Future<void> createAdmin(BuildContext context) async {
     var request = http.MultipartRequest('POST',
         Uri.parse('https://wash.sortbe.com/API/Admin/User/Employee-Creation'));
     request.fields.addAll({
@@ -51,22 +48,32 @@ class _AdminTextFieldState extends State<AdminTextField> {
       'password': passwordController.text,
       'role': 'Admin'
     });
+
     if (imageFile != null) {
       request.files
           .add(await http.MultipartFile.fromPath('emp_photo', imageFile!.path));
     }
 
     http.StreamedResponse response = await request.send();
+    String responseString = await response.stream.bytesToString();
 
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Admin created Successfully')));
-      print(await response.stream.bytesToString());
+      print(responseString);
     } else {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Admin creation Failed')));
       print(response.reasonPhrase);
     }
+  }
+
+  @override
+  void dispose() {
+    adminController.dispose();
+    phone1Controller.dispose();
+    passwordController.dispose();
+    super.dispose();
   }
 
   @override
@@ -84,7 +91,7 @@ class _AdminTextFieldState extends State<AdminTextField> {
             focusedBorderClr: Color(0xFFD4D4D4),
           ),
         ),
-        SizedBox(height: 20.h),
+        SizedBox(height: 30.h),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 25.w),
           child: Textfieldwidget(
@@ -95,7 +102,7 @@ class _AdminTextFieldState extends State<AdminTextField> {
             focusedBorderClr: Color(0xFFD4D4D4),
           ),
         ),
-        SizedBox(height: 20.h),
+        SizedBox(height: 30.h),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 25.w),
           child: Textfieldwidget(
@@ -164,7 +171,7 @@ class _AdminTextFieldState extends State<AdminTextField> {
                               ),
                             ),
                             Text(
-                              'Upload Side',
+                              'Upload Photo',
                               style: GoogleFonts.inter(
                                 fontSize: 12.sp,
                                 color: const Color(0xFF6750A4),
@@ -189,8 +196,9 @@ class _AdminTextFieldState extends State<AdminTextField> {
               txt: 'Create',
               textClr: AppTemplate.primaryClr,
               textSz: 18.sp,
-              onClick: () {
-                createAdmin();
+              onClick: () async {
+                await createAdmin(context);
+                Navigator.pop(context);
               },
             ),
           ],
