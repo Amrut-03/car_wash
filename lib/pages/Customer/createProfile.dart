@@ -1,4 +1,5 @@
 import 'package:car_wash/pages/Customer/customer.dart';
+import 'package:car_wash/pages/Customer/editCustomer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -65,10 +66,10 @@ class _CustomerProfileState extends State<CustomerProfile> {
                       style: GoogleFonts.inter(
                           fontWeight: FontWeight.w800, fontSize: 18.sp)),
                   onTap: () {
-                    // Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //         builder: (context) => const EditEmployee()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const EditCustomer()));
                   },
                 ),
                 ListTile(
