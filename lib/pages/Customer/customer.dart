@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:car_wash/Widgets/header.dart';
 import 'package:car_wash/pages/Customer/createCustomer.dart';
 import 'package:car_wash/pages/Customer/createProfile.dart';
@@ -19,6 +18,9 @@ class Customer extends StatefulWidget {
 class _CustomerState extends State<Customer> {
   bool isLoading = true;
   TextEditingController searchController = TextEditingController();
+  List<dynamic> body = [];
+  var responseBody;
+  String? customerId;
 
   @override
   void initState() {
@@ -37,8 +39,6 @@ class _CustomerState extends State<Customer> {
     searchController.dispose();
     super.dispose();
   }
-
-  String? customerId;
 
   Future<void> removeCustomer() async {
     var request = http.MultipartRequest('POST',
@@ -59,9 +59,6 @@ class _CustomerState extends State<Customer> {
     }
   }
 
-  List<dynamic> body = [];
-  var responseBody;
-
   Future<void> customerList() async {
     var request = http.MultipartRequest('POST',
         Uri.parse('https://wash.sortbe.com/API/Admin/Client/Client-List'));
@@ -73,14 +70,25 @@ class _CustomerState extends State<Customer> {
 
     http.StreamedResponse response = await request.send();
     String temp = await response.stream.bytesToString();
-    responseBody = jsonDecode(temp);
 
-    if (response.statusCode == 200) {
+    try {
+      responseBody = jsonDecode(temp);
+
+      if (response.statusCode == 200 && responseBody['status'] == 'Success') {
+        setState(() {
+          body = responseBody['data'];
+        });
+      } else {
+        print('Error: ${responseBody['remarks']}');
+        setState(() {
+          body = [];
+        });
+      }
+    } catch (e) {
+      print('Failed to decode JSON: $e');
       setState(() {
-        body = responseBody['data'];
+        body = [];
       });
-    } else {
-      print(response.reasonPhrase);
     }
   }
 
@@ -202,43 +210,47 @@ class _CustomerState extends State<Customer> {
               ),
             ),
             body.isEmpty
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        height: 200.h,
-                      ),
-                      const CircularProgressIndicator(
-                        color: Color.fromARGB(255, 0, 52, 182),
-                      ),
-                    ],
+                ? SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height: 150.h,
+                        ),
+                        const CircularProgressIndicator(
+                          color: Color.fromARGB(255, 0, 52, 182),
+                        ),
+                      ],
+                    ),
                   )
-                : Expanded(
+                : Flexible(
                     child: ListView.builder(
                       itemCount: body.length,
                       itemBuilder: (context, index) {
-                        var employee = body[index];
-                        customerId = employee['customer_id'];
+                        var customer = body[index];
+                        customerId = customer['id'];
                         return Padding(
                           padding: EdgeInsets.symmetric(horizontal: 20.w),
                           child: Column(
                             children: [
                               GestureDetector(
                                 onTap: () {
-                                  if (employee['client_name'] != null) {
+                                  if (customer['client_name'] != null) {
+                                    print(customer['client_name']);
+                                    print(customer['client_id']);
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => CustomerProfile(
                                           customerName:
-                                              employee['client_name'] ?? '',
-                                          customerId: employee['customer_id'],
+                                              customer['client_name'] ?? '',
+                                          customerId: customerId!,
                                         ),
                                       ),
                                     );
                                   } else {
-                                    print("Customer name is null");
+                                    print("Null data is there");
                                   }
                                 },
                                 child: Container(
@@ -264,7 +276,7 @@ class _CustomerState extends State<Customer> {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            employee['client_name'] ?? '',
+                                            customer['client_name'] ?? '',
                                             style: GoogleFonts.inter(
                                                 color: AppTemplate.textClr,
                                                 fontWeight: FontWeight.w400,
