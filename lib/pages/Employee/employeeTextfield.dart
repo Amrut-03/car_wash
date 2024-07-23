@@ -35,8 +35,8 @@ class EmployeeTextfield extends ConsumerWidget {
         Uri.parse('https://wash.sortbe.com/API/Admin/User/Employee-Creation'));
     request.fields.addAll({
       'enc_key': 'C0oRAe1QNtn3zYNvJ8rv',
-      'emp_id': '123',
-      'emp_name': ref.read(employeeControllerProvider).text,
+      'emp_id': ref.read(adminProvider)!.id,
+      'emp_name': ref.read(employeeNameProvider).text,
       'dob': ref.read(dobControllerProvider).text,
       'address': ref.read(addressControllerProvider).text,
       'phone_1': ref.read(phone1ControllerProvider).text,
@@ -121,7 +121,7 @@ class EmployeeTextfield extends ConsumerWidget {
             labelTxtClr: const Color(0xFF929292),
             enabledBorderClr: const Color(0xFFD4D4D4),
             focusedBorderClr: const Color(0xFFD4D4D4),
-            controller: ref.read(employeeControllerProvider),
+            controller: ref.read(employeeNameProvider),
           ),
         ),
         SizedBox(height: 30.h),

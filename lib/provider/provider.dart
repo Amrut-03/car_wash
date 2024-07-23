@@ -1,7 +1,12 @@
 import 'dart:io';
+import 'package:car_wash/pages/Planner/model/admin.dart';
+import 'package:car_wash/pages/Planner/model/cars.dart';
+import 'package:car_wash/pages/Planner/pages/planner_employee.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class CustomerCard {
   File? image; // Assuming you want to store an image file
@@ -65,7 +70,7 @@ class DropdownNotifier extends StateNotifier<String> {
 }
 
 // Text field controllers
-final employeeControllerProvider = Provider((ref) => TextEditingController());
+final employeeNameProvider = Provider((ref) => TextEditingController());
 final dobControllerProvider = Provider((ref) => TextEditingController());
 final addressControllerProvider = Provider((ref) => TextEditingController());
 final phone1ControllerProvider = Provider((ref) => TextEditingController());
@@ -77,3 +82,7 @@ final aadharBackProvider = StateProvider<File?>((ref) => null);
 final driveFrontProvider = StateProvider<File?>((ref) => null);
 final driveBackProvider = StateProvider<File?>((ref) => null);
 final employeePhotoProvider = StateProvider<File?>((ref) => null);
+
+//Admin provider
+final adminProvider = StateProvider<Admin?>((ref) => null);
+

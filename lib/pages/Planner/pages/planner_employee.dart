@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:car_wash/Widgets/TextFieldWidget.dart';
 import 'package:car_wash/Widgets/header.dart';
 import 'package:car_wash/pages/Planner/pages/planner.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 class EmployeePlanner extends StatefulWidget {
   const EmployeePlanner({super.key});
@@ -19,6 +21,7 @@ class _EmployeePlannerState extends State<EmployeePlanner> {
   List<Employee> employees = [];
   List<Employee> filteredEmployees = [];
   TextEditingController searchEmployee = TextEditingController();
+  String formattedDate = DateFormat('d MMMM yyyy').format(DateTime.now());
 
   @override
   void initState() {
@@ -36,7 +39,7 @@ class _EmployeePlannerState extends State<EmployeePlanner> {
       'enc_key': 'C0oRAe1QNtn3zYNvJ8rv',
       'emp_id': '123',
       'search_name': '',
-      'planner_date': '2024-07-19'
+      'planner_date': formattedDate
     });
 
     try {
@@ -61,7 +64,7 @@ class _EmployeePlannerState extends State<EmployeePlanner> {
     String query = searchEmployee.text.toLowerCase();
     setState(() {
       filteredEmployees = employees
-          .where((employee) => employee.name.toLowerCase().contains(query))
+          .where((employee) => employee.empName.toLowerCase().contains(query))
           .toList();
     });
   }
@@ -82,7 +85,7 @@ class _EmployeePlannerState extends State<EmployeePlanner> {
           const Header(txt: 'Planner'),
           SizedBox(height: 20.h),
           Text(
-            'Schedule Planner - 14 July 2024',
+            'Schedule Planner - $formattedDate',
             style: GoogleFonts.inter(
               color: AppTemplate.textClr,
               fontSize: 20.sp,
@@ -120,7 +123,10 @@ class _EmployeePlannerState extends State<EmployeePlanner> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const Planner(),
+                          builder: (context) => Planner(
+                            empName: employee.empName,
+                            empId: employee.empId,
+                          ),
                         ),
                       );
                     },
@@ -146,11 +152,28 @@ class _EmployeePlannerState extends State<EmployeePlanner> {
                           children: [
                             CircleAvatar(
                               radius: 50.r,
-                              backgroundImage: NetworkImage(employee.imageUrl),
+                              backgroundImage: const AssetImage(
+                                  'assets/images/noavatar.png'),
+                              child: ClipOval(
+                                child: Image.network(
+                                  employee.imageUrl,
+                                  fit: BoxFit.cover,
+                                  width: 100.r,
+                                  height: 100.r,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                      'assets/images/noavatar.png',
+                                      fit: BoxFit.cover,
+                                      width: 100.r,
+                                      height: 100.r,
+                                    );
+                                  },
+                                ),
+                              ),
                             ),
                             SizedBox(height: 10.h),
                             Text(
-                              employee.name,
+                              employee.empName,
                               style: GoogleFonts.inter(
                                 color: AppTemplate.textClr,
                                 fontSize: 15.sp,
@@ -173,15 +196,18 @@ class _EmployeePlannerState extends State<EmployeePlanner> {
 }
 
 class Employee {
-  final String name;
+  final String empName;
   final String imageUrl;
+  final String empId;
 
-  Employee({required this.name, required this.imageUrl});
+  Employee(
+      {required this.empName, required this.imageUrl, required this.empId});
 
   factory Employee.fromJson(Map<String, dynamic> json) {
     return Employee(
-      name: json['employee_name'],
+      empName: json['employee_name'],
       imageUrl: json['employee_pic'],
+      empId: json['employee_id'],
     );
   }
 }

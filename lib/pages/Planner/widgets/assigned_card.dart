@@ -1,12 +1,15 @@
 import 'package:car_wash/Widgets/ButtonWidget.dart';
+import 'package:car_wash/pages/Planner/model/cars.dart';
+import 'package:car_wash/pages/Planner/model/wash_type.dart';
 import 'package:car_wash/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AssignedCard extends StatefulWidget {
-  const AssignedCard({super.key, required this.washTypes});
-  final List<dynamic> washTypes;
+  const AssignedCard({super.key, required this.washTypes, required this.assignedCars});
+  final List<WashType> washTypes;
+  final List<AssignedCar> assignedCars;
 
   @override
   State<AssignedCard> createState() => _AssignedCardState();
@@ -63,13 +66,12 @@ class _AssignedCardState extends State<AssignedCard> {
                                         Colors.black,
                                       ),
                                       title: Text(
-                                        widget.washTypes[index]['wash_types'],
+                                        widget.washTypes[index].washName,
                                         style: const TextStyle(
                                           fontSize: 15,
                                         ),
                                       ),
-                                      value: widget.washTypes[index]
-                                          ['wash_types'],
+                                      value: widget.washTypes[index].washName,
                                       groupValue: currentOption,
                                       onChanged: (value) {
                                         setState(() {

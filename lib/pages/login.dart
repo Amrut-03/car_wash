@@ -2,26 +2,30 @@ import 'dart:convert';
 
 import 'package:car_wash/Widgets/ButtonWidget.dart';
 import 'package:car_wash/Widgets/TextFieldWidget.dart';
+import 'package:car_wash/pages/Planner/model/admin.dart';
 import 'package:car_wash/pages/dashboard.dart';
+import 'package:car_wash/provider/provider.dart';
 import 'package:car_wash/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final TextEditingController mobileController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool isLoading = false;
 
   void _login(BuildContext context) async {
+    
     var request = http.MultipartRequest(
         'POST', Uri.parse('https://wash.sortbe.com/API/Admin/Login/Login'));
     request.fields.addAll({
@@ -36,12 +40,18 @@ class _LoginScreenState extends State<LoginScreen> {
     if (response.statusCode == 200) {
       String responseBody = await response.stream.bytesToString();
       var jsonResponse = json.decode(responseBody);
+      final admin = Admin(
+        empName: jsonResponse['name'],
+        id: jsonResponse['emp_id'],
+        profilePic: jsonResponse['employee_pic'],
+      );
+      ref.read(adminProvider.notifier).state = admin;
       String status = jsonResponse['status'];
       if (status == 'Success') {
         ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text('Login Successfully')));
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => DashBoard()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const DashBoard()));
       } else {
         isLoading = false;
         ScaffoldMessenger.of(context)
