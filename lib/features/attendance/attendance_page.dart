@@ -50,7 +50,7 @@ class _AttendancePageState extends State<AttendancePage> {
     }
   }
 
-  Future<void> attendenceApprove() async {
+  Future<void> attendenceUpdate(String status) async {
     if (currentAttendance == null) return;
 
     var request = http.MultipartRequest(
@@ -61,7 +61,7 @@ class _AttendancePageState extends State<AttendancePage> {
       'enc_key': encKey,
       'emp_id': '123',
       'attendance_user': currentAttendance!['employee_key'],
-      'attendance_status': 'Approve'
+      'attendance_status': status,
     });
 
     http.StreamedResponse response = await request.send();
@@ -74,7 +74,7 @@ class _AttendancePageState extends State<AttendancePage> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: Colors.green,
+          backgroundColor: status == 'Approve' ? Colors.green : Colors.red,
           content: Text(
             attendance['remarks'],
             style: GoogleFonts.inter(color: Colors.white),
@@ -174,21 +174,8 @@ class _AttendancePageState extends State<AttendancePage> {
                             txt: 'Reject',
                             textClr: AppTemplate.primaryClr,
                             textSz: 18.sp,
-                            onClick: () {
-                              setState(() {
-                                currentAttendance = null;
-                              });
-                              fetchAttendance();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  backgroundColor: Colors.red,
-                                  content: Text(
-                                    'Attendance Rejected',
-                                    style:
-                                        GoogleFonts.inter(color: Colors.white),
-                                  ),
-                                ),
-                              );
+                            onClick: () async {
+                              await attendenceUpdate('Reject');
                             },
                           ),
                         ),
@@ -202,7 +189,7 @@ class _AttendancePageState extends State<AttendancePage> {
                             textClr: AppTemplate.primaryClr,
                             textSz: 18.sp,
                             onClick: () async {
-                              await attendenceApprove();
+                              await attendenceUpdate('Approve');
                             },
                           ),
                         ),
