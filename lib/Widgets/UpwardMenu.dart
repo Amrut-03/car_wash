@@ -44,7 +44,6 @@ class Menu {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(height: 30.h),
                     ListTile(
                         title: Text(
                           'Menu',
@@ -237,9 +236,6 @@ class Menu {
                           ),
                         ],
                       ),
-                    ),
-                    SizedBox(
-                      height: 10.h,
                     ),
                     GestureDetector(
                       onVerticalDragUpdate: (details) {

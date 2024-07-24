@@ -368,7 +368,7 @@ class _EmployeeState extends State<Employee> {
                           ),
                         )
                       : Text(
-                          'Showing ${temp['data'].length} of 250',
+                          'Showing ${temp['data']?.length ?? 0} of 250',
                           style: GoogleFonts.inter(
                               color: AppTemplate.textClr,
                               fontSize: 12.sp,
@@ -394,72 +394,86 @@ class _EmployeeState extends State<Employee> {
                           ],
                         ),
                       )
-                    : Column(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              color: AppTemplate.primaryClr,
-                              child: GridView.builder(
-                                scrollDirection: Axis.vertical,
-                                itemCount: temp['data'].length,
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  crossAxisSpacing: 10.w,
-                                  mainAxisSpacing: 10.h,
-                                  childAspectRatio: 150.w / 157.h,
-                                ),
-                                itemBuilder: (context, index) {
-                                  var employee = temp['data'][index];
-                                  emp_id = employee['employee_id'];
-                                  return Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: GestureDetector(
-                                      onTap: () => showEmployeeOptions(context),
-                                      child: Container(
-                                        height: 157.h,
-                                        width: 150.w,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(10.r),
-                                          border: Border.all(
-                                              color: const Color(0xFFE1E1E1)),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color:
-                                                  Colors.grey.withOpacity(0.5),
-                                              offset: Offset(0.w, 4.h),
-                                              blurRadius: 4.r,
-                                            ),
-                                          ],
-                                        ),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            CircleAvatar(
-                                                radius: 50.r,
-                                                backgroundImage: NetworkImage(
-                                                    employee['employee_pic'])),
-                                            SizedBox(height: 10.h),
-                                            Text(employee['employee_name'],
-                                                style: GoogleFonts.inter(
-                                                    color: AppTemplate.textClr,
-                                                    fontSize: 15.sp,
-                                                    fontWeight:
-                                                        FontWeight.w400)),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
+                    : temp['data'] == null
+                        ? Center(
+                            child: Text(
+                              'No results found',
+                              style: GoogleFonts.inter(
+                                  color: AppTemplate.textClr,
+                                  fontSize: 15.sp,
+                                  fontWeight: FontWeight.w400),
                             ),
+                          )
+                        : Column(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  color: AppTemplate.primaryClr,
+                                  child: GridView.builder(
+                                    scrollDirection: Axis.vertical,
+                                    itemCount: temp['data'].length,
+                                    gridDelegate:
+                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      crossAxisSpacing: 10.w,
+                                      mainAxisSpacing: 10.h,
+                                      childAspectRatio: 150.w / 157.h,
+                                    ),
+                                    itemBuilder: (context, index) {
+                                      var employee = temp['data'][index];
+                                      emp_id = employee['employee_id'];
+                                      return Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: GestureDetector(
+                                          onTap: () =>
+                                              showEmployeeOptions(context),
+                                          child: Container(
+                                            height: 157.h,
+                                            width: 150.w,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(10.r),
+                                              border: Border.all(
+                                                  color:
+                                                      const Color(0xFFE1E1E1)),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.grey
+                                                      .withOpacity(0.5),
+                                                  offset: Offset(0.w, 4.h),
+                                                  blurRadius: 4.r,
+                                                ),
+                                              ],
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                CircleAvatar(
+                                                    radius: 50.r,
+                                                    backgroundImage:
+                                                        NetworkImage(employee[
+                                                            'employee_pic'])),
+                                                SizedBox(height: 10.h),
+                                                Text(employee['employee_name'],
+                                                    style: GoogleFonts.inter(
+                                                        color:
+                                                            AppTemplate.textClr,
+                                                        fontSize: 15.sp,
+                                                        fontWeight:
+                                                            FontWeight.w400)),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
               ),
             ),
           ],
