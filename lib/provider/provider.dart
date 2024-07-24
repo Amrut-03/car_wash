@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:car_wash/features/planner/model/admin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -65,7 +66,7 @@ class DropdownNotifier extends StateNotifier<String> {
 }
 
 // Text field controllers
-final employeeControllerProvider = Provider((ref) => TextEditingController());
+final employeeNameProvider = Provider((ref) => TextEditingController());
 final dobControllerProvider = Provider((ref) => TextEditingController());
 final addressControllerProvider = Provider((ref) => TextEditingController());
 final phone1ControllerProvider = Provider((ref) => TextEditingController());
@@ -77,3 +78,7 @@ final aadharBackProvider = StateProvider<File?>((ref) => null);
 final driveFrontProvider = StateProvider<File?>((ref) => null);
 final driveBackProvider = StateProvider<File?>((ref) => null);
 final employeePhotoProvider = StateProvider<File?>((ref) => null);
+
+//Admin provider
+final adminProvider = StateProvider<Admin?>((ref) => null);
+
