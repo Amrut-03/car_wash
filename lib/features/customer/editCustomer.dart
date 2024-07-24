@@ -60,8 +60,13 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
       ref.read(customerCardProvider.notifier).removeCard(index);
       _scrollUp();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("At least one car must be present")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: AppTemplate.bgClr,
+          content: Text(
+            "At least one car must be present",
+            style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          )));
     }
   }
 

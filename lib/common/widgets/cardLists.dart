@@ -99,13 +99,13 @@ class Cardlists extends StatelessWidget {
                           SizedBox(
                             height: 8.h,
                           ),
-                          Text(
-                            'More Information',
-                            style: GoogleFonts.inter(
-                                fontStyle: FontStyle.italic,
-                                color: AppTemplate.textClr,
-                                fontSize: 8.sp),
-                          ),
+                          // Text(
+                          //   'More Information',
+                          //   style: GoogleFonts.inter(
+                          //       fontStyle: FontStyle.italic,
+                          //       color: AppTemplate.textClr,
+                          //       fontSize: 8.sp),
+                          // ),
                         ],
                       ),
                     ),

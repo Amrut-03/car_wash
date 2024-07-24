@@ -50,7 +50,7 @@ class _AttendancePageState extends State<AttendancePage> {
     }
   }
 
-  Future<void> attendenceApprove() async {
+  Future<void> attendenceUpdate(String status) async {
     if (currentAttendance == null) return;
 
     var request = http.MultipartRequest(
@@ -61,7 +61,7 @@ class _AttendancePageState extends State<AttendancePage> {
       'enc_key': encKey,
       'emp_id': '123',
       'attendance_user': currentAttendance!['employee_key'],
-      'attendance_status': 'Approve'
+      'attendance_status': status,
     });
 
     http.StreamedResponse response = await request.send();
@@ -74,7 +74,7 @@ class _AttendancePageState extends State<AttendancePage> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: Colors.green,
+          backgroundColor: status == 'Approve' ? Colors.green : Colors.red,
           content: Text(
             attendance['remarks'],
             style: GoogleFonts.inter(color: Colors.white),
@@ -114,9 +114,26 @@ class _AttendancePageState extends State<AttendancePage> {
                       height: 450,
                       width: double.infinity,
                       child: ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: Image.network(
-                              currentAttendance!['attendance_image'])),
+                        borderRadius: BorderRadius.circular(15),
+                        child: Image.network(
+                          currentAttendance!['attendance_image'],
+                          fit: BoxFit.cover,
+                          loadingBuilder: (BuildContext context, Widget child,
+                              ImageChunkEvent? loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        (loadingProgress.expectedTotalBytes ??
+                                            1)
+                                    : null,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     ),
                   ),
                   SizedBox(height: 20.h),
@@ -174,21 +191,8 @@ class _AttendancePageState extends State<AttendancePage> {
                             txt: 'Reject',
                             textClr: AppTemplate.primaryClr,
                             textSz: 18.sp,
-                            onClick: () {
-                              setState(() {
-                                currentAttendance = null;
-                              });
-                              fetchAttendance();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  backgroundColor: Colors.red,
-                                  content: Text(
-                                    'Attendance Rejected',
-                                    style:
-                                        GoogleFonts.inter(color: Colors.white),
-                                  ),
-                                ),
-                              );
+                            onClick: () async {
+                              await attendenceUpdate('Reject');
                             },
                           ),
                         ),
@@ -202,7 +206,7 @@ class _AttendancePageState extends State<AttendancePage> {
                             textClr: AppTemplate.primaryClr,
                             textSz: 18.sp,
                             onClick: () async {
-                              await attendenceApprove();
+                              await attendenceUpdate('Approve');
                             },
                           ),
                         ),

@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 
 class CustomerCard {
-  File? image; // Assuming you want to store an image file
+  File? image;
 
   CustomerCard({this.image});
 }
@@ -81,4 +81,3 @@ final employeePhotoProvider = StateProvider<File?>((ref) => null);
 
 //Admin provider
 final adminProvider = StateProvider<Admin?>((ref) => null);
-
