@@ -105,8 +105,13 @@ class _CustomerProfileState extends State<CustomerProfile> {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Customer Removed Successfully')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: AppTemplate.bgClr,
+          content: Text(
+            'Customer Removed Successfully',
+            style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          )));
     } else {
       print(response.reasonPhrase);
     }
@@ -210,7 +215,8 @@ class _CustomerProfileState extends State<CustomerProfile> {
                           border: Border.all(
                               color: isCarWashed
                                   ? Colors.transparent
-                                  : const Color(0xFF001C63)),
+                                  : const Color(0xFF001C63),
+                              width: 2.w),
                           borderRadius: BorderRadius.circular(5.r),
                           color: isCarWashed
                               ? const Color(0xFF001C63)

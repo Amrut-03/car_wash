@@ -74,7 +74,13 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
       if (mounted) {
         print('Exce = $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Exception: $e')),
+          SnackBar(
+              backgroundColor: AppTemplate.bgClr,
+              content: Text(
+                'Exception: $e',
+                style: GoogleFonts.inter(
+                    color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+              )),
         );
       }
     }
@@ -222,9 +228,17 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
                                               } else {
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(
-                                                  const SnackBar(
+                                                  SnackBar(
+                                                    backgroundColor:
+                                                        AppTemplate.bgClr,
                                                     content: Text(
-                                                        'Please select a wash type'),
+                                                      'Please select a wash type',
+                                                      style: GoogleFonts.inter(
+                                                          color: AppTemplate
+                                                              .primaryClr,
+                                                          fontWeight:
+                                                              FontWeight.w400),
+                                                    ),
                                                   ),
                                                 );
                                               }

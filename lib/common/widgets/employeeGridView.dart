@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
@@ -117,6 +118,24 @@ class _EmployeeGridViewState extends State<EmployeeGridView> {
   }
 
   void changePassword() async {
+    if (passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: AppTemplate.bgClr,
+          content: Text(
+            'Please Enter Password',
+            style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          )));
+    }
+    if (reTypePasswordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: AppTemplate.bgClr,
+          content: Text(
+            'Please Enter ReTypePassword',
+            style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          )));
+    }
     var request = http.MultipartRequest('POST',
         Uri.parse('https://wash.sortbe.com/API/Admin/User/Employee-Password'));
     request.fields.addAll({
@@ -133,18 +152,50 @@ class _EmployeeGridViewState extends State<EmployeeGridView> {
     if (passwordController.text == reTypePasswordController.text) {
       if (response.statusCode == 200) {
         // print(await response.stream.bytesToString());
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Password changed Successfully')));
+        awesomeTopSnackbar(
+          context,
+          "Password Successfully",
+          textStyle: GoogleFonts.inter(
+              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          backgroundColor: AppTemplate.bgClr,
+          // icon: const Icon(Icons.close, color: Colors.white),
+          // iconWithDecoration: BoxDecoration(
+          //   borderRadius: BorderRadius.circular(20),
+          //   border: Border.all(color: Colors.white),
+          // ),
+        );
         Navigator.pop(context);
         print(body['status']);
         // print(response.reasonPhrase);
       } else {
+        awesomeTopSnackbar(
+          context,
+          "Password and ReTyped Password not match",
+          textStyle: GoogleFonts.inter(
+              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          backgroundColor: AppTemplate.bgClr,
+          // icon: const Icon(Icons.close, color: Colors.white),
+          // iconWithDecoration: BoxDecoration(
+          //   borderRadius: BorderRadius.circular(20),
+          //   border: Border.all(color: Colors.white),
+          // ),
+        );
         print(body['status']);
         // print(response.reasonPhrase);
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Password and ReTyped Password does not match')));
+      awesomeTopSnackbar(
+        context,
+        "Password and ReTyped Password  match",
+        textStyle: GoogleFonts.inter(
+            color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+        backgroundColor: AppTemplate.bgClr,
+        // icon: const Icon(Icons.close, color: Colors.white),
+        // iconWithDecoration: BoxDecoration(
+        //   borderRadius: BorderRadius.circular(20),
+        //   border: Border.all(color: Colors.white),
+        // ),
+      );
       // print(response.reasonPhrase);
       print('Password and ReTyped Password does not match');
     }
@@ -358,6 +409,18 @@ class _EmployeeGridViewState extends State<EmployeeGridView> {
     var body = jsonDecode(temp);
 
     if (response.statusCode == 200 && body['status'] == 'Success') {
+      awesomeTopSnackbar(
+        context,
+        "Employee Removed Successfully",
+        textStyle: GoogleFonts.inter(
+            color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+        backgroundColor: AppTemplate.bgClr,
+        // icon: const Icon(Icons.close, color: Colors.white),
+        // iconWithDecoration: BoxDecoration(
+        //   borderRadius: BorderRadius.circular(20),
+        //   border: Border.all(color: Colors.white),
+        // ),
+      );
       Navigator.pop(context);
 
       print(body['status']);

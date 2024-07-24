@@ -75,6 +75,14 @@ class _CarWashedDetailsState extends State<CarWashedDetails> {
                   SizedBox(height: 20.h),
                   ElevatedButton(
                     onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          backgroundColor: AppTemplate.bgClr,
+                          content: Text(
+                            'Issue submitted Successfully',
+                            style: GoogleFonts.inter(
+                                color: AppTemplate.primaryClr,
+                                fontWeight: FontWeight.w400),
+                          )));
                       setState(() {});
                       Navigator.pop(context);
                     },

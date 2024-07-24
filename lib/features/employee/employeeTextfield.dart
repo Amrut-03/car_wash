@@ -22,26 +22,117 @@ class EmployeeTextfield extends ConsumerWidget {
     if (pickedFile != null) {
       final File file = File(pickedFile.path);
       ref.read(imageProvider.notifier).state = file;
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Image Uploaded Successfully")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: AppTemplate.buttonClr,
+          content: Text(
+            "Image Uploaded Successfully",
+            style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          )));
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("No image picked")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: AppTemplate.buttonClr,
+          content: Text(
+            "Image is Required",
+            style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          )));
     }
   }
 
   Future<void> createEmployee(BuildContext context, WidgetRef ref) async {
+    final empName = ref.read(employeeNameProvider).text;
+    final dob = ref.read(dobControllerProvider).text;
+    final address = ref.read(addressControllerProvider).text;
+    final phone1 = ref.read(phone1ControllerProvider).text;
+    final phone2 = ref.read(phone2ControllerProvider).text;
+    final password = ref.read(passwordControllerProvider).text;
+
+    // if (empName.isEmpty ||
+    //     dob.isEmpty ||
+    //     address.isEmpty ||
+    //     phone1.isEmpty ||
+    //     phone2.isEmpty ||
+    //     password.isEmpty) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(
+    //         backgroundColor: AppTemplate.bgClr,
+    //         content: Text(
+    //           'All fields are required. Please fill in all fields.',
+    //           style: GoogleFonts.inter(
+    //               color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+    //         )),
+    //   );
+    //   return;
+    // }
+
+    if (empName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: AppTemplate.bgClr,
+        content: Text(
+          'Please Enter Employee Name',
+          style: GoogleFonts.inter(
+              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+        ),
+      ));
+      return;
+    }
+    if (dob.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: AppTemplate.bgClr,
+        content: Text(
+          'Please Enter Date of Birth',
+          style: GoogleFonts.inter(
+              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+        ),
+      ));
+      return;
+    }
+    if (address.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: AppTemplate.bgClr,
+        content: Text(
+          'Please Enter Address',
+          style: GoogleFonts.inter(
+              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+        ),
+      ));
+      return;
+    }
+    if (phone1.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: AppTemplate.bgClr,
+        content: Text(
+          'Please Enter Mobile Number',
+          style: GoogleFonts.inter(
+              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+        ),
+      ));
+      return;
+    }
+    if (password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: AppTemplate.bgClr,
+        content: Text(
+          'Please Enter Password',
+          style: GoogleFonts.inter(
+              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+        ),
+      ));
+      return;
+    }
+
     var request = http.MultipartRequest('POST',
         Uri.parse('https://wash.sortbe.com/API/Admin/User/Employee-Creation'));
     request.fields.addAll({
       'enc_key': encKey,
       'emp_id': ref.read(adminProvider)!.id,
-      'emp_name': ref.read(employeeNameProvider).text,
-      'dob': ref.read(dobControllerProvider).text,
-      'address': ref.read(addressControllerProvider).text,
-      'phone_1': ref.read(phone1ControllerProvider).text,
-      'phone_2': ref.read(phone2ControllerProvider).text,
-      'password': ref.read(passwordControllerProvider).text,
+      'emp_name': empName,
+      'dob': dob,
+      'address': address,
+      'phone_1': phone1,
+      'phone_2': phone2,
+      'password': password,
       'role': 'Employee'
     });
 
@@ -72,16 +163,37 @@ class EmployeeTextfield extends ConsumerWidget {
           await http.MultipartFile.fromPath('emp_photo', employeePhoto.path));
     }
 
-    http.StreamedResponse response = await request.send();
-    String temp = await response.stream.bytesToString();
-    var body = jsonDecode(temp);
+    try {
+      http.StreamedResponse response = await request.send();
+      String responseBody = await response.stream.bytesToString();
+      var body = jsonDecode(responseBody);
 
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Employee Account Created Successfully")));
-    } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(body['status'])));
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            backgroundColor: AppTemplate.bgClr,
+            content: Text(
+              "Employee Account Created Successfully",
+              style: GoogleFonts.inter(
+                  color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+            )));
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            backgroundColor: AppTemplate.bgClr,
+            content: Text(
+              body['status'],
+              style: GoogleFonts.inter(
+                  color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+            )));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: AppTemplate.bgClr,
+          content: Text(
+            'Error: ${e.toString()}',
+            style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          )));
     }
   }
 
@@ -468,7 +580,6 @@ class EmployeeTextfield extends ConsumerWidget {
               textSz: 18.sp,
               onClick: () async {
                 await createEmployee(context, ref);
-                Navigator.pop(context);
               },
             ),
           ],
