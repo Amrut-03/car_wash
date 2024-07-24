@@ -1,44 +1,59 @@
 import 'dart:convert';
 
-import 'package:car_wash/pages/Planner/model/cars.dart';
+import 'package:car_wash/common/utils/constants.dart';
+import 'package:car_wash/features/planner/model/all_car.dart';
+import 'package:car_wash/features/planner/model/assigned_car.dart';
+import 'package:car_wash/features/planner/model/car_lists.dart';
+import 'package:car_wash/features/planner/model/car_params.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 
 final carProvider =
     FutureProvider.family<CarLists, CarParams>((ref, params) async {
-  String formattedDate = DateFormat('d MMMM yyyy').format(DateTime.now());
   const url = 'https://wash.sortbe.com/API/Admin/Planner/Client-Planner';
-  const encKey = 'C0oRAe1QNtn3zYNvJ8rv';
-  final plannerDate = formattedDate;
+
   final admin = ref.read(adminProvider);
 
-  try {
-    final response = await http.post(
-      Uri.parse(url),
-      body: {
-        'enc_key': encKey,
-        'emp_id': admin!.id,
-        'search_name': params.searchName,
-        'planner_date': plannerDate,
-        'cleaner_key': params.cleanerKey,
-      },
-    );
+  if (admin == null) {
+    throw Exception('Admin data is not available');
+  }
 
-    if (response.statusCode == 200) {
-      final res = jsonDecode(response.body);
-      print('&&&&&&');
-      print(res);
-      return CarLists.fromJson(res);
-    } else {
-      throw Exception('Failed to load cars');
+  final response = await http.post(
+    Uri.parse(url),
+    body: {
+      'enc_key': encKey,
+      'emp_id': admin.id,
+      'search_name': params.searchName,
+      'planner_date': plannerDate,
+      'cleaner_key': params.cleanerKey,
+    },
+  );
+  final res = jsonDecode(response.body);
+  if (res['status'] == 'Success') {
+    List<AllCar> allCars = [];
+    List<AssignedCar> assignedCars = [];
+    String startKm = '';
+    String endKm = '';
+
+    try {
+      List<dynamic> allCarsJson = res['data']['all_cars'] ?? [];
+      List<dynamic> assignedCarsJson = res['data']['assigned_cars'] ?? [];
+      allCars = List<AllCar>.from(allCarsJson.map((x) => AllCar.fromJson(x)));
+      assignedCars = List<AssignedCar>.from(
+          assignedCarsJson.map((x) => AssignedCar.fromJson(x)));
+      startKm = res['start_km'];
+      endKm = res['end_km'];
+    } catch (e) {
+      print('Error = $e');
     }
-  } catch (e) {
-    print('Error = $e');
     return CarLists(
-      allCars: [],
-      assignedCars: [],
+      allCars: allCars,
+      assignedCars: assignedCars,
+      startKm: startKm,
+      endKm: endKm,
     );
+  } else {
+    throw Exception('Failed to load cars');
   }
 });

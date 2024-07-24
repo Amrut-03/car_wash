@@ -1,12 +1,8 @@
 import 'dart:io';
-import 'package:car_wash/pages/Planner/model/admin.dart';
-import 'package:car_wash/pages/Planner/model/cars.dart';
-import 'package:car_wash/pages/Planner/pages/planner_employee.dart';
+import 'package:car_wash/features/planner/model/admin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class CustomerCard {
   File? image; // Assuming you want to store an image file
