@@ -28,39 +28,57 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
   final List<TextEditingController> carModelNameControllers = [];
   final List<TextEditingController> carNoControllers = [];
   final ScrollController _scrollController = ScrollController();
+  final List<File?> imageFiles = [null];
   File? imageFile;
   double lat = 0.0;
   double long = 0.0;
   @override
   void initState() {
     super.initState();
+    _initializeControllers();
+  }
+
+  void _initializeControllers() {
+    carModelNameControllers.clear();
+    carNoControllers.clear();
+    imageFiles.clear();
     carModelNameControllers.add(TextEditingController());
     carNoControllers.add(TextEditingController());
+    imageFiles.add(null);
   }
 
   void _addNewCard() {
-    carModelNameControllers.add(TextEditingController());
-    carNoControllers.add(TextEditingController());
+    setState(() {
+      carModelNameControllers.add(TextEditingController());
+      carNoControllers.add(TextEditingController());
+      imageFiles.add(null);
+    });
     ref.read(customerCardProvider.notifier).addCard();
     _scrollToBottom();
   }
 
   void _removeCard(int index) {
     if (carModelNameControllers.length > 1) {
-      carModelNameControllers[index].dispose();
-      carNoControllers[index].dispose();
-      carModelNameControllers.removeAt(index);
-      carNoControllers.removeAt(index);
+      setState(() {
+        carModelNameControllers[index].dispose();
+        carNoControllers[index].dispose();
+        carModelNameControllers.removeAt(index);
+        carNoControllers.removeAt(index);
+        imageFiles.removeAt(index);
+      });
       ref.read(customerCardProvider.notifier).removeCard(index);
       _scrollUp();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: AppTemplate.bgClr,
-          content: Text(
-            "At least one car must be present",
-            style: GoogleFonts.inter(
-                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-          )));
+        backgroundColor: AppTemplate.bgClr,
+        content: Text(
+          "At least one car must be present",
+          style: GoogleFonts.inter(
+            color: AppTemplate.primaryClr,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      ));
     }
   }
 
@@ -73,43 +91,121 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
     for (var controller in carNoControllers) {
       controller.dispose();
     }
+    carModelNameControllers.clear();
+    carNoControllers.clear();
+    imageFiles.clear();
     super.dispose();
   }
 
-  Future<void> creatCustomer() async {
-    List<Map<String, dynamic>> carInfoList = [];
-    for (int i = 0; i < carModelNameControllers.length; i++) {
-      carInfoList.add({
-        'model_name': carModelNameControllers[i].text,
-        'vehicle_no': carNoControllers[i].text,
-        'lat': lat.toString(),
-        'long': long.toString(),
+  Future<void> createCustomer() async {
+    try {
+      // Validate Customer Name and Mobile Number
+      if (customerController.text.isEmpty) {
+        _showErrorSnackBar("Please Enter Customer Name");
+        return;
+      }
+      if (mobileController.text.isEmpty) {
+        _showErrorSnackBar("Please Enter Mobile Number");
+        return;
+      }
+
+      // Validate Car Information
+      for (int i = 0; i < carModelNameControllers.length; i++) {
+        if (carModelNameControllers[i].text.isEmpty) {
+          _showErrorSnackBar("Car model name cannot be empty");
+          return;
+        }
+        if (carNoControllers[i].text.isEmpty) {
+          _showErrorSnackBar("Vehicle number cannot be empty");
+          return;
+        }
+      }
+
+      // Validate at least one image file
+      bool hasImage = false;
+      for (final imageFile in imageFiles) {
+        if (imageFile != null && await imageFile.exists()) {
+          hasImage = true;
+          break;
+        }
+      }
+      if (!hasImage) {
+        _showErrorSnackBar("At least one car image must be provided");
+        return;
+      }
+
+      // Validate Latitude and Longitude
+      if (lat == null || long == null) {
+        _showErrorSnackBar("Location coordinates (lat/long) cannot be null");
+        return;
+      }
+      if (lat < -90 || lat > 90) {
+        _showErrorSnackBar("Latitude must be between -90 and 90");
+        return;
+      }
+      if (long < -180 || long > 180) {
+        _showErrorSnackBar("Longitude must be between -180 and 180");
+        return;
+      }
+
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('https://wash.sortbe.com/API/Admin/Client/Client-Creation'),
+      );
+
+      for (int i = 0; i < imageFiles.length; i++) {
+        final imageFile = imageFiles[i];
+        if (imageFile != null && await imageFile.exists()) {
+          request.files.add(
+            await http.MultipartFile.fromPath('car_pic$i', imageFile.path),
+          );
+        } else {
+          _showErrorSnackBar(
+              "No image file to upload or file doesn't exist at index $i");
+        }
+      }
+
+      List<Map<String, dynamic>> carInfoList = [];
+      for (int i = 0; i < carModelNameControllers.length; i++) {
+        carInfoList.add({
+          'model_name': carModelNameControllers[i].text,
+          'vehicle_no': carNoControllers[i].text,
+          'lat': lat.toString(),
+          'long': long.toString(),
+        });
+      }
+
+      // Add other fields to the request
+      request.fields.addAll({
+        'enc_key': encKey,
+        'emp_id': '123',
+        'client_name': customerController.text,
+        'mobile': mobileController.text,
+        'car_info': carInfoList.toString(),
       });
+
+      // Send the request
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        _showErrorSnackBar("Employee Account Created Successfully");
+      } else {
+        _showErrorSnackBar(response.reasonPhrase.toString());
+      }
+    } catch (e) {
+      _showErrorSnackBar('Error creating customer: $e');
     }
+  }
 
-    var request = http.MultipartRequest('POST',
-        Uri.parse('https://wash.sortbe.com/API/Admin/Client/Client-Creation'));
-    request.fields.addAll({
-      'enc_key': encKey,
-      'emp_id': '123',
-      'client_name': customerController.text,
-      'mobile': mobileController.text,
-      'car_info': carInfoList.toString(),
-    });
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: AppTemplate.bgClr,
-          content: Text(
-            "Employee Account Created Successfully",
-            style: GoogleFonts.inter(
-                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-          )));
-    } else {
-      print(response.reasonPhrase);
-    }
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      backgroundColor: AppTemplate.bgClr,
+      content: Text(
+        message,
+        style: GoogleFonts.inter(
+            color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+      ),
+    ));
   }
 
   void _scrollToBottom() {
@@ -265,15 +361,13 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
     );
   }
 
-  Future<void> _pickImage(BuildContext context) async {
-    print('_pickImage called');
+  Future<void> _pickImage(BuildContext context, int index) async {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
-      final File file = File(pickedFile.path);
-      print('Picked image path: ${pickedFile.path}');
+      final file = File(pickedFile.path);
       setState(() {
-        imageFile = file;
+        imageFiles[index] = file;
       });
     } else {
       print('No image picked');
@@ -349,25 +443,11 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
             Expanded(
               child: ListView.builder(
                 controller: _scrollController,
-                itemCount: customerCards.isEmpty ? 1 : customerCards.length + 1,
+                itemCount: carModelNameControllers.length,
                 itemBuilder: (context, index) {
-                  print('Building CreateCustomerCard widget at index $index');
-                  // final customerCards = ref.watch(customerCardProvider);
-
-                  // if (index >= customerCards.length) {
-                  //   return const SizedBox
-                  //       .shrink(); // return an empty widget if index is out of range
-                  // }
-
-                  // if (index < customerCards.length &&
-                  //     customerCards[index].image != null) {
-                  //   imageFile = customerCards[index].image!;
-                  //   print(
-                  //       'Displaying image for card at index ${index} with path: ${imageFile!.path}');
-                  // }
-
                   final carModelController = carModelNameControllers[index];
                   final carNoController = carNoControllers[index];
+                  final imageFile = imageFiles[index];
 
                   return Stack(
                     children: [
@@ -417,7 +497,7 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       GestureDetector(
-                                        onTap: () => _pickImage(context),
+                                        onTap: () => _pickImage(context, index),
                                         child: Container(
                                           width: 120.w,
                                           height: 80.h,
@@ -426,8 +506,7 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                                             borderRadius:
                                                 BorderRadius.circular(5.r),
                                             border: Border.all(
-                                              color: const Color(0xFFCCC3E5),
-                                            ),
+                                                color: const Color(0xFFCCC3E5)),
                                             boxShadow: [
                                               BoxShadow(
                                                 color: AppTemplate
@@ -447,7 +526,7 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                                                           BorderRadius.circular(
                                                               5.r),
                                                       child: Image.file(
-                                                        imageFile!,
+                                                        imageFile,
                                                         height: 78.h,
                                                         width: 120.w,
                                                         fit: BoxFit.cover,
@@ -588,8 +667,8 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                     textClr: AppTemplate.primaryClr,
                     textSz: 18.sp,
                     onClick: () async {
-                      await creatCustomer();
-                      Navigator.pop(context);
+                      await createCustomer();
+                      // Navigator.pop(context);
                     },
                   ),
                 ],

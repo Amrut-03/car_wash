@@ -111,25 +111,42 @@ class _EmployeeState extends State<Employee> {
   }
 
   void changePassword() async {
+    // Validate Password and ReTypePassword fields
     if (passwordController.text.isEmpty) {
       awesomeTopSnackbar(
         context,
-        'Please Enter Password',
+        "Please Enter Password",
         textStyle: GoogleFonts.inter(
-            color: AppTemplate.bgClr, fontWeight: FontWeight.w400),
-        backgroundColor: AppTemplate.primaryClr,
+            color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+        backgroundColor: AppTemplate.bgClr,
       );
+      return; // Exit the function if password is empty
     }
+
     if (reTypePasswordController.text.isEmpty) {
       awesomeTopSnackbar(
         context,
-        'Please Enter ReTypePassword',
+        "Please Enter ReTypePassword",
         textStyle: GoogleFonts.inter(
-            color: AppTemplate.bgClr, fontWeight: FontWeight.w400),
-        backgroundColor: AppTemplate.primaryClr,
+            color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+        backgroundColor: AppTemplate.bgClr,
       );
+      return; // Exit the function if retype password is empty
     }
 
+    // Check if Password and ReTypePassword match
+    if (passwordController.text != reTypePasswordController.text) {
+      awesomeTopSnackbar(
+        context,
+        "Password and ReTyped Password do not match",
+        textStyle: GoogleFonts.inter(
+            color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+        backgroundColor: AppTemplate.bgClr,
+      );
+      return; // Exit the function if passwords do not match
+    }
+
+    // Proceed with the network request if all validations pass
     var request = http.MultipartRequest('POST',
         Uri.parse('https://wash.sortbe.com/API/Admin/User/Employee-Password'));
     request.fields.addAll({
@@ -139,42 +156,37 @@ class _EmployeeState extends State<Employee> {
       'password': passwordController.text
     });
 
-    http.StreamedResponse response = await request.send();
-    String temp = await response.stream.bytesToString();
-    var body = jsonDecode(temp);
+    try {
+      http.StreamedResponse response = await request.send();
+      String temp = await response.stream.bytesToString();
+      var body = jsonDecode(temp);
 
-    if (passwordController.text == reTypePasswordController.text) {
       if (response.statusCode == 200) {
-        // print(await response.stream.bytesToString());
         awesomeTopSnackbar(
           context,
           "Password Changed Successfully",
           textStyle: GoogleFonts.inter(
-              color: AppTemplate.bgClr, fontWeight: FontWeight.w400),
-          backgroundColor: AppTemplate.primaryClr,
+              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          backgroundColor: AppTemplate.bgClr,
         );
-        Navigator.pop(context);
-        print(body['status']);
-        // print(response.reasonPhrase);
+        // Navigator.pop(context);
       } else {
         awesomeTopSnackbar(
           context,
-          body['status'],
+          "Error: ${body['status']}",
           textStyle: GoogleFonts.inter(
               color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
           backgroundColor: AppTemplate.bgClr,
         );
-        print(body['status']);
       }
-    } else {
+    } catch (e) {
       awesomeTopSnackbar(
         context,
-        "Password and ReTyped Password not match",
+        "An error occurred: $e",
         textStyle: GoogleFonts.inter(
             color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
         backgroundColor: AppTemplate.bgClr,
       );
-      print(body['status']);
     }
   }
 
@@ -291,6 +303,7 @@ class _EmployeeState extends State<Employee> {
   void initState() {
     super.initState();
     employeeList('');
+    showPasswordOption(context);
     searchController.addListener(() {
       employeeList(searchController.text);
     });

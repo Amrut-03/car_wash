@@ -117,25 +117,43 @@ class _EmployeeGridViewState extends State<EmployeeGridView> {
     );
   }
 
-  void changePassword() async {
+  void employeeChangePassword() async {
+    // Validate Password and ReTypePassword fields
     if (passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: AppTemplate.bgClr,
-          content: Text(
-            'Please Enter Password',
-            style: GoogleFonts.inter(
-                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-          )));
+      awesomeTopSnackbar(
+        context,
+        "Please Enter Password",
+        textStyle: GoogleFonts.inter(
+            color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+        backgroundColor: AppTemplate.bgClr,
+      );
+      return; // Exit the function if password is empty
     }
+
     if (reTypePasswordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: AppTemplate.bgClr,
-          content: Text(
-            'Please Enter ReTypePassword',
-            style: GoogleFonts.inter(
-                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-          )));
+      awesomeTopSnackbar(
+        context,
+        "Please Enter ReTypePassword",
+        textStyle: GoogleFonts.inter(
+            color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+        backgroundColor: AppTemplate.bgClr,
+      );
+      return; // Exit the function if retype password is empty
     }
+
+    // Check if Password and ReTypePassword match
+    if (passwordController.text != reTypePasswordController.text) {
+      awesomeTopSnackbar(
+        context,
+        "Password and ReTyped Password do not match",
+        textStyle: GoogleFonts.inter(
+            color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+        backgroundColor: AppTemplate.bgClr,
+      );
+      return; // Exit the function if passwords do not match
+    }
+
+    // Proceed with the network request if all validations pass
     var request = http.MultipartRequest('POST',
         Uri.parse('https://wash.sortbe.com/API/Admin/User/Employee-Password'));
     request.fields.addAll({
@@ -145,59 +163,37 @@ class _EmployeeGridViewState extends State<EmployeeGridView> {
       'password': passwordController.text
     });
 
-    http.StreamedResponse response = await request.send();
-    String temp = await response.stream.bytesToString();
-    var body = jsonDecode(temp);
+    try {
+      http.StreamedResponse response = await request.send();
+      String temp = await response.stream.bytesToString();
+      var body = jsonDecode(temp);
 
-    if (passwordController.text == reTypePasswordController.text) {
       if (response.statusCode == 200) {
-        // print(await response.stream.bytesToString());
         awesomeTopSnackbar(
           context,
-          "Password Successfully",
+          "Password Changed Successfully",
           textStyle: GoogleFonts.inter(
               color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
           backgroundColor: AppTemplate.bgClr,
-          // icon: const Icon(Icons.close, color: Colors.white),
-          // iconWithDecoration: BoxDecoration(
-          //   borderRadius: BorderRadius.circular(20),
-          //   border: Border.all(color: Colors.white),
-          // ),
         );
         Navigator.pop(context);
-        print(body['status']);
-        // print(response.reasonPhrase);
       } else {
         awesomeTopSnackbar(
           context,
-          "Password and ReTyped Password not match",
+          "Error: ${body['status']}",
           textStyle: GoogleFonts.inter(
               color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
           backgroundColor: AppTemplate.bgClr,
-          // icon: const Icon(Icons.close, color: Colors.white),
-          // iconWithDecoration: BoxDecoration(
-          //   borderRadius: BorderRadius.circular(20),
-          //   border: Border.all(color: Colors.white),
-          // ),
         );
-        print(body['status']);
-        // print(response.reasonPhrase);
       }
-    } else {
+    } catch (e) {
       awesomeTopSnackbar(
         context,
-        "Password and ReTyped Password  match",
+        "An error occurred: $e",
         textStyle: GoogleFonts.inter(
             color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
         backgroundColor: AppTemplate.bgClr,
-        // icon: const Icon(Icons.close, color: Colors.white),
-        // iconWithDecoration: BoxDecoration(
-        //   borderRadius: BorderRadius.circular(20),
-        //   border: Border.all(color: Colors.white),
-        // ),
       );
-      // print(response.reasonPhrase);
-      print('Password and ReTyped Password does not match');
     }
   }
 
@@ -272,7 +268,7 @@ class _EmployeeGridViewState extends State<EmployeeGridView> {
                       textClr: AppTemplate.primaryClr,
                       textSz: 18.sp,
                       onClick: () {
-                        changePassword();
+                        employeeChangePassword();
                       },
                     ),
                   ],
