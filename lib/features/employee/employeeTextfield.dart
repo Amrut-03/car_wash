@@ -126,7 +126,7 @@ class EmployeeTextfield extends ConsumerWidget {
         Uri.parse('https://wash.sortbe.com/API/Admin/User/Employee-Creation'));
     request.fields.addAll({
       'enc_key': encKey,
-      'emp_id': ref.read(adminProvider)!.id,
+      'emp_id': ref.read(adminProvider).id,
       'emp_name': empName,
       'dob': dob,
       'address': address,
@@ -136,11 +136,11 @@ class EmployeeTextfield extends ConsumerWidget {
       'role': 'Employee'
     });
 
-    final adharFront = ref.read(aadharFrontProvider.state).state;
-    final adharBack = ref.read(aadharBackProvider.state).state;
-    final driveFront = ref.read(driveFrontProvider.state).state;
-    final driveBack = ref.read(driveBackProvider.state).state;
-    final employeePhoto = ref.read(employeePhotoProvider.state).state;
+    final adharFront = ref.read(aadharFrontProvider.notifier).state;
+    final adharBack = ref.read(aadharBackProvider.notifier).state;
+    final driveFront = ref.read(driveFrontProvider.notifier).state;
+    final driveBack = ref.read(driveBackProvider.notifier).state;
+    final employeePhoto = ref.read(employeePhotoProvider.notifier).state;
 
     if (adharFront != null) {
       request.files.add(

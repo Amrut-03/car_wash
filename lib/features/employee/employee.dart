@@ -303,7 +303,6 @@ class _EmployeeState extends State<Employee> {
   void initState() {
     super.initState();
     employeeList('');
-    showPasswordOption(context);
     searchController.addListener(() {
       employeeList(searchController.text);
     });
