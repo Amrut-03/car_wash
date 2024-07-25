@@ -10,7 +10,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 
 class EmployeePlanner extends ConsumerStatefulWidget {
   const EmployeePlanner({super.key});
@@ -23,7 +22,7 @@ class _EmployeePlannerState extends ConsumerState<EmployeePlanner> {
   List<Employee> employees = [];
   List<Employee> filteredEmployees = [];
   TextEditingController searchEmployee = TextEditingController();
-  String formattedDate = DateFormat('d MMMM yyyy').format(DateTime.now());
+ 
 
   @override
   void initState() {
@@ -40,7 +39,7 @@ class _EmployeePlannerState extends ConsumerState<EmployeePlanner> {
             'https://wash.sortbe.com/API/Admin/Planner/Employee-Planner'));
     request.fields.addAll({
       'enc_key': encKey,
-      'emp_id': admin!.id,
+      'emp_id': admin.id,
       'search_name': '',
       'planner_date': plannerDate
     });
