@@ -9,6 +9,7 @@ import 'package:car_wash/common/widgets/textFieldWidget.dart';
 import 'package:car_wash/features/employee/cleanedCars.dart';
 import 'package:car_wash/features/employee/createEmployee.dart';
 import 'package:car_wash/features/employee/editEmployee.dart';
+import 'package:car_wash/features/employee/employeeTextfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -227,11 +228,12 @@ class _EmployeeState extends State<Employee> {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 25.w),
                   child: Textfieldwidget(
-                    controller: passwordController,
                     labelTxt: 'Password',
                     labelTxtClr: const Color(0xFF929292),
                     enabledBorderClr: const Color(0xFFD4D4D4),
                     focusedBorderClr: const Color(0xFFD4D4D4),
+                    controller: passwordController,
+                    isPassword: true,
                   ),
                 ),
                 SizedBox(
@@ -240,11 +242,12 @@ class _EmployeeState extends State<Employee> {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 25.w),
                   child: Textfieldwidget(
-                    controller: reTypePasswordController,
                     labelTxt: 'Re-Type Password',
                     labelTxtClr: const Color(0xFF929292),
                     enabledBorderClr: const Color(0xFFD4D4D4),
                     focusedBorderClr: const Color(0xFFD4D4D4),
+                    controller: reTypePasswordController,
+                    isPassword: true,
                   ),
                 ),
                 SizedBox(
@@ -302,10 +305,15 @@ class _EmployeeState extends State<Employee> {
   @override
   void initState() {
     super.initState();
-    employeeList('');
     searchController.addListener(() {
       employeeList(searchController.text);
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    employeeList('');
   }
 
   @override
