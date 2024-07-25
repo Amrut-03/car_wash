@@ -1,20 +1,26 @@
+import 'dart:convert';
+
 import 'package:car_wash/common/utils/constants.dart';
+import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
 import 'package:car_wash/features/planner/model/assigned_car.dart';
 import 'package:car_wash/features/planner/model/wash_type.dart';
 import 'package:car_wash/features/planner/widgets/assigned_card.dart';
+import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:http/http.dart' as http;
 
-class AssignedCarList extends StatefulWidget {
-  const AssignedCarList({
-    super.key,
-    required this.assignedCars,
-    required this.washTypes,
-    required this.start,
-    required this.end, required this.cleanerKey,
-    required this.onAssigned
-  });
+class AssignedCarList extends ConsumerStatefulWidget {
+  const AssignedCarList(
+      {super.key,
+      required this.assignedCars,
+      required this.washTypes,
+      required this.start,
+      required this.end,
+      required this.cleanerKey,
+      required this.onAssigned});
   final List<AssignedCar> assignedCars;
   final List<WashType> washTypes;
   final String start;
@@ -23,13 +29,15 @@ class AssignedCarList extends StatefulWidget {
   final VoidCallback onAssigned;
 
   @override
-  State<AssignedCarList> createState() => _AssignedCarListState();
+  ConsumerState<AssignedCarList> createState() => _AssignedCarListState();
 }
 
-class _AssignedCarListState extends State<AssignedCarList> {
+class _AssignedCarListState extends ConsumerState<AssignedCarList> {
   final Duration _animationDuration = const Duration(milliseconds: 300);
   final TextEditingController startKm = TextEditingController();
   final TextEditingController endKm = TextEditingController();
+  List<AssignedCar> _assignedCars = [];
+  bool isLoading = false;
 
   bool _isExpanded = false;
   void _toggleExpansion() {
@@ -37,14 +45,93 @@ class _AssignedCarListState extends State<AssignedCarList> {
       _isExpanded = !_isExpanded;
     });
   }
-  
 
   @override
   void initState() {
     super.initState();
-    // Set initial value
-    startKm.text = widget.start;
-    endKm.text = widget.end;
+    startKm.text = '';
+    endKm.text = '';
+    _assignedCars = [];
+  }
+
+  @override
+  void didUpdateWidget(covariant AssignedCarList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.assignedCars != widget.assignedCars) {
+      setState(() {
+        startKm.text = widget.start;
+        endKm.text = widget.end;
+        _assignedCars = widget.assignedCars.toList();
+      });
+    }
+  }
+
+  void _onReorder(int oldIndex, int newIndex) {
+    setState(() {
+      if (oldIndex < newIndex) {
+        newIndex -= 1;
+      }
+      final item = _assignedCars.removeAt(oldIndex);
+      _assignedCars.insert(newIndex, item);
+    });
+  }
+
+  Future<void> sortlist() async {
+    setState(() {
+      isLoading = true;
+    });
+    const url = 'https://wash.sortbe.com/API/Admin/Planner/Planner-Sorting';
+    final admin = ref.read(adminProvider);
+    List<String> carIds = _assignedCars.map((car) => car.carId).toList();
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        body: {
+          'enc_key': encKey,
+          'emp_id': admin.id,
+          'planner_date': plannerDate,
+          'cleaner_key': widget.cleanerKey,
+          'car_order': jsonEncode(carIds),
+          'start_km': startKm.text,
+          'end_km': endKm.text,
+        },
+      );
+      var responseData = jsonDecode(response.body);
+      if (responseData['status'] == 'Success') {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(responseData['remarks']),
+              backgroundColor: Colors.green,
+            ),
+          );
+          widget.onAssigned();
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(responseData['remarks']),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print('Errore = $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    startKm.dispose();
+    endKm.dispose();
+    super.dispose();
   }
 
   @override
@@ -90,7 +177,7 @@ class _AssignedCarListState extends State<AssignedCarList> {
                   ),
                   child: Center(
                     child: Text(
-                      '${widget.assignedCars.length}',
+                      '${_assignedCars.length}',
                       style: const TextStyle(
                         color: AppTemplate.primaryClr,
                       ),
@@ -107,67 +194,128 @@ class _AssignedCarListState extends State<AssignedCarList> {
               ],
             ),
             const SizedBox(height: 10),
-            AnimatedSize(
-              duration: _animationDuration,
-              curve: Curves.easeInOut,
-              child: Visibility(
-                visible: _isExpanded,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Row(
+            Stack(
+              children: [
+                AnimatedSize(
+                  duration: _animationDuration,
+                  curve: Curves.easeInOut,
+                  child: Visibility(
+                    visible: _isExpanded,
+                    child: SingleChildScrollView(
+                      child: Column(
                         children: [
-                          Expanded(
-                            child: SizedBox(
-                              height: 50,
-                              child: Padding(
-                                padding: EdgeInsets.only(left: 5.w),
-                                child: Textfieldwidget(
-                                  controller: startKm,
-                                  labelTxt: 'Start Km',
-                                  labelTxtClr: const Color(0xFF929292),
-                                  enabledBorderClr: const Color(0xFFD4D4D4),
-                                  focusedBorderClr: const Color(0xFFD4D4D4),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: SizedBox(
+                                  height: 50,
+                                  child: Padding(
+                                    padding: EdgeInsets.only(left: 5.w),
+                                    child: Textfieldwidget(
+                                      controller: startKm,
+                                      labelTxt: 'Start Km',
+                                      labelTxtClr: const Color(0xFF929292),
+                                      enabledBorderClr: const Color(0xFFD4D4D4),
+                                      focusedBorderClr: const Color(0xFFD4D4D4),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                          SizedBox(width: 20.w),
-                          Expanded(
-                            child: SizedBox(
-                              height: 50,
-                              child: Padding(
-                                padding: EdgeInsets.only(right: 10.w),
-                                child: Textfieldwidget(
-                                  controller: endKm,
-                                  labelTxt: 'End Km',
-                                  labelTxtClr: const Color(0xFF929292),
-                                  enabledBorderClr: const Color(0xFFD4D4D4),
-                                  focusedBorderClr: const Color(0xFFD4D4D4),
+                              SizedBox(width: 20.w),
+                              Expanded(
+                                child: SizedBox(
+                                  height: 50,
+                                  child: Padding(
+                                    padding: EdgeInsets.only(right: 10.w),
+                                    child: Textfieldwidget(
+                                      controller: endKm,
+                                      labelTxt: 'End Km',
+                                      labelTxtClr: const Color(0xFF929292),
+                                      enabledBorderClr: const Color(0xFFD4D4D4),
+                                      focusedBorderClr: const Color(0xFFD4D4D4),
+                                    ),
+                                  ),
                                 ),
                               ),
+                            ],
+                          ),
+                          SizedBox(height: 10.h),
+                          ReorderableListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            onReorder: _onReorder,
+                            itemCount: _assignedCars.length,
+                            itemBuilder: (context, index) {
+                              return Container(
+                                color: AppTemplate.primaryClr,
+                                key: ValueKey(_assignedCars[index]),
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 6),
+                                  child: Container(
+                                    margin:
+                                        const EdgeInsets.symmetric(vertical: 5),
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: const Color.fromARGB(
+                                            13, 48, 48, 48),
+                                      ),
+                                      color: AppTemplate.primaryClr,
+                                      borderRadius: BorderRadius.circular(10),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          color: Color(0x40000000),
+                                          offset: Offset(0, 4),
+                                          blurRadius: 4,
+                                          spreadRadius: 0,
+                                        ),
+                                      ],
+                                    ),
+                                    child: AssignedCard(
+                                      washTypes: widget.washTypes,
+                                      assignedCar: _assignedCars[index],
+                                      cleanerKey: widget.cleanerKey,
+                                      onAssigned: widget.onAssigned,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          SizedBox(height: 10.h),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Buttonwidget(
+                              width: 145.w,
+                              height: 50.h,
+                              buttonClr: const Color(0xFF1E3763),
+                              txt: 'Update',
+                              textClr: AppTemplate.primaryClr,
+                              textSz: 18.sp,
+                              onClick: () {
+                                sortlist();
+                              },
                             ),
                           ),
+                          SizedBox(height: 20.h),
                         ],
                       ),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: widget.assignedCars.length,
-                        itemBuilder: (context, index) {
-                          return AssignedCard(
-                            washTypes: widget.washTypes,
-                            assignedCar: widget.assignedCars[index],
-                            cleanerKey: widget.cleanerKey,
-                            onAssigned: widget.onAssigned,
-                          );
-                        },
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ),
+                Visibility(
+                  visible: isLoading,
+                  child: SizedBox(
+                    width: ScreenUtil().screenWidth,
+                    height: 300,
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                ),
+              ],
+            )
           ],
         ),
       ),

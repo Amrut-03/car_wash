@@ -80,5 +80,10 @@ final driveBackProvider = StateProvider<File?>((ref) => null);
 final employeePhotoProvider = StateProvider<File?>((ref) => null);
 
 //Admin provider
-final adminProvider = StateProvider<Admin?>((ref) => null);
-
+final adminProvider = StateProvider<Admin>(
+  (ref) => Admin(
+    empName: '',
+    id: '',
+    profilePic: '',
+  ),
+);

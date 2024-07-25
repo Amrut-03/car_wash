@@ -39,7 +39,7 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
     var request = http.MultipartRequest('POST', url)
       ..fields['enc_key'] = encKey
       ..fields['remarks'] = remarksController.text
-      ..fields['emp_id'] = admin!.id
+      ..fields['emp_id'] = admin.id
       ..fields['planner_date'] = plannerDate
       ..fields['client_id'] = widget.car.clientId
       ..fields['service_id'] = washType.washId
@@ -51,7 +51,9 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
       var responseData = jsonDecode(response.body);
 
       if (responseData['status'] == 'Success') {
+        
         if (mounted) {
+          Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(responseData['remarks']),
@@ -72,7 +74,6 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
       }
     } catch (e) {
       if (mounted) {
-        print('Exce = $e');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Exception: $e')),
         );
@@ -86,7 +87,7 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
       children: [
         GestureDetector(
           onTap: () {
-            if (widget.car.alloted == null) {
+            if (widget.car.alloted.isEmpty) {
               showModalBottomSheet(
                 isScrollControlled: true,
                 context: context,
@@ -139,8 +140,6 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
                                         value: widget.washTypes[index],
                                         groupValue: currentOption,
                                         onChanged: (value) {
-                                          print('----=-=-=');
-                                          print(value);
                                           setState(() {
                                             currentOption = value;
                                           });
@@ -158,18 +157,11 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
                                       cursorColor: AppTemplate.enabledBorderClr,
                                       keyboardType: TextInputType.multiline,
                                       decoration: InputDecoration(
-                                        // label: const Text(
-                                        //   'Remarks',
-                                        // ),
                                         hintText: 'Remarks',
                                         hintStyle: GoogleFonts.inter(
                                             fontSize: 15.sp,
                                             color: const Color(0xFF929292),
                                             fontWeight: FontWeight.w400),
-                                        // labelStyle: GoogleFonts.inter(
-                                        //     fontSize: 15.sp,
-                                        //     color: const Color(0xFF929292),
-                                        //     fontWeight: FontWeight.w400),
                                         enabledBorder: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(5.r),
@@ -202,7 +194,9 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
                                             txt: 'Cancel',
                                             textClr: AppTemplate.primaryClr,
                                             textSz: 18.sp,
-                                            onClick: () {},
+                                            onClick: () {
+                                              Navigator.pop(context);
+                                            },
                                           ),
                                         ),
                                         SizedBox(width: 10.w),
@@ -218,7 +212,6 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
                                             onClick: () async {
                                               if (currentOption != null) {
                                                 await assign(currentOption!);
-                                                Navigator.pop(context);
                                               } else {
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(
@@ -271,15 +264,14 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start, // Align texts to the start
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(widget.car.vehicleNo),
                       Text(widget.car.clientName),
                     ],
                   ),
-                  widget.car.alloted != null
+                  widget.car.alloted.isNotEmpty
                       ? Container(
                           decoration: const BoxDecoration(
                             shape: BoxShape.circle,
