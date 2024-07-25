@@ -375,6 +375,8 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
     }
   }
 
+  double _scale = 1.0;
+
   @override
   Widget build(BuildContext context) {
     final customerCards = ref.watch(customerCardProvider);
@@ -573,60 +575,81 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                                         ),
                                       ),
                                       GestureDetector(
-                                        onTap: () async {
+                                        onTapDown: (_) {
+                                          setState(() {
+                                            _scale =
+                                                0.95; // Scale down when tapped
+                                          });
+                                        },
+                                        onTapUp: (_) async {
+                                          setState(() {
+                                            _scale =
+                                                1.0; // Scale back to normal
+                                          });
                                           await _requestPermissions();
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(SnackBar(
-                                                  backgroundColor:
-                                                      AppTemplate.bgClr,
-                                                  content: Text(
-                                                    "Please wait..!",
-                                                    style: GoogleFonts.inter(
-                                                        color: AppTemplate
-                                                            .primaryClr,
-                                                        fontWeight:
-                                                            FontWeight.w400),
-                                                  )));
+                                            backgroundColor: AppTemplate.bgClr,
+                                            content: Text(
+                                              "Please wait..!",
+                                              style: GoogleFonts.inter(
+                                                color: AppTemplate.primaryClr,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            ),
+                                          ));
                                           await _getLocation(context);
                                         },
-                                        child: Stack(
-                                          children: [
-                                            Container(
-                                              height: 80.h,
-                                              width: 120.w,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: AppTemplate
-                                                        .enabledBorderClr,
-                                                    offset: Offset(2.w, 4.h),
-                                                    blurRadius: 4.r,
-                                                    spreadRadius: 2.r,
+                                        onTapCancel: () {
+                                          setState(() {
+                                            _scale =
+                                                1.0; // Scale back to normal if the tap is canceled
+                                          });
+                                        },
+                                        child: AnimatedScale(
+                                          scale: _scale,
+                                          duration:
+                                              const Duration(milliseconds: 100),
+                                          child: Stack(
+                                            children: [
+                                              Container(
+                                                height: 80.h,
+                                                width: 120.w,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: AppTemplate
+                                                          .enabledBorderClr,
+                                                      offset: Offset(2.w, 4.h),
+                                                      blurRadius: 4.r,
+                                                      spreadRadius: 2.r,
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          5.r),
+                                                  child: const Image(
+                                                    image: AssetImage(
+                                                        'assets/images/map.jpeg'),
+                                                    fit: BoxFit.cover,
                                                   ),
-                                                ],
-                                              ),
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(5.r),
-                                                child: const Image(
-                                                  image: AssetImage(
-                                                      'assets/images/map.jpeg'),
-                                                  fit: BoxFit.cover,
                                                 ),
                                               ),
-                                            ),
-                                            Positioned(
-                                              top: 20.h,
-                                              left: 37.w,
-                                              child: Image(
-                                                image: const AssetImage(
-                                                    'assets/images/Map pin.png'),
-                                                height: 45.w,
+                                              Positioned(
+                                                top: 20.h,
+                                                left: 37.w,
+                                                child: Image(
+                                                  image: const AssetImage(
+                                                      'assets/images/Map pin.png'),
+                                                  height: 45.w,
+                                                ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ],
