@@ -77,7 +77,13 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Exception: $e')),
+          SnackBar(
+              backgroundColor: AppTemplate.bgClr,
+              content: Text(
+                'Exception: $e',
+                style: GoogleFonts.inter(
+                    color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+              )),
         );
       }
     }
@@ -123,7 +129,13 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Exception: $e')),
+          SnackBar(
+              backgroundColor: AppTemplate.bgClr,
+              content: Text(
+                'Exception: $e',
+                style: GoogleFonts.inter(
+                    color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+              )),
         );
       }
     }

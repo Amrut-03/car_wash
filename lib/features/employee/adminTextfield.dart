@@ -29,15 +29,59 @@ class _AdminTextFieldState extends State<AdminTextField> {
       setState(() {
         imageFile = File(pickedFile.path);
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Image Uploaded Successfully")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: AppTemplate.bgClr,
+          content: Text(
+            "Image Uploaded Successfully",
+            style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          )));
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("No image picked")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: AppTemplate.bgClr,
+          content: Text(
+            "Image is Required",
+            style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          )));
     }
   }
 
   Future<void> createAdmin(BuildContext context) async {
+    if (adminController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: AppTemplate.bgClr,
+        content: Text(
+          'Please Enter Admin Name',
+          style: GoogleFonts.inter(
+              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+        ),
+      ));
+      return;
+    }
+    if (phone1Controller.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: AppTemplate.bgClr,
+        content: Text(
+          'Please Enter Mobile Number',
+          style: GoogleFonts.inter(
+              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+        ),
+      ));
+      return;
+    }
+    if (passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: AppTemplate.bgClr,
+        content: Text(
+          'Please Enter Password',
+          style: GoogleFonts.inter(
+              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+        ),
+      ));
+      return;
+    }
+
     var request = http.MultipartRequest('POST',
         Uri.parse('https://wash.sortbe.com/API/Admin/User/Employee-Creation'));
     request.fields.addAll({
@@ -59,12 +103,23 @@ class _AdminTextFieldState extends State<AdminTextField> {
     String responseString = await response.stream.bytesToString();
 
     if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Admin created Successfully')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: AppTemplate.bgClr,
+          content: Text(
+            'Admin created Successfully',
+            style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          )));
+      Navigator.pop(context);
       print(responseString);
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Admin creation Failed')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: AppTemplate.bgClr,
+          content: Text(
+            'Admin creation Failed',
+            style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          )));
       print(response.reasonPhrase);
     }
   }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/employeeGridView.dart';
@@ -110,6 +111,25 @@ class _EmployeeState extends State<Employee> {
   }
 
   void changePassword() async {
+    if (passwordController.text.isEmpty) {
+      awesomeTopSnackbar(
+        context,
+        'Please Enter Password',
+        textStyle: GoogleFonts.inter(
+            color: AppTemplate.bgClr, fontWeight: FontWeight.w400),
+        backgroundColor: AppTemplate.primaryClr,
+      );
+    }
+    if (reTypePasswordController.text.isEmpty) {
+      awesomeTopSnackbar(
+        context,
+        'Please Enter ReTypePassword',
+        textStyle: GoogleFonts.inter(
+            color: AppTemplate.bgClr, fontWeight: FontWeight.w400),
+        backgroundColor: AppTemplate.primaryClr,
+      );
+    }
+
     var request = http.MultipartRequest('POST',
         Uri.parse('https://wash.sortbe.com/API/Admin/User/Employee-Password'));
     request.fields.addAll({
@@ -126,20 +146,35 @@ class _EmployeeState extends State<Employee> {
     if (passwordController.text == reTypePasswordController.text) {
       if (response.statusCode == 200) {
         // print(await response.stream.bytesToString());
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Password changed Successfully')));
+        awesomeTopSnackbar(
+          context,
+          "Password Changed Successfully",
+          textStyle: GoogleFonts.inter(
+              color: AppTemplate.bgClr, fontWeight: FontWeight.w400),
+          backgroundColor: AppTemplate.primaryClr,
+        );
         Navigator.pop(context);
         print(body['status']);
         // print(response.reasonPhrase);
       } else {
+        awesomeTopSnackbar(
+          context,
+          body['status'],
+          textStyle: GoogleFonts.inter(
+              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          backgroundColor: AppTemplate.bgClr,
+        );
         print(body['status']);
-        // print(response.reasonPhrase);
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Password and ReTyped Password does not match')));
-      // print(response.reasonPhrase);
-      print('Password and ReTyped Password does not match');
+      awesomeTopSnackbar(
+        context,
+        "Password and ReTyped Password not match",
+        textStyle: GoogleFonts.inter(
+            color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+        backgroundColor: AppTemplate.bgClr,
+      );
+      print(body['status']);
     }
   }
 
@@ -451,10 +486,28 @@ class _EmployeeState extends State<Employee> {
                                                   MainAxisAlignment.center,
                                               children: [
                                                 CircleAvatar(
-                                                    radius: 50.r,
-                                                    backgroundImage:
-                                                        NetworkImage(employee[
-                                                            'employee_pic'])),
+                                                  radius: 50.r,
+                                                  child: ClipOval(
+                                                    child: ClipOval(
+                                                      child: Image.network(
+                                                        employee[
+                                                            'employee_pic'],
+                                                        fit: BoxFit.cover,
+                                                        width: 100.r,
+                                                        height: 100.r,
+                                                        errorBuilder: (context,
+                                                            error, stackTrace) {
+                                                          return Image.asset(
+                                                            'assets/images/noavatar.png',
+                                                            fit: BoxFit.cover,
+                                                            width: 100.r,
+                                                            height: 100.r,
+                                                          );
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
                                                 SizedBox(height: 10.h),
                                                 Text(employee['employee_name'],
                                                     style: GoogleFonts.inter(
