@@ -34,7 +34,7 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
   @override
   void initState() {
     super.initState();
-    currentOption = widget.assignedCar.cleanId;
+    currentOption = widget.assignedCar.washId;
     remarks.text = widget.assignedCar.remarks;
   }
 
@@ -44,7 +44,7 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
         Uri.parse('https://wash.sortbe.com/API/Admin/Planner/Car-UnAssign');
     var request = http.MultipartRequest('POST', url)
       ..fields['enc_key'] = encKey
-      ..fields['emp_id'] = admin!.id
+      ..fields['emp_id'] = admin.id
       ..fields['planner_date'] = plannerDate
       ..fields['car_id'] = widget.assignedCar.carId
       ..fields['cleaner_key'] = widget.cleanerKey;
@@ -53,11 +53,9 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
       var response = await http.Response.fromStream(streamResponse);
 
       var responseData = jsonDecode(response.body);
-      print(response.statusCode);
       if (responseData['status'] == 'Success') {
         if (mounted) {
           Navigator.pop(context);
-
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(responseData['remarks']),
@@ -78,7 +76,6 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
       }
     } catch (e) {
       if (mounted) {
-        print('Exce = $e');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               backgroundColor: AppTemplate.bgClr,
@@ -97,7 +94,7 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
     var url = Uri.parse('https://wash.sortbe.com/API/Admin/Planner/Car-Update');
     var request = http.MultipartRequest('POST', url)
       ..fields['enc_key'] = encKey
-      ..fields['emp_id'] = admin!.id
+      ..fields['emp_id'] = admin.id
       ..fields['planner_date'] = plannerDate
       ..fields['car_id'] = widget.assignedCar.carId
       ..fields['cleaner_key'] = widget.cleanerKey
@@ -108,11 +105,9 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
       var response = await http.Response.fromStream(streamResponse);
 
       var responseData = jsonDecode(response.body);
-      print(response.statusCode);
       if (responseData['status'] == 'Success') {
         if (mounted) {
           Navigator.pop(context);
-
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(responseData['remarks']),
@@ -133,7 +128,6 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
       }
     } catch (e) {
       if (mounted) {
-        print('Exce = $e');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               backgroundColor: AppTemplate.bgClr,
@@ -296,54 +290,41 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
               },
             );
           },
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10.w),
-            child: Container(
-              height: 80,
-              width: double.infinity,
-              padding: EdgeInsets.only(left: 15.w, right: 10.w, top: 5.w),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: const Color.fromARGB(13, 48, 48, 48),
+          child: ListTile(
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              // mainAxisAlignment: MainAxisAlignment.end,
+              //mainAxisSize: MainAxisSize.min,
+              children: [
+                // SizedBox(height: 15.h),
+                Text(
+                  widget.assignedCar.vehicleNo,
+                  style: const TextStyle(
+                    fontSize: 15,
+                  ),
                 ),
-                color: AppTemplate.primaryClr,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x40000000),
-                    offset: Offset(0, 4),
-                    blurRadius: 4,
-                    spreadRadius: 0,
+                SizedBox(height: 3.h),
+                Text(
+                  widget.assignedCar.clientName,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
                   ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.assignedCar.vehicleNo,
-                    style: const TextStyle(
-                      fontSize: 15,
-                    ),
+                ),
+                SizedBox(height: 3.h),
+                Text(
+                  widget.assignedCar.washName,
+                  style: const TextStyle(
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w300,
+                    fontSize: 15,
                   ),
-                  Text(
-                    widget.assignedCar.clientName,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 13),
-                  ),
-                  Text(
-                    widget.assignedCar.washName,
-                    style: const TextStyle(
-                      fontStyle: FontStyle.italic,
-                      fontSize: 15,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
-        SizedBox(height: 20.h),
+        // SizedBox(height: 20.h),
       ],
     );
   }

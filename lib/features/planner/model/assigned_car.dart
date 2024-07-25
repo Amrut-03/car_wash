@@ -3,7 +3,7 @@ class AssignedCar {
   final String carId;
   final String vehicleNo;
   final String washName;
-  final String cleanId;
+  final String washId;
   final String remarks;
 
   AssignedCar({
@@ -11,7 +11,7 @@ class AssignedCar {
     required this.carId,
     required this.vehicleNo,
     required this.washName,
-    required this.cleanId,
+    required this.washId,
     required this.remarks,
   });
 
@@ -21,7 +21,7 @@ class AssignedCar {
       carId: json['car_id'],
       vehicleNo: json['vehicle_no'],
       washName: json['wash_name'],
-      cleanId: json['clean_id'],
+      washId: json['wash_id'],
       remarks: json['remarks'],
     );
   }

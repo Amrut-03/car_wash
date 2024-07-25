@@ -6,19 +6,16 @@ import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
 import 'package:car_wash/features/planner/model/all_car.dart';
 import 'package:car_wash/features/planner/model/assigned_car.dart';
-import 'package:car_wash/features/planner/model/car_lists.dart';
 import 'package:car_wash/features/planner/model/car_params.dart';
 import 'package:car_wash/features/planner/model/wash_type.dart';
 import 'package:car_wash/features/planner/widgets/assigned_car_list.dart';
 import 'package:car_wash/features/planner/widgets/cars_to_wash_widget.dart';
-import 'package:car_wash/provider/car_provider.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 
 class Planner extends ConsumerStatefulWidget {
   const Planner({super.key, required this.empName, required this.empId});
@@ -32,16 +29,95 @@ class Planner extends ConsumerStatefulWidget {
 class _PlannerState extends ConsumerState<Planner> {
   TextEditingController searchEmployee = TextEditingController();
   List<WashType> washTypes = [];
-  String formattedDate = DateFormat('d MMMM yyyy').format(DateTime.now());
+  List<AllCar> allCars = [];
+  List<AssignedCar> assignedCars = [];
+  List<AllCar> filteredCars = [];
+  String start = '';
+  String end = '';
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
+    searchEmployee.addListener(_filterCars);
+    fetchCars();
     fetchWashes();
   }
 
+  @override
+  void dispose() {
+    searchEmployee.removeListener(_filterCars);
+    searchEmployee.dispose();
+    super.dispose();
+  }
+
+  void _filterCars() {
+    final query = searchEmployee.text.toLowerCase();
+    setState(() {
+      filteredCars = allCars.where((car) {
+        final carNumber = car.vehicleNo.toLowerCase();
+        final clientName = car.clientName.toLowerCase();
+        return carNumber.contains(query) || clientName.contains(query);
+      }).toList();
+    });
+  }
+
   void refreshPage() {
-    setState(() {});
+    fetchCars();
+  }
+
+  Future<void> fetchCars() async {
+    setState(() {
+      isLoading = true;
+    });
+    const url = 'https://wash.sortbe.com/API/Admin/Planner/Client-Planner';
+
+    final admin = ref.read(adminProvider);
+
+    final carParams = CarParams(
+      empId: admin.id,
+      searchName: searchEmployee.text,
+      cleanerKey: widget.empId,
+    );
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        body: {
+          'enc_key': encKey,
+          'emp_id': admin.id,
+          'search_name': carParams.searchName,
+          'planner_date': plannerDate,
+          'cleaner_key': carParams.cleanerKey,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseData = jsonDecode(response.body);
+        List<dynamic> allCarsJson = responseData['data']['all_cars'] ?? [];
+        List<dynamic> assignedCarsJson =
+            responseData['data']['assigned_cars'] ?? [];
+        setState(() {
+          allCars =
+              List<AllCar>.from(allCarsJson.map((x) => AllCar.fromJson(x)));
+          assignedCars = List<AssignedCar>.from(
+              assignedCarsJson.map((x) => AssignedCar.fromJson(x)));
+          start = responseData['start_km'];
+          end = responseData['end_km'];
+          filteredCars = allCars;
+        });
+      } else {
+        throw Exception('Failed to load cars');
+      }
+    } catch (e) {
+      print('Error = $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 
   Future<void> fetchWashes() async {
@@ -55,7 +131,6 @@ class _PlannerState extends ConsumerState<Planner> {
 
       final responseData = jsonDecode(response.body);
       if (responseData['status'] == "Success") {
-        print('Wash Types Data: ${responseData['data']}');
         setState(() {
           washTypes = (responseData['data'] as List)
               .map((item) => WashType.fromJson(item))
@@ -79,145 +154,104 @@ class _PlannerState extends ConsumerState<Planner> {
 
   @override
   Widget build(BuildContext context) {
-    final admin = ref.watch(adminProvider);
-
-    if (admin == null) {
-      return Scaffold(
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
         backgroundColor: AppTemplate.primaryClr,
-        body: Center(
-          child: Text(
-            'No admin data available',
-            style: GoogleFonts.inter(
-              color: AppTemplate.textClr,
-              fontSize: 20.sp,
-              fontWeight: FontWeight.w600,
-            ),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              const Header(txt: 'Planner'),
+              SizedBox(height: 20.h),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 25.w),
+                  child: Text(
+                    'Schedule Planner',
+                    style: GoogleFonts.inter(
+                      color: AppTemplate.textClr,
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20.h),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 25.w),
+                child: Textfieldwidget(
+                  controller: searchEmployee,
+                  labelTxt: 'Search by Car Number or Client',
+                  labelTxtClr: const Color(0xFF929292),
+                  enabledBorderClr: const Color(0xFFD4D4D4),
+                  focusedBorderClr: const Color(0xFFD4D4D4),
+                ),
+              ),
+              SizedBox(height: 20.h),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 25.w),
+                  child: Text(
+                    '${widget.empName} - $formattedDate',
+                    style: GoogleFonts.inter(
+                      color: AppTemplate.textClr,
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20.h),
+              AssignedCarList(
+                assignedCars: assignedCars,
+                washTypes: washTypes,
+                start: start.isEmpty ? '0' : start,
+                end: end.isEmpty ? '0' : end,
+                cleanerKey: widget.empId,
+                onAssigned: refreshPage,
+              ),
+              SizedBox(height: 30.h),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 25.w, vertical: 0),
+                  child: Text(
+                    'Cars to Wash',
+                    style: GoogleFonts.inter(
+                      color: AppTemplate.textClr,
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : Container(
+                      constraints: const BoxConstraints(minHeight: 400),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: filteredCars.length,
+                        itemBuilder: (context, index) {
+                          return CarsToWashWidget(
+                            washTypes: washTypes,
+                            car: filteredCars[index],
+                            cleanerKey: widget.empId,
+                            onAssigned: refreshPage,
+                          );
+                        },
+                      ),
+                    ),
+            ],
           ),
         ),
-      );
-    }
-
-    final carParams = CarParams(
-      empId: admin.id,
-      searchName: searchEmployee.text,
-      cleanerKey: widget.empId,
-    );
-    final asyncValue = ref.watch(carProvider(carParams).future);
-
-    return Scaffold(
-      backgroundColor: AppTemplate.primaryClr,
-      body: FutureBuilder<CarLists>(
-        future: asyncValue,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
-            );
-          } else if (snapshot.hasData) {
-            final carLists = snapshot.data!;
-            List<AllCar> allCars = carLists.allCars;
-            List<AssignedCar> assignedCars = carLists.assignedCars;
-            String startKm = carLists.startKm;
-            String endKm = carLists.endKm;
-
-            return SingleChildScrollView(
-              child: Column(
-                children: [
-                  const Header(txt: 'Planner'),
-                  SizedBox(height: 20.h),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 25.w),
-                      child: Text(
-                        'Schedule Planner',
-                        style: GoogleFonts.inter(
-                          color: AppTemplate.textClr,
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20.h),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 25.w),
-                    child: Textfieldwidget(
-                      controller: searchEmployee,
-                      labelTxt: 'Search by Car Number or Client',
-                      labelTxtClr: const Color(0xFF929292),
-                      enabledBorderClr: const Color(0xFFD4D4D4),
-                      focusedBorderClr: const Color(0xFFD4D4D4),
-                    ),
-                  ),
-                  SizedBox(height: 20.h),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 25.w),
-                      child: Text(
-                        '${widget.empName} - $formattedDate',
-                        style: GoogleFonts.inter(
-                          color: AppTemplate.textClr,
-                          fontSize: 15.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20.h),
-                  AssignedCarList(
-                    assignedCars: assignedCars,
-                    washTypes: washTypes,
-                    start: startKm,
-                    end: endKm,
-                    cleanerKey: widget.empId,
-                    onAssigned: refreshPage,
-                    
-                  ),
-                  SizedBox(height: 30.h),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 25.w, vertical: 0),
-                      child: Text(
-                        'Cars to Wash',
-                        style: GoogleFonts.inter(
-                          color: AppTemplate.textClr,
-                          fontSize: 15.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    constraints: const BoxConstraints(minHeight: 400),
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: allCars.length,
-                      itemBuilder: (context, index) {
-                        return CarsToWashWidget(
-                          washTypes: washTypes,
-                          car: allCars[index],
-                          cleanerKey: widget.empId,
-                          onAssigned: refreshPage,
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            );
-          } else {
-            return const Center(child: Text('No data available'));
-          }
-        },
       ),
     );
   }

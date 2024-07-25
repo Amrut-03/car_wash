@@ -11,4 +11,14 @@ class AppTemplate {
 }
 
 String encKey = 'C0oRAe1QNtn3zYNvJ8rv';
-String plannerDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+String plannerDate = DateFormat('yyyy-MM-dd').format(
+  DateTime.now().add(
+    const Duration(days: 1),
+  ),
+);
+
+String formattedDate = DateFormat('d MMMM yyyy').format(
+    DateTime.now().add(
+      const Duration(days: 1),
+    ),
+  );
