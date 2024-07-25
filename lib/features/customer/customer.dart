@@ -99,11 +99,10 @@ class _CustomerState extends State<Customer> {
       backgroundColor: AppTemplate.primaryClr,
       body: Center(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Header(txt: 'Customer'),
-            SizedBox(
-              height: 20.h,
-            ),
+            SizedBox(height: 20.h),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: Row(
@@ -137,13 +136,11 @@ class _CustomerState extends State<Customer> {
                         ),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
-            SizedBox(
-              height: 20.h,
-            ),
+            SizedBox(height: 20.h),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: TextField(
@@ -169,9 +166,7 @@ class _CustomerState extends State<Customer> {
                 ),
               ),
             ),
-            SizedBox(
-              height: 20.h,
-            ),
+            SizedBox(height: 20.h),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.h),
               child: Row(
@@ -201,7 +196,7 @@ class _CustomerState extends State<Customer> {
                           ),
                         )
                       : Text(
-                          'Showing ${responseBody['data'].length} of 250',
+                          'Showing ${responseBody['data']?.length ?? 0} of 250',
                           style: GoogleFonts.inter(
                               color: AppTemplate.textClr,
                               fontSize: 12.sp,
@@ -210,17 +205,25 @@ class _CustomerState extends State<Customer> {
                 ],
               ),
             ),
+            SizedBox(height: 20.h),
             body.isEmpty
-                ? SingleChildScrollView(
+                ? Center(
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         SizedBox(
                           height: 150.h,
                         ),
-                        const CircularProgressIndicator(
-                          color: Color.fromARGB(255, 0, 52, 182),
+                        Text(
+                          responseBody == null ||
+                                  responseBody['data'] == null ||
+                                  (responseBody['data'] as List).isEmpty
+                              ? 'No records found'
+                              : 'Loading...',
+                          style: GoogleFonts.inter(
+                              color: AppTemplate.textClr,
+                              fontSize: 15.sp,
+                              fontWeight: FontWeight.w400),
                         ),
                       ],
                     ),
@@ -295,9 +298,7 @@ class _CustomerState extends State<Customer> {
                                   ),
                                 ),
                               ),
-                              SizedBox(
-                                height: 25.h,
-                              )
+                              SizedBox(height: 25.h)
                             ],
                           ),
                         );

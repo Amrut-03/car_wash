@@ -234,11 +234,12 @@ class _EmployeeGridViewState extends State<EmployeeGridView> {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 25.w),
                   child: Textfieldwidget(
-                    controller: passwordController,
                     labelTxt: 'Password',
                     labelTxtClr: const Color(0xFF929292),
                     enabledBorderClr: const Color(0xFFD4D4D4),
                     focusedBorderClr: const Color(0xFFD4D4D4),
+                    controller: passwordController,
+                    isPassword: true,
                   ),
                 ),
                 SizedBox(
@@ -247,11 +248,12 @@ class _EmployeeGridViewState extends State<EmployeeGridView> {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 25.w),
                   child: Textfieldwidget(
-                    controller: reTypePasswordController,
                     labelTxt: 'Re-Type Password',
                     labelTxtClr: const Color(0xFF929292),
                     enabledBorderClr: const Color(0xFFD4D4D4),
                     focusedBorderClr: const Color(0xFFD4D4D4),
+                    controller: reTypePasswordController,
+                    isPassword: true,
                   ),
                 ),
                 SizedBox(

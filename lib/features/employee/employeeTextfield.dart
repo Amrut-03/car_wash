@@ -6,14 +6,39 @@ import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
-class EmployeeTextfield extends ConsumerWidget {
+class EmployeeTextfield extends ConsumerStatefulWidget {
   const EmployeeTextfield({super.key});
+
+  @override
+  _EmployeeTextfieldState createState() => _EmployeeTextfieldState();
+}
+
+class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
+  @override
+  void initState() {
+    super.initState();
+    // Reset text controllers
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(employeeNameProvider).clear();
+      ref.read(dobControllerProvider).clear();
+      ref.read(addressControllerProvider).clear();
+      ref.read(phone1ControllerProvider).clear();
+      ref.read(phone2ControllerProvider).clear();
+      ref.read(passwordControllerProvider).clear();
+      ref.read(aadharFrontProvider.notifier).state = null;
+      ref.read(aadharBackProvider.notifier).state = null;
+      ref.read(driveFrontProvider.notifier).state = null;
+      ref.read(driveBackProvider.notifier).state = null;
+      ref.read(employeePhotoProvider.notifier).state = null;
+    });
+  }
 
   Future<void> _pickImage(BuildContext context, WidgetRef ref,
       StateProvider<File?> imageProvider) async {
@@ -23,7 +48,7 @@ class EmployeeTextfield extends ConsumerWidget {
       final File file = File(pickedFile.path);
       ref.read(imageProvider.notifier).state = file;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: AppTemplate.buttonClr,
+          backgroundColor: AppTemplate.bgClr,
           content: Text(
             "Image Uploaded Successfully",
             style: GoogleFonts.inter(
@@ -31,7 +56,7 @@ class EmployeeTextfield extends ConsumerWidget {
           )));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: AppTemplate.buttonClr,
+          backgroundColor: AppTemplate.bgClr,
           content: Text(
             "Image is Required",
             style: GoogleFonts.inter(
@@ -176,7 +201,7 @@ class EmployeeTextfield extends ConsumerWidget {
               style: GoogleFonts.inter(
                   color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
             )));
-        // Navigator.pop(context);
+        Navigator.pop(context, true); // Notify previous page about the update
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             backgroundColor: AppTemplate.bgClr,
@@ -198,7 +223,7 @@ class EmployeeTextfield extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final adharFront = ref.watch(aadharFrontProvider);
     final adharBack = ref.watch(aadharBackProvider);
     final driveFront = ref.watch(driveFrontProvider);
@@ -239,12 +264,59 @@ class EmployeeTextfield extends ConsumerWidget {
         SizedBox(height: 30.h),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 25.w),
-          child: Textfieldwidget(
+          child: TextField(
             controller: ref.read(dobControllerProvider),
-            labelTxt: 'Date of Birth',
-            labelTxtClr: const Color(0xFF929292),
-            enabledBorderClr: const Color(0xFFD4D4D4),
-            focusedBorderClr: const Color(0xFFD4D4D4),
+            readOnly: true,
+            decoration: InputDecoration(
+              labelText: "Date of Birth",
+              labelStyle: GoogleFonts.inter(
+                  fontSize: 12.sp,
+                  color: const Color(0xFF929292),
+                  fontWeight: FontWeight.w400),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5.r),
+                borderSide:
+                    BorderSide(color: const Color(0xFFD4D4D4), width: 1.5.w),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5.r),
+                borderSide:
+                    BorderSide(color: const Color(0xFFD4D4D4), width: 1.5.w),
+              ),
+              suffixIcon: IconButton(
+                icon:
+                    const Icon(Icons.calendar_month, color: Color(0xFFD4D4D4)),
+                onPressed: () async {
+                  final DateTime? selectedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(1900),
+                    lastDate: DateTime.now(),
+                    builder: (BuildContext context, Widget? child) {
+                      return Theme(
+                        data: ThemeData.light().copyWith(
+                          primaryColor:
+                              AppTemplate.bgClr, // header background color
+                          hintColor: AppTemplate.bgClr, // header text color
+                          colorScheme: const ColorScheme.light(
+                            primary: AppTemplate.bgClr,
+                          ), // selection color
+                          buttonTheme: const ButtonThemeData(
+                              textTheme:
+                                  ButtonTextTheme.primary), // button text color
+                        ),
+                        child: child!,
+                      );
+                    },
+                  );
+
+                  if (selectedDate != null) {
+                    ref.read(dobControllerProvider).text =
+                        "${selectedDate.toLocal()}".split(' ')[0];
+                  }
+                },
+              ),
+            ),
           ),
         ),
         SizedBox(height: 30.h),
@@ -276,34 +348,75 @@ class EmployeeTextfield extends ConsumerWidget {
         SizedBox(height: 30.h),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 25.w),
-          child: Textfieldwidget(
+          child: TextField(
+            keyboardType: TextInputType.phone,
             controller: ref.read(phone1ControllerProvider),
-            labelTxt: 'Phone 1',
-            labelTxtClr: const Color(0xFF929292),
-            enabledBorderClr: const Color(0xFFD4D4D4),
-            focusedBorderClr: const Color(0xFFD4D4D4),
+            cursorColor: AppTemplate.enabledBorderClr,
+            maxLength: 10,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(10),
+            ],
+            decoration: InputDecoration(
+              labelText: "phone 1",
+              labelStyle: GoogleFonts.inter(
+                  fontSize: 12.sp,
+                  color: const Color(0xFF929292),
+                  fontWeight: FontWeight.w400),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5.r),
+                borderSide:
+                    BorderSide(color: AppTemplate.shadowClr, width: 1.5.w),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5.r),
+                borderSide:
+                    BorderSide(color: AppTemplate.shadowClr, width: 1.5.w),
+              ),
+            ),
           ),
         ),
-        SizedBox(height: 30.h),
+        SizedBox(height: 10.h),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 25.w),
-          child: Textfieldwidget(
+          child: TextField(
+            keyboardType: TextInputType.phone,
             controller: ref.read(phone2ControllerProvider),
-            labelTxt: 'Phone 2',
-            labelTxtClr: const Color(0xFF929292),
-            enabledBorderClr: const Color(0xFFD4D4D4),
-            focusedBorderClr: const Color(0xFFD4D4D4),
+            cursorColor: AppTemplate.enabledBorderClr,
+            maxLength: 10,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(10),
+            ],
+            decoration: InputDecoration(
+              labelText: "phone 2",
+              labelStyle: GoogleFonts.inter(
+                  fontSize: 12.sp,
+                  color: const Color(0xFF929292),
+                  fontWeight: FontWeight.w400),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5.r),
+                borderSide:
+                    BorderSide(color: AppTemplate.shadowClr, width: 1.5.w),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5.r),
+                borderSide:
+                    BorderSide(color: AppTemplate.shadowClr, width: 1.5.w),
+              ),
+            ),
           ),
         ),
-        SizedBox(height: 30.h),
+        SizedBox(height: 10.h),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 25.w),
           child: Textfieldwidget(
-            controller: ref.read(passwordControllerProvider),
             labelTxt: 'Password',
             labelTxtClr: const Color(0xFF929292),
             enabledBorderClr: const Color(0xFFD4D4D4),
             focusedBorderClr: const Color(0xFFD4D4D4),
+            controller: ref.read(passwordControllerProvider),
+            isPassword: true,
           ),
         ),
         SizedBox(height: 20.h),

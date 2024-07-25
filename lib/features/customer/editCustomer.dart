@@ -6,6 +6,7 @@ import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -328,17 +329,37 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 25.w),
-              child: Textfieldwidget(
+              child: TextField(
+                keyboardType: TextInputType.phone,
                 controller: mobileController,
-                labelTxt: 'Mobile Number',
-                labelTxtClr: const Color(0xFF929292),
-                enabledBorderClr: const Color(0xFFD4D4D4),
-                focusedBorderClr: const Color(0xFFD4D4D4),
+                cursorColor: AppTemplate.enabledBorderClr,
+                maxLength: 10,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(10),
+                ],
+                decoration: InputDecoration(
+                  labelText: "Mobile Number",
+                  labelStyle: GoogleFonts.inter(
+                      fontSize: 12.sp,
+                      color: const Color(0xFF929292),
+                      fontWeight: FontWeight.w400),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(5.r),
+                    borderSide:
+                        BorderSide(color: AppTemplate.shadowClr, width: 1.5.w),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(5.r),
+                    borderSide:
+                        BorderSide(color: AppTemplate.shadowClr, width: 1.5.w),
+                  ),
+                ),
               ),
             ),
-            SizedBox(
-              height: 20.h,
-            ),
+            // SizedBox(
+            //   height: 20.h,
+            // ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 25.w),
               child: Text(

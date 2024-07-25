@@ -4,6 +4,7 @@ import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -150,23 +151,44 @@ class _AdminTextFieldState extends State<AdminTextField> {
         SizedBox(height: 30.h),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 25.w),
-          child: Textfieldwidget(
+          child: TextField(
+            keyboardType: TextInputType.phone,
             controller: phone1Controller,
-            labelTxt: 'Phone 1',
-            labelTxtClr: const Color(0xFF929292),
-            enabledBorderClr: const Color(0xFFD4D4D4),
-            focusedBorderClr: const Color(0xFFD4D4D4),
+            cursorColor: AppTemplate.enabledBorderClr,
+            maxLength: 10,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(10),
+            ],
+            decoration: InputDecoration(
+              labelText: "phone 1",
+              labelStyle: GoogleFonts.inter(
+                  fontSize: 12.sp,
+                  color: const Color(0xFF929292),
+                  fontWeight: FontWeight.w400),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5.r),
+                borderSide:
+                    BorderSide(color: AppTemplate.shadowClr, width: 1.5.w),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5.r),
+                borderSide:
+                    BorderSide(color: AppTemplate.shadowClr, width: 1.5.w),
+              ),
+            ),
           ),
         ),
-        SizedBox(height: 30.h),
+        SizedBox(height: 10.h),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 25.w),
           child: Textfieldwidget(
-            controller: passwordController,
             labelTxt: 'Password',
             labelTxtClr: const Color(0xFF929292),
             enabledBorderClr: const Color(0xFFD4D4D4),
             focusedBorderClr: const Color(0xFFD4D4D4),
+            controller: passwordController,
+            isPassword: true,
           ),
         ),
         SizedBox(height: 20.h),
@@ -254,7 +276,7 @@ class _AdminTextFieldState extends State<AdminTextField> {
               textSz: 18.sp,
               onClick: () async {
                 await createAdmin(context);
-                Navigator.pop(context);
+                // Navigator.pop(context);
               },
             ),
           ],

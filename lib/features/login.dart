@@ -7,6 +7,7 @@ import 'package:car_wash/features/planner/model/admin.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -217,20 +218,41 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           fontWeight: FontWeight.w500),
                     ),
                     SizedBox(height: 30.h),
-                    Textfieldwidget(
+                    TextField(
+                      keyboardType: TextInputType.phone,
                       controller: mobileController,
-                      labelTxt: "Mobile Number",
-                      labelTxtClr: const Color(0xFF929292),
-                      enabledBorderClr: const Color(0xFFD4D4D4),
-                      focusedBorderClr: const Color(0xFFD4D4D4),
+                      cursorColor: AppTemplate.enabledBorderClr,
+                      maxLength: 10,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(10),
+                      ],
+                      decoration: InputDecoration(
+                        labelText: "Mobile Number",
+                        labelStyle: GoogleFonts.inter(
+                            fontSize: 12.sp,
+                            color: const Color(0xFF929292),
+                            fontWeight: FontWeight.w400),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5.r),
+                          borderSide: BorderSide(
+                              color: AppTemplate.shadowClr, width: 1.5.w),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5.r),
+                          borderSide: BorderSide(
+                              color: AppTemplate.shadowClr, width: 1.5.w),
+                        ),
+                      ),
                     ),
-                    SizedBox(height: 30.h),
+                    SizedBox(height: 10.h),
                     Textfieldwidget(
-                      controller: passwordController,
-                      labelTxt: "Password",
+                      labelTxt: 'Password',
                       labelTxtClr: const Color(0xFF929292),
                       enabledBorderClr: const Color(0xFFD4D4D4),
                       focusedBorderClr: const Color(0xFFD4D4D4),
+                      controller: passwordController,
+                      isPassword: true,
                     ),
                     SizedBox(height: 30.h),
                     isLoading
