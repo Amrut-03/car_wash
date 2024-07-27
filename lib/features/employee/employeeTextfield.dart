@@ -4,14 +4,18 @@ import 'dart:io';
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
+import 'package:car_wash/features/employee/employee.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 class EmployeeTextfield extends ConsumerStatefulWidget {
   const EmployeeTextfield({super.key});
@@ -21,10 +25,13 @@ class EmployeeTextfield extends ConsumerStatefulWidget {
 }
 
 class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
+  bool isLoading = false;
+  final EmployeeController controller = Get.put(EmployeeController());
   @override
   void initState() {
     super.initState();
     // Reset text controllers
+    isLoading = false;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(employeeNameProvider).clear();
       ref.read(dobControllerProvider).clear();
@@ -55,6 +62,9 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
                 color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
           )));
     } else {
+      setState(() {
+        isLoading = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           backgroundColor: AppTemplate.bgClr,
           content: Text(
@@ -72,26 +82,14 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
     final phone1 = ref.read(phone1ControllerProvider).text;
     final phone2 = ref.read(phone2ControllerProvider).text;
     final password = ref.read(passwordControllerProvider).text;
-
-    // if (empName.isEmpty ||
-    //     dob.isEmpty ||
-    //     address.isEmpty ||
-    //     phone1.isEmpty ||
-    //     phone2.isEmpty ||
-    //     password.isEmpty) {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     SnackBar(
-    //         backgroundColor: AppTemplate.bgClr,
-    //         content: Text(
-    //           'All fields are required. Please fill in all fields.',
-    //           style: GoogleFonts.inter(
-    //               color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-    //         )),
-    //   );
-    //   return;
-    // }
+    setState(() {
+      isLoading = true;
+    });
 
     if (empName.isEmpty) {
+      setState(() {
+        isLoading = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: AppTemplate.bgClr,
         content: Text(
@@ -103,6 +101,9 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
       return;
     }
     if (dob.isEmpty) {
+      setState(() {
+        isLoading = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: AppTemplate.bgClr,
         content: Text(
@@ -114,6 +115,9 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
       return;
     }
     if (address.isEmpty) {
+      setState(() {
+        isLoading = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: AppTemplate.bgClr,
         content: Text(
@@ -125,6 +129,9 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
       return;
     }
     if (phone1.isEmpty) {
+      setState(() {
+        isLoading = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: AppTemplate.bgClr,
         content: Text(
@@ -136,6 +143,9 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
       return;
     }
     if (password.isEmpty) {
+      setState(() {
+        isLoading = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: AppTemplate.bgClr,
         content: Text(
@@ -170,22 +180,82 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
     if (adharFront != null) {
       request.files.add(
           await http.MultipartFile.fromPath('aadhaar_front', adharFront.path));
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: AppTemplate.bgClr,
+          content: Text(
+            "aadhar front image is Required",
+            style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          )));
+      return;
     }
     if (adharBack != null) {
       request.files.add(
           await http.MultipartFile.fromPath('aadhaar_back', adharBack.path));
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: AppTemplate.bgClr,
+          content: Text(
+            "aadhar Back image is Required",
+            style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          )));
+      return;
     }
     if (driveFront != null) {
       request.files.add(
           await http.MultipartFile.fromPath('driving_front', driveFront.path));
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: AppTemplate.bgClr,
+          content: Text(
+            "Driving License front image is Required",
+            style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          )));
+      return;
     }
     if (driveBack != null) {
       request.files.add(
           await http.MultipartFile.fromPath('driving_back', driveBack.path));
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: AppTemplate.bgClr,
+          content: Text(
+            "Driving License back image is Required",
+            style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          )));
+      return;
     }
     if (employeePhoto != null) {
       request.files.add(
           await http.MultipartFile.fromPath('emp_photo', employeePhoto.path));
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: AppTemplate.bgClr,
+          content: Text(
+            "Employee Photo is Required",
+            style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          )));
+      return;
     }
 
     try {
@@ -194,6 +264,9 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
       var body = jsonDecode(responseBody);
 
       if (response.statusCode == 200) {
+        setState(() {
+          isLoading = false;
+        });
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             backgroundColor: AppTemplate.bgClr,
             content: Text(
@@ -201,8 +274,11 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
               style: GoogleFonts.inter(
                   color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
             )));
-        Navigator.pop(context, true); // Notify previous page about the update
+        Navigator.pop(context);
       } else {
+        setState(() {
+          isLoading = false;
+        });
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             backgroundColor: AppTemplate.bgClr,
             content: Text(
@@ -212,13 +288,16 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
             )));
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: AppTemplate.bgClr,
-          content: Text(
-            'Error: ${e.toString()}',
-            style: GoogleFonts.inter(
-                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-          )));
+      setState(() {
+        isLoading = false;
+      });
+      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      //     backgroundColor: AppTemplate.bgClr,
+      //     content: Text(
+      //       'Error: ${e.toString()}',
+      //       style: GoogleFonts.inter(
+      //           color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+      //     )));
     }
   }
 
@@ -241,11 +320,7 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
                 fit: BoxFit.cover,
               ),
             )
-          : Image.asset(
-              'assets/images/Camera.png',
-              height: 45.w,
-              width: double.infinity,
-            );
+          : SvgPicture.asset('assets/svg/Camera.svg');
     }
 
     return Column(
@@ -311,8 +386,11 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
                   );
 
                   if (selectedDate != null) {
-                    ref.read(dobControllerProvider).text =
-                        "${selectedDate.toLocal()}".split(' ')[0];
+                    final DateFormat formatter = DateFormat('dd/MM/yyyy');
+                    final String formattedDate = formatter.format(selectedDate);
+                    setState(() {
+                      ref.read(dobControllerProvider).text = formattedDate;
+                    });
                   }
                 },
               ),
@@ -684,17 +762,28 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Buttonwidget(
-              width: 227.w,
-              height: 50.h,
-              buttonClr: const Color(0xFf1E3763),
-              txt: 'Create',
-              textClr: AppTemplate.primaryClr,
-              textSz: 18.sp,
-              onClick: () async {
-                await createEmployee(context, ref);
-              },
-            ),
+            isLoading
+                ? SizedBox(
+                    width: 227.w,
+                    height: 50.h,
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        color: Color.fromARGB(255, 0, 52, 182),
+                      ),
+                    ),
+                  )
+                : Buttonwidget(
+                    width: 227.w,
+                    height: 50.h,
+                    buttonClr: const Color(0xFf1E3763),
+                    txt: 'Create',
+                    textClr: AppTemplate.primaryClr,
+                    textSz: 18.sp,
+                    onClick: () async {
+                      await createEmployee(context, ref);
+                      controller.fetchEmployeeList();
+                    },
+                  ),
           ],
         ),
         SizedBox(

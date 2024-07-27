@@ -262,11 +262,7 @@ class _CreateCustomerCardState extends ConsumerState<CreateCustomerCard> {
                                           fit: BoxFit.cover,
                                         ),
                                       )
-                                    : Image.asset(
-                                        'assets/images/Camera.png',
-                                        height: 45.w,
-                                        width: double.infinity,
-                                      ),
+                                    : SvgPicture.asset('assets/svg/camera.svg'),
                                 if (imageFile == null)
                                   Text(
                                     'Car Picture',
@@ -311,14 +307,10 @@ class _CreateCustomerCardState extends ConsumerState<CreateCustomerCard> {
                               ),
                             ),
                             Positioned(
-                              top: 20.h,
-                              left: 37.w,
-                              child: Image(
-                                image: const AssetImage(
-                                    'assets/images/Map pin.png'),
-                                height: 45.w,
-                              ),
-                            ),
+                                top: 20.h,
+                                left: 37.w,
+                                child:
+                                    SvgPicture.asset('assets/svg/Map pin.svg')),
                           ],
                         ),
                       ],

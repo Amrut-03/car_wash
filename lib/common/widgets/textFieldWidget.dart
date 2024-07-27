@@ -49,19 +49,6 @@ class _TextfieldwidgetState extends State<Textfieldwidget> {
           borderRadius: BorderRadius.circular(5.r),
           borderSide: BorderSide(color: widget.focusedBorderClr, width: 1.5.w),
         ),
-        suffixIcon: widget.isPassword
-            ? IconButton(
-                icon: Icon(
-                  _obscureText ? Icons.visibility_off : Icons.visibility,
-                  color: widget.focusedBorderClr,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _obscureText = !_obscureText;
-                  });
-                },
-              )
-            : null,
       ),
     );
   }

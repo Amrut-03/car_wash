@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
@@ -12,7 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
 class EmployeePlanner extends ConsumerStatefulWidget {
-  const EmployeePlanner({super.key});
+  const EmployeePlanner({Key? key}) : super(key: key);
 
   @override
   ConsumerState<EmployeePlanner> createState() => _EmployeePlannerState();
@@ -22,7 +21,6 @@ class _EmployeePlannerState extends ConsumerState<EmployeePlanner> {
   List<Employee> employees = [];
   List<Employee> filteredEmployees = [];
   TextEditingController searchEmployee = TextEditingController();
- 
 
   @override
   void initState() {
@@ -39,7 +37,7 @@ class _EmployeePlannerState extends ConsumerState<EmployeePlanner> {
             'https://wash.sortbe.com/API/Admin/Planner/Employee-Planner'));
     request.fields.addAll({
       'enc_key': encKey,
-      'emp_id': admin.id,
+      'emp_id': '123',
       'search_name': '',
       'planner_date': plannerDate
     });
@@ -49,11 +47,20 @@ class _EmployeePlannerState extends ConsumerState<EmployeePlanner> {
       if (response.statusCode == 200) {
         var responseData = await response.stream.bytesToString();
         var parsedData = jsonDecode(responseData);
-        setState(() {
-          employees = List<Employee>.from(
-              parsedData['data'].map((x) => Employee.fromJson(x)));
-          filteredEmployees = employees;
-        });
+
+        print("++++++++++++++++++++++++++++++++++++++++++++++");
+        print(parsedData);
+        print("++++++++++++++++++++++++++++++++++++++++++++++");
+
+        if (parsedData['data'] != null) {
+          setState(() {
+            employees = List<Employee>.from(
+                parsedData['data'].map((x) => Employee.fromJson(x)));
+            filteredEmployees = employees;
+          });
+        } else {
+          print('Data key is null in the response');
+        }
       } else {
         print('Failed to load employees: ${response.reasonPhrase}');
       }
@@ -109,86 +116,116 @@ class _EmployeePlannerState extends ConsumerState<EmployeePlanner> {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               color: AppTemplate.primaryClr,
-              child: GridView.builder(
-                scrollDirection: Axis.vertical,
-                itemCount: filteredEmployees.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10.w,
-                  mainAxisSpacing: 10.h,
-                  childAspectRatio: 150.w / 157.h,
-                ),
-                itemBuilder: (context, index) {
-                  final employee = filteredEmployees[index];
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Planner(
-                            empName: employee.empName,
-                            empId: employee.empId,
-                          ),
-                        ),
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        height: 157.h,
-                        width: 150.w,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10.r),
-                          border: Border.all(color: const Color(0xFFE1E1E1)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.5),
-                              offset: Offset(0.w, 4.h),
-                              blurRadius: 4.r,
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CircleAvatar(
-                              radius: 50.r,
-                              backgroundImage: const AssetImage(
-                                  'assets/images/noavatar.png'),
-                              child: ClipOval(
-                                child: Image.network(
-                                  employee.imageUrl,
-                                  fit: BoxFit.cover,
-                                  width: 100.r,
-                                  height: 100.r,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Image.asset(
-                                      'assets/images/noavatar.png',
-                                      fit: BoxFit.cover,
-                                      width: 100.r,
-                                      height: 100.r,
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 10.h),
-                            Text(
-                              employee.empName,
-                              style: GoogleFonts.inter(
-                                color: AppTemplate.textClr,
-                                fontSize: 15.sp,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ],
+              child: filteredEmployees.isEmpty
+                  ? Center(
+                      child: Text(
+                        'No Record Found',
+                        style: GoogleFonts.inter(
+                          color: AppTemplate.textClr,
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
+                    )
+                  : GridView.builder(
+                      scrollDirection: Axis.vertical,
+                      itemCount: filteredEmployees.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10.w,
+                        mainAxisSpacing: 10.h,
+                        childAspectRatio: 150.w / 157.h,
+                      ),
+                      itemBuilder: (context, index) {
+                        final employee = filteredEmployees[index];
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Planner(
+                                  empName: employee.empName,
+                                  empId: employee.empId,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Stack(
+                              children: [
+                                Container(
+                                  height: 157.h,
+                                  width: 150.w,
+                                  decoration: BoxDecoration(
+                                    color: employee.car_count.isNotEmpty
+                                        ? const Color(0xFFF0FFDE)
+                                        : Colors.white,
+                                    borderRadius: BorderRadius.circular(10.r),
+                                    border: Border.all(
+                                        color: const Color(0xFFE1E1E1)),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.5),
+                                        offset: Offset(0.w, 4.h),
+                                        blurRadius: 4.r,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 50.r,
+                                        backgroundImage: const AssetImage(
+                                            'assets/images/noavatar.png'),
+                                        child: ClipOval(
+                                          child: Image.network(
+                                            employee.imageUrl,
+                                            fit: BoxFit.cover,
+                                            width: 100.r,
+                                            height: 100.r,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                              return Image.asset(
+                                                'assets/images/noavatar.png',
+                                                fit: BoxFit.cover,
+                                                width: 100.r,
+                                                height: 100.r,
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 10.h),
+                                      Text(
+                                        employee.empName,
+                                        style: GoogleFonts.inter(
+                                          color: AppTemplate.textClr,
+                                          fontSize: 15.sp,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                employee.car_count.isNotEmpty
+                                    ? Positioned(
+                                        right: 8.w,
+                                        top: 8.h,
+                                        child: CircleAvatar(
+                                          radius: 10.r,
+                                          backgroundColor: AppTemplate.textClr,
+                                          child: Text(employee.car_count),
+                                        ),
+                                      )
+                                    : Container()
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
             ),
           ),
         ],
@@ -201,15 +238,21 @@ class Employee {
   final String empName;
   final String imageUrl;
   final String empId;
+  final String car_count;
 
-  Employee(
-      {required this.empName, required this.imageUrl, required this.empId});
+  Employee({
+    required this.car_count,
+    required this.empName,
+    required this.imageUrl,
+    required this.empId,
+  });
 
   factory Employee.fromJson(Map<String, dynamic> json) {
     return Employee(
-      empName: json['employee_name'],
-      imageUrl: json['employee_pic'],
-      empId: json['employee_id'],
+      empName: json['employee_name'] ?? 'Unknown',
+      imageUrl: json['employee_pic'] ?? '',
+      empId: json['employee_id'] ?? '',
+      car_count: json['car_count'] ?? '',
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:car_wash/common/widgets/upwardMenu.dart';
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class Header extends StatelessWidget {
@@ -34,11 +35,8 @@ class Header extends StatelessWidget {
             children: [
               ListTile(
                 leading: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: const Image(
-                    image: AssetImage('assets/images/backward.png'),
-                  ),
-                ),
+                    onTap: () => Navigator.pop(context),
+                    child: SvgPicture.asset('assets/svg/backward.svg')),
                 title: Text(
                   txt,
                   style: GoogleFonts.inter(
@@ -56,12 +54,8 @@ class Header extends StatelessWidget {
                     height: 50.h,
                     width: 60.w,
                     child: Padding(
-                      padding: EdgeInsets.all(12.w),
-                      child: Image(
-                        image: const AssetImage('assets/images/menu1.png'),
-                        height: 22.h,
-                      ),
-                    ),
+                        padding: EdgeInsets.all(15.w),
+                        child: SvgPicture.asset('assets/svg/hamburger.svg')),
                   ),
                 ),
               ),

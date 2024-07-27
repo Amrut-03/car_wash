@@ -33,7 +33,7 @@ class EmployeeDropdown extends ConsumerWidget {
                 dropdownColor: AppTemplate.primaryClr,
                 value: dropdownValue,
                 icon: const Icon(Icons.arrow_drop_down),
-                iconSize: 0,
+                iconSize: 30,
                 elevation: 16,
                 style: const TextStyle(color: AppTemplate.textClr),
                 underline: Container(
@@ -53,7 +53,7 @@ class EmployeeDropdown extends ConsumerWidget {
                   );
                 }).toList(),
               ),
-              trailing: SvgPicture.asset('assets/svg/down_arrow.svg'),
+              // trailing: SvgPicture.asset('assets/svg/down_arrow.svg'),
             ),
           ),
         ),

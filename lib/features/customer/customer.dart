@@ -1,66 +1,39 @@
 import 'dart:convert';
-
+import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:google_fonts/google_fonts.dart';
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/features/Customer/createCustomer.dart';
 import 'package:car_wash/features/customer/createProfile.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
 
-class Customer extends StatefulWidget {
-  const Customer({super.key});
-
-  @override
-  State<Customer> createState() => _CustomerState();
-}
-
-class _CustomerState extends State<Customer> {
-  bool isLoading = true;
-  TextEditingController searchController = TextEditingController();
-  List<dynamic> body = [];
-  var responseBody;
-  String? customerId;
+class CustomerController extends GetxController {
+  var isLoading = true.obs;
+  var noRecordsFound = false.obs;
+  var body = <dynamic>[].obs;
+  var searchController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
+  void onInit() {
+    super.onInit();
     customerList();
-
-    // Add listener to searchController
     searchController.addListener(() {
       customerList();
     });
   }
 
   @override
-  void dispose() {
-    // Dispose the controller
+  void onClose() {
     searchController.dispose();
-    super.dispose();
-  }
-
-  Future<void> removeCustomer() async {
-    var request = http.MultipartRequest('POST',
-        Uri.parse('https://wash.sortbe.com/API/Admin/Client/Client-Remove'));
-    request.fields.addAll({
-      'enc_key': encKey,
-      'emp_id': '123',
-      'customer_id': customerId!,
-      'password': '12345665'
-    });
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
-    } else {
-      print(response.reasonPhrase);
-    }
+    super.onClose();
   }
 
   Future<void> customerList() async {
+    isLoading(true);
     var request = http.MultipartRequest('POST',
         Uri.parse('https://wash.sortbe.com/API/Admin/Client/Client-List'));
     request.fields.addAll({
@@ -73,25 +46,102 @@ class _CustomerState extends State<Customer> {
     String temp = await response.stream.bytesToString();
 
     try {
-      responseBody = jsonDecode(temp);
+      var responseBody = jsonDecode(temp);
 
       if (response.statusCode == 200 && responseBody['status'] == 'Success') {
-        setState(() {
-          body = responseBody['data'];
-        });
+        body(responseBody['data'] ?? []);
+        noRecordsFound(body.isEmpty);
       } else {
         print('Error: ${responseBody['remarks']}');
-        setState(() {
-          body = [];
-        });
+        body([]);
+        noRecordsFound(true);
       }
     } catch (e) {
       print('Failed to decode JSON: $e');
-      setState(() {
-        body = [];
-      });
+      body([]);
+      noRecordsFound(true);
+    } finally {
+      isLoading(false);
     }
   }
+
+  Future<void> removeCustomer(BuildContext context, String customer_Id) async {
+    var request = http.MultipartRequest('POST',
+        Uri.parse('https://wash.sortbe.com/API/Admin/Client/Client-Remove'));
+    request.fields.addAll({
+      'enc_key': encKey,
+      'emp_id': '123',
+      'customer_id': customer_Id,
+      'password': '12345665'
+    });
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      awesomeTopSnackbar(
+        context,
+        "Customer Removed Successfully",
+        textStyle: GoogleFonts.inter(
+            color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+        backgroundColor: AppTemplate.bgClr,
+      );
+      body.removeWhere((customer) => customer['customer_id'] == customer_Id);
+      noRecordsFound(body.isEmpty);
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
+
+  Future<void> confirmRemoveCustomer(
+      BuildContext context, String customer_Id) async {
+    bool? shouldRemove = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: AppTemplate.primaryClr,
+          title: Text(
+            'Confirm Removal',
+            style: GoogleFonts.inter(color: AppTemplate.textClr),
+          ),
+          content: Text(
+            'Are you sure you want to remove this customer?',
+            style: GoogleFonts.inter(color: AppTemplate.textClr),
+          ),
+          actions: [
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTemplate.bgClr),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: Text(
+                  'No',
+                  style: GoogleFonts.inter(color: AppTemplate.primaryClr),
+                )),
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTemplate.bgClr),
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+                child: Text(
+                  'Yes',
+                  style: GoogleFonts.inter(color: AppTemplate.primaryClr),
+                ))
+          ],
+        );
+      },
+    );
+
+    if (shouldRemove == true) {
+      await removeCustomer(context, customer_Id);
+      await customerList();
+    }
+  }
+}
+
+class Customer extends StatelessWidget {
+  final CustomerController customerController = Get.put(CustomerController());
 
   @override
   Widget build(BuildContext context) {
@@ -120,23 +170,30 @@ class _CustomerState extends State<Customer> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => const CreateCustomer())),
-                    child: Stack(
-                      children: [
-                        Image(
-                          image: const AssetImage('assets/images/person.png'),
-                          height: 30.h,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: Stack(
+                          children: [
+                            SvgPicture.asset(
+                              'assets/svg/person.svg',
+                              height: 18,
+                            ),
+                            Positioned(
+                              right: 1.w,
+                              bottom: 0.h,
+                              child: SvgPicture.asset(
+                                'assets/svg/add.svg',
+                                height: 10,
+                              ),
+                            ),
+                          ],
                         ),
-                        Positioned(
-                          right: 1.w,
-                          bottom: 5.h,
-                          child: Image(
-                            image: const AssetImage('assets/images/add.png'),
-                            height: 9.h,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                  )
                 ],
               ),
             ),
@@ -144,11 +201,11 @@ class _CustomerState extends State<Customer> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: TextField(
-                controller: searchController,
+                controller: customerController.searchController,
                 cursorColor: AppTemplate.textClr,
                 cursorHeight: 20.h,
                 decoration: InputDecoration(
-                  hintText: '   Search by Name or Vehicle Number',
+                  hintText: 'Search by Name or Vehicle Number',
                   hintStyle: GoogleFonts.inter(
                       fontSize: 12.sp,
                       color: const Color(0xFF929292),
@@ -179,132 +236,142 @@ class _CustomerState extends State<Customer> {
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w400),
                   ),
-                  responseBody == null
-                      ? Center(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              SizedBox(
-                                height: 10.h,
-                                width: 10.w,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 1.w,
-                                  color: const Color.fromARGB(255, 0, 52, 182),
-                                ),
+                  Obx(() {
+                    if (customerController.isLoading.value) {
+                      return Center(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            SizedBox(
+                              height: 10.h,
+                              width: 10.w,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 1.w,
+                                color: const Color.fromARGB(255, 0, 52, 182),
                               ),
-                            ],
-                          ),
-                        )
-                      : Text(
-                          'Showing ${responseBody['data']?.length ?? 0} of 250',
-                          style: GoogleFonts.inter(
-                              color: AppTemplate.textClr,
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w400),
+                            ),
+                          ],
                         ),
+                      );
+                    } else {
+                      return Text(
+                        customerController.noRecordsFound.value
+                            ? 'Showing 0 of 250'
+                            : 'Showing ${customerController.body.length} of 250',
+                        style: GoogleFonts.inter(
+                            color: AppTemplate.textClr,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w400),
+                      );
+                    }
+                  }),
                 ],
               ),
             ),
             SizedBox(height: 20.h),
-            body.isEmpty
-                ? Center(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          height: 150.h,
-                        ),
-                        Text(
-                          responseBody == null ||
-                                  responseBody['data'] == null ||
-                                  (responseBody['data'] as List).isEmpty
-                              ? 'No records found'
-                              : 'Loading...',
-                          style: GoogleFonts.inter(
-                              color: AppTemplate.textClr,
-                              fontSize: 15.sp,
-                              fontWeight: FontWeight.w400),
-                        ),
-                      ],
+            Obx(() {
+              if (customerController.body.isEmpty) {
+                return Center(
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 100.h,
+                      ),
+                      const CircularProgressIndicator(
+                        color: Color.fromARGB(255, 0, 52, 182),
+                      ),
+                    ],
+                  ),
+                );
+              } else if (customerController.body.isEmpty) {
+                return Column(
+                  children: [
+                    SizedBox(height: 100.h),
+                    Center(
+                      child: Text(
+                        'No records found',
+                        style: GoogleFonts.inter(
+                            color: AppTemplate.textClr,
+                            fontSize: 15.sp,
+                            fontWeight: FontWeight.w400),
+                      ),
                     ),
-                  )
-                : Flexible(
-                    child: ListView.builder(
-                      itemCount: body.length,
-                      itemBuilder: (context, index) {
-                        var customer = body[index];
-                        customerId = customer['id'];
-                        return Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20.w),
-                          child: Column(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  if (customer['client_name'] != null) {
-                                    print(customer['client_name']);
-                                    print(customer['client_id']);
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => CustomerProfile(
-                                          customerName:
-                                              customer['client_name'] ?? '',
-                                          customerId: customerId!,
+                  ],
+                );
+              } else {
+                return Flexible(
+                  child: ListView.builder(
+                    itemCount: customerController.body.length,
+                    itemBuilder: (context, index) {
+                      var customer = customerController.body[index];
+                      return Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20.w),
+                        child: Column(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                if (customer['client_name'] != null) {
+                                  print(customer['client_name']);
+                                  print(customer['client_id']);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => CustomerProfile(
+                                        customerName: customer['client_name'],
+                                        customerId: customer['id'],
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  print("Null data is there");
+                                }
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: AppTemplate.primaryClr,
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: AppTemplate.shadowClr,
+                                          blurRadius: 4.r,
+                                          spreadRadius: 0.r,
+                                          offset: Offset(0.w, 4.h))
+                                    ],
+                                    borderRadius: BorderRadius.circular(10.r),
+                                    border: Border.all(
+                                        color: AppTemplate.shadowClr)),
+                                child: SizedBox(
+                                  height: 56.h,
+                                  width: 310.w,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(19.w),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          customer['client_name'] ?? '',
+                                          style: GoogleFonts.inter(
+                                              color: AppTemplate.textClr,
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 15.sp),
                                         ),
-                                      ),
-                                    );
-                                  } else {
-                                    print("Null data is there");
-                                  }
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      color: AppTemplate.primaryClr,
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color: AppTemplate.shadowClr,
-                                            blurRadius: 4.r,
-                                            spreadRadius: 0.r,
-                                            offset: Offset(0.w, 4.h))
+                                        SvgPicture.asset(
+                                            'assets/svg/forward.svg')
                                       ],
-                                      borderRadius: BorderRadius.circular(10.r),
-                                      border: Border.all(
-                                          color: AppTemplate.shadowClr)),
-                                  child: SizedBox(
-                                    height: 56.h,
-                                    width: 310.w,
-                                    child: Padding(
-                                      padding: EdgeInsets.all(19.w),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            customer['client_name'] ?? '',
-                                            style: GoogleFonts.inter(
-                                                color: AppTemplate.textClr,
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 15.sp),
-                                          ),
-                                          Image(
-                                            image: const AssetImage(
-                                              'assets/images/forward.png',
-                                            ),
-                                            height: 40.h,
-                                          )
-                                        ],
-                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                              SizedBox(height: 25.h)
-                            ],
-                          ),
-                        );
-                      },
-                    ),
+                            ),
+                            SizedBox(height: 25.h)
+                          ],
+                        ),
+                      );
+                    },
                   ),
+                );
+              }
+            }),
           ],
         ),
       ),

@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -24,6 +25,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final TextEditingController mobileController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Future<void> _saveLoginStatus(String name, String image) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', true);
+    await prefs.setString('name', name);
+    await prefs.setString('employee_pic', image);
+  }
 
   void _login(BuildContext context) async {
     setState(() {
@@ -74,59 +87,41 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         ref.read(adminProvider.notifier).state = admin;
         String status = jsonResponse['status'];
         if (status == 'Success') {
+          await _saveLoginStatus(
+              jsonResponse['name'], jsonResponse['employee_pic']);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                backgroundColor: AppTemplate.bgClr,
-                content: Text(
-                  'Login Successfully',
-                  style: GoogleFonts.inter(
-                      color: AppTemplate.primaryClr,
-                      fontWeight: FontWeight.w400),
-                )),
+              backgroundColor: AppTemplate.bgClr,
+              content: Text(
+                'Login Successfully',
+                style: GoogleFonts.inter(
+                    color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+              ),
+            ),
           );
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (context) => const DashBoard()),
-            (Route<dynamic> route) => false, // This removes all previous routes
+            MaterialPageRoute(
+                builder: (context) => DashBoard(
+                      name: jsonResponse['name'],
+                      image: jsonResponse['employee_pic'],
+                    )),
+            (Route<dynamic> route) => false,
           );
         } else {
           setState(() {
             isLoading = false;
           });
-          if (mobileController.text.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                  backgroundColor: AppTemplate.bgClr,
-                  content: Text(
-                    'Please Enter Mobile Number',
-                    style: GoogleFonts.inter(
-                        color: AppTemplate.primaryClr,
-                        fontWeight: FontWeight.w400),
-                  )),
-            );
-          } else if (passwordController.text.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                  backgroundColor: AppTemplate.bgClr,
-                  content: Text(
-                    'Please Enter Password',
-                    style: GoogleFonts.inter(
-                        color: AppTemplate.primaryClr,
-                        fontWeight: FontWeight.w400),
-                  )),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                  backgroundColor: AppTemplate.bgClr,
-                  content: Text(
-                    jsonResponse['remarks'] ?? 'Login failed',
-                    style: GoogleFonts.inter(
-                        color: AppTemplate.primaryClr,
-                        fontWeight: FontWeight.w400),
-                  )),
-            );
-          }
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                backgroundColor: AppTemplate.bgClr,
+                content: Text(
+                  jsonResponse['remarks'] ?? 'Login failed',
+                  style: GoogleFonts.inter(
+                      color: AppTemplate.primaryClr,
+                      fontWeight: FontWeight.w400),
+                )),
+          );
         }
       } else {
         setState(() {

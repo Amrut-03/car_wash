@@ -1,13 +1,32 @@
-
-import 'package:car_wash/common/widgets/cardLists.dart';
-import 'package:car_wash/common/widgets/upwardMenu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:car_wash/common/utils/constants.dart';
 
-class DashBoard extends StatelessWidget {
-  const DashBoard({super.key});
+import 'package:car_wash/common/utils/constants.dart';
+import 'package:car_wash/common/widgets/cardLists.dart';
+import 'package:car_wash/common/widgets/upwardMenu.dart';
+
+// ignore: must_be_immutable
+class DashBoard extends StatefulWidget {
+  String name;
+  String image;
+  DashBoard({
+    Key? key,
+    required this.name,
+    required this.image,
+  }) : super(key: key);
+
+  @override
+  State<DashBoard> createState() => _DashBoardState();
+}
+
+class _DashBoardState extends State<DashBoard> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,15 +62,11 @@ class DashBoard extends StatelessWidget {
                             ListTile(
                               leading: CircleAvatar(
                                 radius: 15.r,
-                                child: const ClipOval(
-                                  child: Image(
-                                    image: AssetImage(
-                                        'assets/images/profile2.png'),
-                                  ),
-                                ),
+                                child: ClipOval(
+                                    child: Image.network(widget.image)),
                               ),
                               title: Text(
-                                'Hi Moideen',
+                                "Hi " + widget.name,
                                 style: GoogleFonts.inter(
                                     color: AppTemplate.primaryClr,
                                     fontWeight: FontWeight.w600),
@@ -65,13 +80,10 @@ class DashBoard extends StatelessWidget {
                                   height: 50.h,
                                   width: 60.w,
                                   child: Padding(
-                                    padding: EdgeInsets.all(12.w),
-                                    child: Image(
-                                      image: const AssetImage(
-                                          'assets/images/menu1.png'),
-                                      height: 22.h,
-                                    ),
-                                  ),
+                                      padding: EdgeInsets.all(15.w),
+                                      child: SvgPicture.asset(
+                                        'assets/svg/hamburger.svg',
+                                      )),
                                 ),
                               ),
                             ),
