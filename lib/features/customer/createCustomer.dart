@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -31,12 +32,14 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
   final ScrollController _scrollController = ScrollController();
   final List<File?> imageFiles = [null];
   File? imageFile;
-  double lat = 0.0;
-  double long = 0.0;
+  double? lat;
+  double? long;
+  bool isLoading = false;
   @override
   void initState() {
     super.initState();
     _initializeControllers();
+    isLoading = false;
   }
 
   void _initializeControllers() {
@@ -99,13 +102,22 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
   }
 
   Future<void> createCustomer() async {
+    setState(() {
+      isLoading = true;
+    });
     try {
       // Validate Customer Name and Mobile Number
       if (customerController.text.isEmpty) {
+        setState(() {
+          isLoading = false;
+        });
         _showErrorSnackBar("Please Enter Customer Name");
         return;
       }
       if (mobileController.text.isEmpty) {
+        setState(() {
+          isLoading = false;
+        });
         _showErrorSnackBar("Please Enter Mobile Number");
         return;
       }
@@ -113,10 +125,16 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
       // Validate Car Information
       for (int i = 0; i < carModelNameControllers.length; i++) {
         if (carModelNameControllers[i].text.isEmpty) {
+          setState(() {
+            isLoading = false;
+          });
           _showErrorSnackBar("Car model name cannot be empty");
           return;
         }
         if (carNoControllers[i].text.isEmpty) {
+          setState(() {
+            isLoading = false;
+          });
           _showErrorSnackBar("Vehicle number cannot be empty");
           return;
         }
@@ -131,23 +149,43 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
         }
       }
       if (!hasImage) {
-        _showErrorSnackBar("At least one car image must be provided");
+        setState(() {
+          isLoading = false;
+        });
+        _showErrorSnackBar("Car Image required");
         return;
       }
 
-      // Validate Latitude and Longitude
-      if (lat == null || long == null) {
-        _showErrorSnackBar("Location coordinates (lat/long) cannot be null");
+      print("++++++++++++++++++++++++++++++++++++++");
+      print(lat);
+      print(long);
+      if (lat == null ||
+          long == null ||
+          lat! < -90 ||
+          lat! > 90 ||
+          long! < -180 ||
+          long! > 180) {
+        print("-----------------------------------------");
+        setState(() {
+          isLoading = false;
+        });
+        _showErrorSnackBar("Please give the Co-ordinates");
         return;
       }
-      if (lat < -90 || lat > 90) {
-        _showErrorSnackBar("Latitude must be between -90 and 90");
-        return;
-      }
-      if (long < -180 || long > 180) {
-        _showErrorSnackBar("Longitude must be between -180 and 180");
-        return;
-      }
+      // if (lat < -90 || lat > 90) {
+      //   setState(() {
+      //     isLoading = false;
+      //   });
+      //   _showErrorSnackBar("Latitude must be between -90 and 90");
+      //   return;
+      // }
+      // if (long < -180 || long > 180) {
+      //   setState(() {
+      //     isLoading = false;
+      //   });
+      //   _showErrorSnackBar("Longitude must be between -180 and 180");
+      //   return;
+      // }
 
       var request = http.MultipartRequest(
         'POST',
@@ -161,6 +199,9 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
             await http.MultipartFile.fromPath('car_pic$i', imageFile.path),
           );
         } else {
+          setState(() {
+            isLoading = false;
+          });
           _showErrorSnackBar(
               "No image file to upload or file doesn't exist at index $i");
         }
@@ -190,10 +231,17 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
 
       if (response.statusCode == 200) {
         _showErrorSnackBar("Employee Account Created Successfully");
+        Navigator.pop(context);
       } else {
+        setState(() {
+          isLoading = false;
+        });
         _showErrorSnackBar(response.reasonPhrase.toString());
       }
     } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
       _showErrorSnackBar('Error creating customer: $e');
     }
   }
@@ -555,11 +603,8 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                                                         fit: BoxFit.cover,
                                                       ),
                                                     )
-                                                  : Image.asset(
-                                                      'assets/images/Camera.png',
-                                                      height: 45.w,
-                                                      width: double.infinity,
-                                                    ),
+                                                  : SvgPicture.asset(
+                                                      'assets/svg/Camera.svg'),
                                               if (imageFile == null)
                                                 Text(
                                                   'Car Picture',
@@ -640,14 +685,16 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                                                 ),
                                               ),
                                               Positioned(
-                                                top: 20.h,
-                                                left: 37.w,
-                                                child: Image(
-                                                  image: const AssetImage(
-                                                      'assets/images/Map pin.png'),
-                                                  height: 45.w,
-                                                ),
-                                              ),
+                                                  top: 20.h,
+                                                  left: 37.w,
+                                                  child: SvgPicture.asset(
+                                                      'assets/svg/Map pin.svg')
+                                                  // Image(
+                                                  //   image: const AssetImage(
+                                                  //       'assets/images/Map pin.png'),
+                                                  //   height: 45.w,
+                                                  // ),
+                                                  ),
                                             ],
                                           ),
                                         ),
@@ -715,18 +762,28 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                       onPressed: _addNewCard,
                     ),
                   ),
-                  Buttonwidget(
-                    width: 227.w,
-                    height: 50.h,
-                    buttonClr: const Color(0xFf1E3763),
-                    txt: 'Create',
-                    textClr: AppTemplate.primaryClr,
-                    textSz: 18.sp,
-                    onClick: () async {
-                      await createCustomer();
-                      // Navigator.pop(context);
-                    },
-                  ),
+                  isLoading
+                      ? SizedBox(
+                          width: 227.w,
+                          height: 50.h,
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              color: Color.fromARGB(255, 0, 52, 182),
+                            ),
+                          ),
+                        )
+                      : Buttonwidget(
+                          width: 227.w,
+                          height: 50.h,
+                          buttonClr: const Color(0xFf1E3763),
+                          txt: 'Create',
+                          textClr: AppTemplate.primaryClr,
+                          textSz: 18.sp,
+                          onClick: () async {
+                            await createCustomer();
+                            //Navigator.pop(context);
+                          },
+                        ),
                 ],
               ),
             ),

@@ -80,3 +80,149 @@
 //     );
 //   }
 // }
+
+import 'package:flutter/material.dart';
+
+// void main() {
+//   runApp(MyApp());
+// }
+
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'Top Slide-in Menu Demo',
+//       theme: ThemeData(
+//         primarySwatch: Colors.blue,
+//       ),
+//       home: HomeScreen(),
+//     );
+//   }
+// }
+
+// void main() {
+//   runApp(MyApp());
+// }
+
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'Draggable Top Slide-in Menu Demo',
+//       theme: ThemeData(
+//         primarySwatch: Colors.blue,
+//       ),
+//       home: HomeScreen(),
+//     );
+//   }
+// }
+
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Offset> _offsetAnimation;
+  double _initialDragOffset = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _offsetAnimation = Tween<Offset>(
+      begin: const Offset(0.0, -1.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  void _toggleMenu() {
+    if (_controller.isDismissed) {
+      _controller.forward();
+    } else if (_controller.isCompleted) {
+      _controller.reverse();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Draggable Top Slide-in Menu Demo'),
+        leading: IconButton(
+          icon: Icon(Icons.menu),
+          onPressed: _toggleMenu,
+        ),
+      ),
+      body: Stack(
+        children: [
+          Center(
+            child: Text('Press the menu icon to show the top menu'),
+          ),
+          SlideTransition(
+            position: _offsetAnimation,
+            child: GestureDetector(
+              onVerticalDragStart: (details) {
+                _initialDragOffset = details.globalPosition.dy;
+              },
+              onVerticalDragUpdate: (details) {
+                if (details.globalPosition.dy - _initialDragOffset > 0) {
+                  _controller.value = 1.0 -
+                      (details.globalPosition.dy - _initialDragOffset) /
+                          MediaQuery.of(context).size.height;
+                }
+              },
+              onVerticalDragEnd: (details) {
+                if (_controller.value > 0.5) {
+                  _controller.forward();
+                } else {
+                  _controller.reverse();
+                }
+              },
+              child: Material(
+                elevation: 8.0,
+                child: Container(
+                  color: Colors.white,
+                  height: 250,
+                  child: Column(
+                    children: <Widget>[
+                      ListTile(
+                        leading: Icon(Icons.account_circle),
+                        title: Text('Profile'),
+                        onTap: _toggleMenu,
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.settings),
+                        title: Text('Settings'),
+                        onTap: _toggleMenu,
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.logout),
+                        title: Text('Logout'),
+                        onTap: _toggleMenu,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

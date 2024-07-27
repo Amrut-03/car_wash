@@ -7,8 +7,8 @@ import 'package:car_wash/features/customer/editCustomer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
 
 class CustomerProfile extends StatefulWidget {
   final String customerName;
@@ -24,6 +24,7 @@ class CustomerProfile extends StatefulWidget {
 }
 
 class _CustomerProfileState extends State<CustomerProfile> {
+  final CustomerController customerController = Get.put(CustomerController());
   bool isCarWashed = true;
 
   void showCustomerOptions(BuildContext context) {
@@ -61,7 +62,7 @@ class _CustomerProfileState extends State<CustomerProfile> {
                 ),
                 ListTile(
                   leading: SvgPicture.asset('assets/svg/edit.svg'),
-                  title: Text('Edit Employee',
+                  title: Text('Edit Customer',
                       style: GoogleFonts.inter(
                           fontWeight: FontWeight.w800, fontSize: 18.sp)),
                   onTap: () {
@@ -73,15 +74,14 @@ class _CustomerProfileState extends State<CustomerProfile> {
                 ),
                 ListTile(
                   leading: SvgPicture.asset('assets/svg/removePerson.svg'),
-                  title: Text('Remove Employee',
+                  title: Text('Remove Customer',
                       style: GoogleFonts.inter(
                           fontWeight: FontWeight.w800, fontSize: 18.sp)),
                   onTap: () async {
-                    await removeCustomer();
-                    Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const Customer()));
+                    await customerController.confirmRemoveCustomer(
+                        context, widget.customerId);
+                    await Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => Customer()));
                   },
                 ),
               ],
@@ -90,31 +90,6 @@ class _CustomerProfileState extends State<CustomerProfile> {
         );
       },
     );
-  }
-
-  Future<void> removeCustomer() async {
-    var request = http.MultipartRequest('POST',
-        Uri.parse('https://wash.sortbe.com/API/Admin/Client/Client-Remove'));
-    request.fields.addAll({
-      'enc_key': encKey,
-      'emp_id': '123',
-      'customer_id': widget.customerId,
-      'password': '12345665'
-    });
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: AppTemplate.bgClr,
-          content: Text(
-            'Customer Removed Successfully',
-            style: GoogleFonts.inter(
-                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-          )));
-    } else {
-      print(response.reasonPhrase);
-    }
   }
 
   @override
@@ -209,32 +184,33 @@ class _CustomerProfileState extends State<CustomerProfile> {
                     });
                   },
                   child: Container(
-                      width: 135.w,
-                      height: 38.h,
-                      decoration: BoxDecoration(
-                          border: Border.all(
+                    width: 140.w,
+                    height: 38.h,
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                            color: isCarWashed
+                                ? Colors.transparent
+                                : const Color(0xFF001C63),
+                            width: 2.w),
+                        borderRadius: BorderRadius.circular(5.r),
+                        color: isCarWashed
+                            ? const Color(0xFF001C63)
+                            : AppTemplate.primaryClr),
+                    child: Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                      child: Center(
+                        child: Text('Recent Washes',
+                            style: GoogleFonts.inter(
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w800,
                               color: isCarWashed
-                                  ? Colors.transparent
+                                  ? AppTemplate.primaryClr
                                   : const Color(0xFF001C63),
-                              width: 2.w),
-                          borderRadius: BorderRadius.circular(5.r),
-                          color: isCarWashed
-                              ? const Color(0xFF001C63)
-                              : AppTemplate.primaryClr),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 10.w, vertical: 3.h),
-                        child: Center(
-                          child: Text('Recent Washes',
-                              style: GoogleFonts.inter(
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w800,
-                                color: isCarWashed
-                                    ? AppTemplate.primaryClr
-                                    : const Color(0xFF001C63),
-                              )),
-                        ),
-                      )),
+                            )),
+                      ),
+                    ),
+                  ),
                 ),
                 SizedBox(
                   width: 10.w,
@@ -246,7 +222,7 @@ class _CustomerProfileState extends State<CustomerProfile> {
                     });
                   },
                   child: Container(
-                      width: 130.w,
+                      width: 140.w,
                       height: 38.h,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5.r),

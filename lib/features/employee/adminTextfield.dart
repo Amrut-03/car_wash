@@ -3,9 +3,13 @@ import 'dart:io';
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
+import 'package:car_wash/features/employee/employee.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -22,6 +26,8 @@ class _AdminTextFieldState extends State<AdminTextField> {
   final TextEditingController phone1Controller = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   File? imageFile;
+  bool isLoading = false;
+  final EmployeeController controller = Get.put(EmployeeController());
 
   Future<void> _pickImage(BuildContext context) async {
     final pickedFile =
@@ -29,6 +35,7 @@ class _AdminTextFieldState extends State<AdminTextField> {
     if (pickedFile != null) {
       setState(() {
         imageFile = File(pickedFile.path);
+        isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           backgroundColor: AppTemplate.bgClr,
@@ -38,6 +45,9 @@ class _AdminTextFieldState extends State<AdminTextField> {
                 color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
           )));
     } else {
+      setState(() {
+        isLoading = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           backgroundColor: AppTemplate.bgClr,
           content: Text(
@@ -49,6 +59,9 @@ class _AdminTextFieldState extends State<AdminTextField> {
   }
 
   Future<void> createAdmin(BuildContext context) async {
+    setState(() {
+      isLoading = true;
+    });
     if (adminController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: AppTemplate.bgClr,
@@ -98,6 +111,18 @@ class _AdminTextFieldState extends State<AdminTextField> {
     if (imageFile != null) {
       request.files
           .add(await http.MultipartFile.fromPath('emp_photo', imageFile!.path));
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: AppTemplate.bgClr,
+          content: Text(
+            "Admin photo is Required",
+            style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          )));
+      return;
     }
 
     http.StreamedResponse response = await request.send();
@@ -111,7 +136,7 @@ class _AdminTextFieldState extends State<AdminTextField> {
             style: GoogleFonts.inter(
                 color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
           )));
-      // Navigator.pop(context);
+      Navigator.pop(context);
       print(responseString);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -242,11 +267,7 @@ class _AdminTextFieldState extends State<AdminTextField> {
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(5.r),
-                              child: Image.asset(
-                                'assets/images/Camera.png',
-                                height: 45.w,
-                                width: double.infinity,
-                              ),
+                              child: SvgPicture.asset('assets/svg/Camera.svg'),
                             ),
                             Text(
                               'Upload Photo',
@@ -267,18 +288,28 @@ class _AdminTextFieldState extends State<AdminTextField> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Buttonwidget(
-              width: 227.w,
-              height: 50.h,
-              buttonClr: const Color(0xFf1E3763),
-              txt: 'Create',
-              textClr: AppTemplate.primaryClr,
-              textSz: 18.sp,
-              onClick: () async {
-                await createAdmin(context);
-                // Navigator.pop(context);
-              },
-            ),
+            isLoading
+                ? SizedBox(
+                    width: 227.w,
+                    height: 50.h,
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        color: Color.fromARGB(255, 0, 52, 182),
+                      ),
+                    ),
+                  )
+                : Buttonwidget(
+                    width: 227.w,
+                    height: 50.h,
+                    buttonClr: const Color(0xFf1E3763),
+                    txt: 'Create',
+                    textClr: AppTemplate.primaryClr,
+                    textSz: 18.sp,
+                    onClick: () async {
+                      await createAdmin(context);
+                      controller.fetchEmployeeList();
+                    },
+                  ),
           ],
         ),
       ],

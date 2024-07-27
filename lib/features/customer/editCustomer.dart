@@ -71,52 +71,6 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
     }
   }
 
-  // @override
-  // void dispose() {
-  //   _scrollController.dispose();
-  //   carModelNameControllers.forEach((controller) => controller.dispose());
-  //   carNoControllers.forEach((controller) => controller.dispose());
-  //   super.dispose();
-  // }
-
-  // Future<void> creatCustomer() async {
-  //   if (lat == null || long == null) {
-  //     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-  //         content:
-  //             Text("Please fetch the location before creating the customer")));
-  //     return;
-  //   }
-
-  //   List<Map<String, dynamic>> carInfoList = [];
-  //   for (int i = 0; i < carModelNameControllers.length; i++) {
-  //     carInfoList.add({
-  //       'model_name': carModelNameControllers[i].text,
-  //       'vehicle_no': carNoControllers[i].text,
-  //       'lat': lat.toString(),
-  //       'long': long.toString(),
-  //     });
-  //   }
-
-  //   var request = http.MultipartRequest('POST',
-  //       Uri.parse('https://wash.sortbe.com/API/Admin/Client/Client-Creation'));
-  //   request.fields.addAll({
-  //     'enc_key': encKey,
-  //     'emp_id': '123',
-  //     'client_name': customerController.text,
-  //     'mobile': mobileController.text,
-  //     'car_info': carInfoList.toString(),
-  //   });
-
-  //   http.StreamedResponse response = await request.send();
-
-  //   if (response.statusCode == 200) {
-  //     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-  //         content: Text("Employee Account Created Successfully")));
-  //   } else {
-  //     print(response.reasonPhrase);
-  //   }
-  // }
-
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -516,14 +470,12 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                                             ),
                                           ),
                                           Positioned(
-                                            top: 20.h,
-                                            left: 37.w,
-                                            child: Image(
-                                              image: const AssetImage(
-                                                  'assets/images/Map pin.png'),
-                                              height: 45.w,
-                                            ),
-                                          ),
+                                              top: 20.h,
+                                              left: 37.w,
+                                              child: SvgPicture.asset(
+                                                'assets/svg/Map pin.svg',
+                                                color: Color(0xFF447B00),
+                                              )),
                                         ],
                                       ),
                                     ],
