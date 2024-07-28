@@ -44,34 +44,27 @@ class Menu {
                   padding: const EdgeInsets.only(
                       top: 40.0, left: 25.0, right: 25.0, bottom: 15.0),
                   child: SizedBox(
-                    // decoration: BoxDecoration(
-                    //     border: Border.all(color: AppTemplate.textClr)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            SizedBox(
-                              // margin: EdgeInsets.only(top: 15.0),
-                              child: Text(
-                                'Menu',
-                                style: GoogleFonts.inter(
-                                  color: const Color(0xFF003EDC),
-                                  fontSize: 20.sp,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                            Text(
+                              'Menu',
+                              style: GoogleFonts.inter(
+                                color: const Color(0xFF003EDC),
+                                fontSize: 20.sp,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                            SizedBox(
-                                // margin: EdgeInsets.only(top: 15.0),
-                                child: GestureDetector(
-                                    onTap: () => Navigator.of(context).pop(),
-                                    child: SvgPicture.asset(
-                                      'assets/svg/close.svg',
-                                      height: 15.0,
-                                      width: 15.0,
-                                    )))
+                            GestureDetector(
+                                onTap: () => Navigator.of(context).pop(),
+                                child: SvgPicture.asset(
+                                  'assets/svg/close.svg',
+                                  height: 15.0,
+                                  width: 15.0,
+                                ))
                           ],
                         ),
                         Padding(
@@ -81,41 +74,28 @@ class Menu {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => Customer())),
-                            child: SizedBox(
-                              // decoration: BoxDecoration(
-                              //     border: Border.all(color: AppTemplate.textClr)),
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    height: 30.0,
-                                    width: 30.0,
-                                    // decoration: BoxDecoration(
-                                    //   border:
-                                    //       Border.all(color: AppTemplate.textClr),
-                                    // ),
-                                    child: SvgPicture.asset(
-                                      'assets/svg/car.svg',
-                                      // ignore: deprecated_member_use
-                                      color: const Color(0xFF545454),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  height: 30.0,
+                                  width: 30.0,
+                                  child: SvgPicture.asset(
+                                    'assets/svg/car.svg',
+                                    color: const Color(0xFF545454),
+                                  ),
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.only(left: 10),
+                                  child: Text(
+                                    'Customer',
+                                    style: GoogleFonts.inter(
+                                      color: AppTemplate.textClr,
+                                      fontSize: 18.sp,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
-                                  Container(
-                                    margin: const EdgeInsets.only(left: 10),
-                                    // decoration: BoxDecoration(
-                                    //   border:
-                                    //       Border.all(color: AppTemplate.textClr),
-                                    // ),
-                                    child: Text(
-                                      'Customer',
-                                      style: GoogleFonts.inter(
-                                        color: AppTemplate.textClr,
-                                        fontSize: 18.sp,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
+                                )
+                              ],
                             ),
                           ),
                         ),
@@ -127,41 +107,28 @@ class Menu {
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         const emp.Employee())),
-                            child: SizedBox(
-                              // decoration: BoxDecoration(
-                              //     border: Border.all(color: AppTemplate.textClr)),
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    height: 30.0,
-                                    width: 30.0,
-                                    // decoration: BoxDecoration(
-                                    //   border:
-                                    //       Border.all(color: AppTemplate.textClr),
-                                    // ),
-                                    child: SvgPicture.asset(
-                                      'assets/svg/employee.svg',
-                                      // ignore: deprecated_member_use
-                                      color: const Color(0xFF545454),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  height: 30.0,
+                                  width: 30.0,
+                                  child: SvgPicture.asset(
+                                    'assets/svg/employee.svg',
+                                    color: const Color(0xFF545454),
+                                  ),
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.only(left: 10),
+                                  child: Text(
+                                    'Employee',
+                                    style: GoogleFonts.inter(
+                                      color: AppTemplate.textClr,
+                                      fontSize: 18.sp,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
-                                  Container(
-                                    margin: const EdgeInsets.only(left: 10),
-                                    // decoration: BoxDecoration(
-                                    //   border:
-                                    //       Border.all(color: AppTemplate.textClr),
-                                    // ),
-                                    child: Text(
-                                      'Employee',
-                                      style: GoogleFonts.inter(
-                                        color: AppTemplate.textClr,
-                                        fontSize: 18.sp,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
+                                )
+                              ],
                             ),
                           ),
                         ),
@@ -171,43 +138,29 @@ class Menu {
                             onTap: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        const EmployeePlanner())),
-                            child: SizedBox(
-                              // decoration: BoxDecoration(
-                              //     border: Border.all(color: AppTemplate.textClr)),
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    height: 30.0,
-                                    width: 30.0,
-                                    // decoration: BoxDecoration(
-                                    //   border:
-                                    //       Border.all(color: AppTemplate.textClr),
-                                    // ),
-                                    child: SvgPicture.asset(
-                                      'assets/svg/planner.svg',
-                                      // ignore: deprecated_member_use
-                                      color: const Color(0xFF545454),
+                                    builder: (context) => EmployeePlanner())),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  height: 30.0,
+                                  width: 30.0,
+                                  child: SvgPicture.asset(
+                                    'assets/svg/planner.svg',
+                                    color: const Color(0xFF545454),
+                                  ),
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.only(left: 10),
+                                  child: Text(
+                                    'Planner',
+                                    style: GoogleFonts.inter(
+                                      color: AppTemplate.textClr,
+                                      fontSize: 18.sp,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
-                                  Container(
-                                    margin: const EdgeInsets.only(left: 10),
-                                    // decoration: BoxDecoration(
-                                    //   border:
-                                    //       Border.all(color: AppTemplate.textClr),
-                                    // ),
-                                    child: Text(
-                                      'Planner',
-                                      style: GoogleFonts.inter(
-                                        color: AppTemplate.textClr,
-                                        fontSize: 18.sp,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
+                                )
+                              ],
                             ),
                           ),
                         ),
@@ -219,46 +172,33 @@ class Menu {
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         const EmployeeSalary())),
-                            child: SizedBox(
-                              // decoration: BoxDecoration(
-                              //     border: Border.all(color: AppTemplate.textClr)),
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    height: 30.0,
-                                    width: 30.0,
-                                    // decoration: BoxDecoration(
-                                    //   border:
-                                    //       Border.all(color: AppTemplate.textClr),
-                                    // ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(3.0),
-                                      child: SvgPicture.asset(
-                                        'assets/svg/rupee.svg',
-                                        height: 15.0,
-                                        width: 15.0,
-                                        // ignore: deprecated_member_use
-                                        color: const Color(0xFF545454),
-                                      ),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  height: 30.0,
+                                  width: 30.0,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(3.0),
+                                    child: SvgPicture.asset(
+                                      'assets/svg/rupee.svg',
+                                      height: 15.0,
+                                      width: 15.0,
+                                      color: const Color(0xFF545454),
                                     ),
                                   ),
-                                  Container(
-                                    margin: const EdgeInsets.only(left: 10),
-                                    // decoration: BoxDecoration(
-                                    //   border:
-                                    //       Border.all(color: AppTemplate.textClr),
-                                    // ),
-                                    child: Text(
-                                      'Salary',
-                                      style: GoogleFonts.inter(
-                                        color: AppTemplate.textClr,
-                                        fontSize: 18.sp,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.only(left: 10),
+                                  child: Text(
+                                    'Salary',
+                                    style: GoogleFonts.inter(
+                                      color: AppTemplate.textClr,
+                                      fontSize: 18.sp,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                  )
-                                ],
-                              ),
+                                  ),
+                                )
+                              ],
                             ),
                           ),
                         ),
@@ -270,46 +210,33 @@ class Menu {
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         const AttendancePage())),
-                            child: SizedBox(
-                              // decoration: BoxDecoration(
-                              //     border: Border.all(color: AppTemplate.textClr)),
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    height: 30.0,
-                                    width: 30.0,
-                                    // decoration: BoxDecoration(
-                                    //   border:
-                                    //       Border.all(color: AppTemplate.textClr),
-                                    // ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(3.0),
-                                      child: SvgPicture.asset(
-                                        'assets/svg/attendance.svg',
-                                        height: 15.0,
-                                        width: 15.0,
-                                        // ignore: deprecated_member_use
-                                        color: const Color(0xFF545454),
-                                      ),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  height: 30.0,
+                                  width: 30.0,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(3.0),
+                                    child: SvgPicture.asset(
+                                      'assets/svg/attendance.svg',
+                                      height: 15.0,
+                                      width: 15.0,
+                                      color: const Color(0xFF545454),
                                     ),
                                   ),
-                                  Container(
-                                    margin: const EdgeInsets.only(left: 10),
-                                    // decoration: BoxDecoration(
-                                    //   border:
-                                    //       Border.all(color: AppTemplate.textClr),
-                                    // ),
-                                    child: Text(
-                                      'Attendance',
-                                      style: GoogleFonts.inter(
-                                        color: AppTemplate.textClr,
-                                        fontSize: 18.sp,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.only(left: 10),
+                                  child: Text(
+                                    'Attendance',
+                                    style: GoogleFonts.inter(
+                                      color: AppTemplate.textClr,
+                                      fontSize: 18.sp,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                  )
-                                ],
-                              ),
+                                  ),
+                                )
+                              ],
                             ),
                           ),
                         ),
@@ -324,10 +251,7 @@ class Menu {
                               Navigator.pop(context);
                             },
                             child: Container(
-                              // decoration: BoxDecoration(
                               color: Colors.transparent,
-                              //     border:
-                              //         Border.all(color: AppTemplate.textClr)),
                               height: 60.h,
                               width: 160.w,
                               child: Padding(
@@ -335,8 +259,6 @@ class Menu {
                                   top: 50.h,
                                 ),
                                 child: Container(
-                                  // width: 130.w,
-                                  // height: 7.h,
                                   decoration: BoxDecoration(
                                     color: Colors.black38,
                                     borderRadius: BorderRadius.circular(5.r),
@@ -354,14 +276,13 @@ class Menu {
             ));
       },
       transitionBuilder: (context, animation, secondaryAnimation, child) {
-        // Debugging statements
-        print('Animation value: $animation');
-        print('Secondary animation value: $secondaryAnimation');
-        print('Child widget: $child');
-
-        // Ensure animation is not null
         if (animation == null) {
           print('Animation is null');
+          return SizedBox.shrink();
+        }
+
+        if (child == null) {
+          print('Child is null');
           return SizedBox.shrink();
         }
 
@@ -370,7 +291,7 @@ class Menu {
             begin: Offset(0.w, -1.h),
             end: Offset.zero,
           ).animate(animation),
-          child: child ?? SizedBox.shrink(),
+          child: child,
         );
       },
     );
