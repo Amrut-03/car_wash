@@ -5,6 +5,7 @@ import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/features/planner/model/all_car.dart';
 import 'package:car_wash/features/planner/model/wash_type.dart';
 import 'package:car_wash/features/planner/pages/planner_employee.dart';
+import 'package:car_wash/provider/admin_provider.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,13 +36,13 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
   WashType? currentOption;
 
   Future<void> assign(WashType washType) async {
-    final admin = ref.read(adminProvider);
+    final admin = ref.watch(authProvider);
     var url =
         Uri.parse('https://wash.sortbe.com/API/Admin/Planner/Planner-Option');
     var request = http.MultipartRequest('POST', url)
       ..fields['enc_key'] = encKey
       ..fields['remarks'] = remarksController.text
-      ..fields['emp_id'] = admin.id
+      ..fields['emp_id'] = admin.admin!.id
       ..fields['planner_date'] = plannerDate
       ..fields['client_id'] = widget.car.clientId
       ..fields['service_id'] = washType.washId
