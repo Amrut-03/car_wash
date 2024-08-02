@@ -90,7 +90,6 @@
 
 //     if (response.statusCode == 200) {
 //       setState(() {
-//         // Initialize controllers after data is fetched
 //         customerController = TextEditingController(
 //             text: data['customer_data']['client_name'] ?? '');
 //         mobileController = TextEditingController(
@@ -489,7 +488,7 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//         Get.put(CustomerController());
+//     Get.put(CustomerController());
 //     Widget imagePreview(File? imageFile, String? imageUrl) {
 //       if (imageFile != null) {
 //         return ClipRRect(

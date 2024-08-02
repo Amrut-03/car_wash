@@ -16,6 +16,7 @@ import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart' as path;
 import 'package:permission_handler/permission_handler.dart' as perm_handler;
 
 class EditCustomer extends ConsumerStatefulWidget {
@@ -33,10 +34,9 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
   TextEditingController mobileController = TextEditingController();
   List<TextEditingController>? carModelNameControllers;
   List<TextEditingController>? carNoControllers;
-  // List<TextEditingController>? carLatControllers;
-  // List<TextEditingController>? carLongControllers;
-  // List<File?> imageFiles = [];
-  // List<String> existingCarIds = [];
+  List<TextEditingController>? carLatControllers;
+  List<TextEditingController>? carLongControllers;
+  List<String> existingCarIds = [];
 
   final ScrollController _scrollController = ScrollController();
   File? imageFile;
@@ -52,89 +52,22 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
     _loadCustomerData();
   }
 
-//   Future<void> customerEdit() async {
-//   try {
-//     var request = http.MultipartRequest(
-//       'POST',
-//       Uri.parse('https://wash.sortbe.com/API/Admin/Client/Client-Edit'),
-//     );
-
-//     // Add images to the request
-//     for (int i = 0; i < imageFiles.length; i++) {
-//       final imageFile = imageFiles[i];
-//       if (imageFile != null && await imageFile.exists()) {
-//         request.files.add(
-//           await http.MultipartFile.fromPath('car_pic$i', imageFile.path),
-//         );
-//       }
-//     }
-
-//     // Prepare car data
-//     List<Map<String, dynamic>> availableCarList = [];
-//     List<Map<String, dynamic>> newCarList = [];
-//     for (int i = 0; i < carModelNameControllers!.length; i++) {
-//       var carData = {
-//         'model_name': carModelNameControllers![i].text,
-//         'vehicle_no': carNoControllers![i].text,
-//         'latitude': carLatControllers![i].text,
-//         'longitude': carLongControllers![i].text,
-//         'car_image': imageFiles[i] != null && await imageFiles[i]!.exists()
-//             ? 'car_pic$i'
-//             : carPhotosController![i].text,  // If no new image, use existing one
-//       };
-
-//       if (i < existingCarIds!.length) {
-//         carData['car_id'] = existingCarIds![i];
-//         availableCarList.add(carData);
-//       } else {
-//         newCarList.add(carData);
-//       }
-//     }
-
-//     // Add fields to request
-//     request.fields.addAll({
-//       'enc_key': 'C0oRAe1QNtn3zYNvJ8rv',
-//       'emp_id': '123',
-//       'customer_id': widget.customer_id,
-//       'client_name': customerController!.text,
-//       'mobile': mobileController!.text,
-//       'car_data': jsonEncode({
-//         'available_car': availableCarList,
-//         'new_car': newCarList,
-//       }),
-//     });
-
-//     // Print payload for debugging
-//     print('Request Fields: ${request.fields}');
-//     print('Available Car List: $availableCarList');
-//     print('New Car List: $newCarList');
-
-//     // Send the request and await the response
-//     http.StreamedResponse response = await request.send();
-
-//     // Handle the response
-//     if (response.statusCode == 200) {
-//       print('Response body: ${await response.stream.bytesToString()}');
-//       // Show success message
-//       Navigator.pop(context);
-//     } else {
-//       print('Error: ${response.statusCode} ${response.reasonPhrase}');
-//       // Show error message
-//     }
-//   } catch (e) {
-//     print('Exception: $e');
-//     // Show error message
-//   }
-// }
+  List<String> carImageUrls = [];
 
   Future<void> _loadCustomerData() async {
     try {
       final data = await fetchCustomerData(widget.customer_id);
       setState(() {
-        customerController.text = data['client_name'] ?? '';
-        mobileController.text = data['mobile_no'] ?? '';
+        customerController = TextEditingController(
+            text: data['customer_data']['client_name'] ?? '');
+        mobileController = TextEditingController(
+            text: data['customer_data']['mobile_no'] ?? '');
 
         if (data['customer_cars'] != null) {
+          existingCarIds = data['customer_cars']
+              .map<String>((car) => car['car_id']?.toString() ?? '')
+              .toList();
+
           carModelNameControllers = List.generate(
             data['customer_cars'].length,
             (index) => TextEditingController(
@@ -147,10 +80,19 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
               text: data['customer_cars'][index]['vehicle_no'] ?? '',
             ),
           );
+
+          carImageUrls = List.generate(
+            data['customer_cars'].length,
+            (index) => data['customer_cars'][index]['car_photo'] ?? '',
+          );
         } else {
+          existingCarIds = [];
           carModelNameControllers = [];
           carNoControllers = [];
+          carImageUrls = [];
         }
+
+        // isLoading = false; // Data is loaded, so set loading to false
       });
     } catch (e) {
       print('Error loading customer data: $e');
@@ -187,14 +129,28 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
     List<Map<String, dynamic>> carDataList = [];
     for (int i = 0; i < carModelNameControllers!.length; i++) {
       var carData = {
-        'model_name': carModelNameControllers?[i].text,
-        'vehicle_no': carNoControllers?[i].text,
+        'model_name': carModelNameControllers![i].text,
+        'vehicle_no': carNoControllers![i].text,
+        // 'latitude': carLatControllers![i].text,
+        // 'longitude': carLongControllers![i].text,
+        // Add car_id if available
+        if (i < existingCarIds.length) 'car_id': existingCarIds[i],
       };
 
       carDataList.add(carData);
     }
 
-    request.fields['car_data'] = jsonEncode(carDataList);
+    print(carDataList);
+
+    // Add images to request
+    for (int i = 0; i < carImageUrls.length; i++) {
+      final imageUrl = carImageUrls[i];
+      if (imageUrl != null && imageUrl.isNotEmpty) {
+        // Assuming the server already has this image, and it's referenced by URL,
+        // you don't need to upload it again.
+        print('Image $i already uploaded: $imageUrl');
+      }
+    }
 
     request.fields.addAll({
       'enc_key': 'C0oRAe1QNtn3zYNvJ8rv',
@@ -202,7 +158,10 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
       'customer_id': widget.customer_id,
       'client_name': customerController.text,
       'mobile': mobileController.text,
-      'car_data': jsonEncode({"available_car": carDataList}),
+      'car_data': jsonEncode({
+        'available_car': carDataList,
+        'new_car': [] // Add new cars here if needed
+      }),
     });
 
     http.StreamedResponse response = await request.send();
@@ -213,6 +172,25 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
     } else {
       print(
           'Error updating customer data: ${response.statusCode} ${response.reasonPhrase}');
+    }
+  }
+
+  Future<void> _pickImage(BuildContext context, int index) async {
+    print('_pickImage called for index $index');
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.camera);
+
+    if (pickedFile != null) {
+      setState(() {
+        // Update the carImageUrls list with the new file path
+        if (index < carImageUrls.length) {
+          carImageUrls[index] = pickedFile.path;
+        } else {
+          carImageUrls.add(pickedFile.path);
+        }
+      });
+    } else {
+      print('No image picked');
     }
   }
 
@@ -398,24 +376,81 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
     );
   }
 
-  Future<void> _pickImage(BuildContext context) async {
-    print('_pickImage called');
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.camera);
-    if (pickedFile != null) {
-      final File file = File(pickedFile.path);
-      print('Picked image path: ${pickedFile.path}');
-      setState(() {
-        imageFile = file;
-      });
-    } else {
-      print('No image picked');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final customerCards = ref.watch(customerCardProvider);
+    Widget imagePreview(String? imageUrl) {
+      // Check if the image URL starts with "http" (for network images)
+      if (imageUrl != null && imageUrl.startsWith('http')) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(5.r),
+          child: Image.network(
+            imageUrl,
+            height: 78.h,
+            width: 120.w,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset('assets/svg/Camera.svg'),
+                  Text(
+                    'Car Picture',
+                    style: GoogleFonts.inter(
+                      fontSize: 12.sp,
+                      color: const Color(0xFF6750A4),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      } else if (imageUrl != null && imageUrl.startsWith('file://')) {
+        // Handle local file path
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(5.r),
+          child: Image.file(
+            File(imageUrl),
+            height: 78.h,
+            width: 120.w,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset('assets/svg/Camera.svg'),
+                  Text(
+                    'Car Picture',
+                    style: GoogleFonts.inter(
+                      fontSize: 12.sp,
+                      color: const Color(0xFF6750A4),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      } else {
+        // Default placeholder
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset('assets/svg/Camera.svg'),
+            Text(
+              'Car Picture',
+              style: GoogleFonts.inter(
+                fontSize: 12.sp,
+                color: const Color(0xFF6750A4),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        );
+      }
+    }
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -492,13 +527,11 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                 ),
               ),
             ),
-            SizedBox(
-              height: 20.h,
-            ),
+            SizedBox(height: 20.h),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 25.w),
               child: Textfieldwidget(
-                controller: customerController!,
+                controller: customerController,
                 labelTxt: 'Customer Name',
                 labelTxtClr: const Color(0xFF929292),
                 enabledBorderClr: const Color(0xFFD4D4D4),
@@ -555,7 +588,7 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
             Expanded(
               child: ListView.builder(
                 controller: _scrollController,
-                itemCount: 1,
+                itemCount: carModelNameControllers!.length,
                 itemBuilder: (context, index) {
                   print('Building CreateCustomerCard widget at index $index');
                   return Stack(
@@ -601,115 +634,150 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                                     focusedBorderClr: const Color(0xFFD4D4D4),
                                   ),
                                   SizedBox(height: 25.h),
-                                  // Row(
-                                  //   mainAxisAlignment:
-                                  //       MainAxisAlignment.spaceBetween,
-                                  //   children: [
-                                  //     GestureDetector(
-                                  //       onTap: () => _pickImage(context),
-                                  //       child: Container(
-                                  //         width: 120.w,
-                                  //         height: 80.h,
-                                  //         decoration: BoxDecoration(
-                                  //           color: AppTemplate.primaryClr,
-                                  //           borderRadius:
-                                  //               BorderRadius.circular(5.r),
-                                  //           border: Border.all(
-                                  //             color: const Color(0xFFCCC3E5),
-                                  //           ),
-                                  //           boxShadow: [
-                                  //             BoxShadow(
-                                  //               color: AppTemplate
-                                  //                   .enabledBorderClr,
-                                  //               offset: Offset(2.w, 4.h),
-                                  //               blurRadius: 4.r,
-                                  //             ),
-                                  //           ],
-                                  //         ),
-                                  //         child: Column(
-                                  //           mainAxisAlignment:
-                                  //               MainAxisAlignment.center,
-                                  //           children: [
-                                  //             // imageFile != null
-                                  //             //     ? ClipRRect(
-                                  //             //         borderRadius:
-                                  //             //             BorderRadius.circular(
-                                  //             //                 5.r),
-                                  //             //         child: Image.file(
-                                  //             //           imageFile!,
-                                  //             //           height: 78.h,
-                                  //             //           width: 120.w,
-                                  //             //           fit: BoxFit.cover,
-                                  //             //         ),
-                                  //             //       )
-                                  //             // :
-                                  //             Image.asset(
-                                  //               'assets/images/bmw.jpeg',
-                                  //               height: 78.h,
-                                  //               // width: 120.w,
-                                  //               fit: BoxFit.cover,
-                                  //             ),
-                                  //             // if (imageFile == null)
-                                  //             //   Text(
-                                  //             //     'Car Picture',
-                                  //             //     style: GoogleFonts.inter(
-                                  //             //       fontSize: 12.sp,
-                                  //             //       color:
-                                  //             //           const Color(0xFF6750A4),
-                                  //             //       fontWeight: FontWeight.w600,
-                                  //             //     ),
-                                  //             //   ),
-                                  //           ],
-                                  //         ),
-                                  //       ),
-                                  //     ),
-                                  //     Stack(
-                                  //       children: [
-                                  //         GestureDetector(
-                                  //           onTap: () async {
-                                  //             await _requestPermissions();
-                                  //             await _getLocation(context);
-                                  //           },
-                                  //           child: Container(
-                                  //             height: 80.h,
-                                  //             width: 120.w,
-                                  //             decoration: BoxDecoration(
-                                  //               borderRadius:
-                                  //                   BorderRadius.circular(10),
-                                  //               boxShadow: [
-                                  //                 BoxShadow(
-                                  //                   color: AppTemplate
-                                  //                       .enabledBorderClr,
-                                  //                   offset: Offset(2.w, 4.h),
-                                  //                   blurRadius: 4.r,
-                                  //                   spreadRadius: 2.r,
-                                  //                 ),
-                                  //               ],
-                                  //             ),
-                                  //             child: ClipRRect(
-                                  //               borderRadius:
-                                  //                   BorderRadius.circular(5.r),
-                                  //               child: const Image(
-                                  //                 image: AssetImage(
-                                  //                     'assets/images/map.jpeg'),
-                                  //                 fit: BoxFit.cover,
-                                  //               ),
-                                  //             ),
-                                  //           ),
-                                  //         ),
-                                  //         Positioned(
-                                  //           top: 20.h,
-                                  //           left: 37.w,
-                                  //           child: Image(
-                                  //             image: const AssetImage(
-                                  //                 'assets/images/Map pin.png'),
-                                  //             height: 45.w,
-                                  //           ),
-                                  //         ),
-                                  //       ],
-                                  //     ),
-                                  //   ],
-                                  // ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Stack(
+                                        children: [
+                                          GestureDetector(
+                                            onTap: () async {
+                                              if (carImageUrls[index].isEmpty) {
+                                                await _pickImage(
+                                                    context, index);
+                                              }
+                                            },
+                                            child: SizedBox(
+                                              width: 130.w,
+                                              height: 95.h,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(10),
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        AppTemplate.primaryClr,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5.r),
+                                                    border: Border.all(
+                                                      color: const Color(
+                                                          0xFFCCC3E5),
+                                                    ),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: AppTemplate
+                                                            .enabledBorderClr,
+                                                        offset:
+                                                            Offset(2.w, 4.h),
+                                                        blurRadius: 4.r,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: imagePreview(carImageUrls[
+                                                      index]), // Pass URL for preview
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          carImageUrls[index].isNotEmpty
+                                              ? Positioned(
+                                                  right: 0,
+                                                  top: 0,
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        carImageUrls[index] =
+                                                            ''; // Clear the URL if needed
+                                                      });
+                                                    },
+                                                    child: Container(
+                                                      height: 18.h,
+                                                      width: 20.w,
+                                                      decoration: BoxDecoration(
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: AppTemplate
+                                                                .enabledBorderClr,
+                                                            offset: Offset(
+                                                                2.w, 4.h),
+                                                            blurRadius: 4.r,
+                                                          ),
+                                                        ],
+                                                        color: AppTemplate
+                                                            .primaryClr,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10.r),
+                                                      ),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(5.0),
+                                                        child: SvgPicture.asset(
+                                                          'assets/svg/close.svg',
+                                                          color:
+                                                              Color(0xFFFF0000),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                )
+                                              : Container(),
+                                        ],
+                                      ),
+                                      Stack(
+                                        children: [
+                                          GestureDetector(
+                                            onTap: () async {
+                                              await _requestPermissions();
+                                              await _getLocation(context);
+                                            },
+                                            child: Padding(
+                                              padding:
+                                                  EdgeInsets.only(right: 10.w),
+                                              child: Container(
+                                                height: 80.h,
+                                                width: 110.w,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: AppTemplate
+                                                          .enabledBorderClr,
+                                                      offset: Offset(2.w, 4.h),
+                                                      blurRadius: 4.r,
+                                                      spreadRadius: 2.r,
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          5.r),
+                                                  child: const Image(
+                                                    image: AssetImage(
+                                                        'assets/images/map.jpeg'),
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Positioned(
+                                            top: 20.h,
+                                            left: 37.w,
+                                            child: Image(
+                                              image: const AssetImage(
+                                                  'assets/images/Map pin.png'),
+                                              height: 45.w,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ],
                               ),
                             ),
