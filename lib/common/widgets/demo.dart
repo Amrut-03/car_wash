@@ -31,8 +31,8 @@ class EditCustomer extends ConsumerStatefulWidget {
 class _EditCustomerState extends ConsumerState<EditCustomer> {
   TextEditingController customerController = TextEditingController();
   TextEditingController mobileController = TextEditingController();
-  // List<TextEditingController>? carModelNameControllers;
-  // List<TextEditingController>? carNoControllers;
+  List<TextEditingController>? carModelNameControllers;
+  List<TextEditingController>? carNoControllers;
   // List<TextEditingController>? carLatControllers;
   // List<TextEditingController>? carLongControllers;
   // List<File?> imageFiles = [];
@@ -45,8 +45,11 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
   @override
   void initState() {
     super.initState();
-    // carModelNameControllers.add(TextEditingController());
-    // carNoControllers.add(TextEditingController());
+    customerController = TextEditingController();
+    mobileController = TextEditingController();
+    carModelNameControllers = [];
+    carNoControllers = [];
+    _loadCustomerData();
   }
 
 //   Future<void> customerEdit() async {
@@ -130,6 +133,24 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
       setState(() {
         customerController.text = data['client_name'] ?? '';
         mobileController.text = data['mobile_no'] ?? '';
+
+        if (data['customer_cars'] != null) {
+          carModelNameControllers = List.generate(
+            data['customer_cars'].length,
+            (index) => TextEditingController(
+              text: data['customer_cars'][index]['model_name'] ?? '',
+            ),
+          );
+          carNoControllers = List.generate(
+            data['customer_cars'].length,
+            (index) => TextEditingController(
+              text: data['customer_cars'][index]['vehicle_no'] ?? '',
+            ),
+          );
+        } else {
+          carModelNameControllers = [];
+          carNoControllers = [];
+        }
       });
     } catch (e) {
       print('Error loading customer data: $e');
@@ -163,12 +184,25 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
       Uri.parse('https://wash.sortbe.com/API/Admin/Client/Client-Edit'),
     );
 
+    List<Map<String, dynamic>> carDataList = [];
+    for (int i = 0; i < carModelNameControllers!.length; i++) {
+      var carData = {
+        'model_name': carModelNameControllers?[i].text,
+        'vehicle_no': carNoControllers?[i].text,
+      };
+
+      carDataList.add(carData);
+    }
+
+    request.fields['car_data'] = jsonEncode(carDataList);
+
     request.fields.addAll({
       'enc_key': 'C0oRAe1QNtn3zYNvJ8rv',
       'emp_id': '123',
       'customer_id': widget.customer_id,
       'client_name': customerController.text,
       'mobile': mobileController.text,
+      'car_data': jsonEncode({"available_car": carDataList}),
     });
 
     http.StreamedResponse response = await request.send();
@@ -182,35 +216,34 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
     }
   }
 
-  // void _addNewCard() {
-  //   // carModelNameControllers!.add(TextEditingController());
-  //   // carNoControllers!.add(TextEditingController());
-  //   ref.read(customerCardProvider.notifier).addCard();
-  //   _scrollToBottom();
-  // }
+  void _addNewCard() {
+    carModelNameControllers!.add(TextEditingController());
+    carNoControllers!.add(TextEditingController());
+    ref.read(customerCardProvider.notifier).addCard();
+    _scrollToBottom();
+  }
 
-  // void _removeCard(int index) {
-  //   if (
-  //     carModelNameControllers!.length > 1) {
-  //     carModelNameControllers![index].dispose();
-  //     carNoControllers![index].dispose();
-  //     carModelNameControllers!.removeAt(index);
-  //     carNoControllers!.removeAt(index);
-  //     ref.read(customerCardProvider.notifier).removeCard(index);
-  //     _scrollUp();
-  //   } else {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         backgroundColor: AppTemplate.bgClr,
-  //         content: Text(
-  //           "At least one car must be present",
-  //           style: GoogleFonts.inter(
-  //               color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-  //         ),
-  //       ),
-  //     );
-  //   }
-  // }
+  void _removeCard(int index) {
+    if (carModelNameControllers!.length > 1) {
+      carModelNameControllers![index].dispose();
+      carNoControllers![index].dispose();
+      carModelNameControllers!.removeAt(index);
+      carNoControllers!.removeAt(index);
+      ref.read(customerCardProvider.notifier).removeCard(index);
+      _scrollUp();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: AppTemplate.bgClr,
+          content: Text(
+            "At least one car must be present",
+            style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          ),
+        ),
+      );
+    }
+  }
 
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -519,201 +552,201 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                 ),
               ),
             ),
-            // Expanded(
-            //   child: ListView.builder(
-            //     controller: _scrollController,
-            //     itemCount: 1,
-            //     itemBuilder: (context, index) {
-            //       print('Building CreateCustomerCard widget at index $index');
-            //       return Stack(
-            //         children: [
-            //           Center(
-            //             child: Padding(
-            //               padding: EdgeInsets.symmetric(
-            //                   horizontal: 25.w, vertical: 10.h),
-            //               child: Container(
-            //                 decoration: BoxDecoration(
-            //                   color: AppTemplate.primaryClr,
-            //                   borderRadius: BorderRadius.circular(5.r),
-            //                   border:
-            //                       Border.all(color: const Color(0xFFD4D4D4)),
-            //                   boxShadow: [
-            //                     BoxShadow(
-            //                       color: const Color(0xFFD4D4D4),
-            //                       blurRadius: 4.r,
-            //                       spreadRadius: 2.r,
-            //                     ),
-            //                   ],
-            //                 ),
-            //                 child: Padding(
-            //                   padding: EdgeInsets.symmetric(
-            //                       horizontal: 25.w, vertical: 25.h),
-            //                   child: Column(
-            //                     mainAxisAlignment: MainAxisAlignment.center,
-            //                     crossAxisAlignment: CrossAxisAlignment.center,
-            //                     children: [
-            //                       Textfieldwidget(
-            //                         controller: ,
-            //                         labelTxt: 'Car Model',
-            //                         labelTxtClr: const Color(0xFF929292),
-            //                         enabledBorderClr: const Color(0xFFD4D4D4),
-            //                         focusedBorderClr: const Color(0xFFD4D4D4),
-            //                       ),
-            //                       SizedBox(height: 25.h),
-            //                       Textfieldwidget(
-            //                         controller: carNoControllers![index],
-            //                         labelTxt: 'Vehicle No',
-            //                         labelTxtClr: const Color(0xFF929292),
-            //                         enabledBorderClr: const Color(0xFFD4D4D4),
-            //                         focusedBorderClr: const Color(0xFFD4D4D4),
-            //                       ),
-            //                       SizedBox(height: 25.h),
-            //                       Row(
-            //                         mainAxisAlignment:
-            //                             MainAxisAlignment.spaceBetween,
-            //                         children: [
-            //                           GestureDetector(
-            //                             onTap: () => _pickImage(context),
-            //                             child: Container(
-            //                               width: 120.w,
-            //                               height: 80.h,
-            //                               decoration: BoxDecoration(
-            //                                 color: AppTemplate.primaryClr,
-            //                                 borderRadius:
-            //                                     BorderRadius.circular(5.r),
-            //                                 border: Border.all(
-            //                                   color: const Color(0xFFCCC3E5),
-            //                                 ),
-            //                                 boxShadow: [
-            //                                   BoxShadow(
-            //                                     color: AppTemplate
-            //                                         .enabledBorderClr,
-            //                                     offset: Offset(2.w, 4.h),
-            //                                     blurRadius: 4.r,
-            //                                   ),
-            //                                 ],
-            //                               ),
-            //                               child: Column(
-            //                                 mainAxisAlignment:
-            //                                     MainAxisAlignment.center,
-            //                                 children: [
-            //                                   // imageFile != null
-            //                                   //     ? ClipRRect(
-            //                                   //         borderRadius:
-            //                                   //             BorderRadius.circular(
-            //                                   //                 5.r),
-            //                                   //         child: Image.file(
-            //                                   //           imageFile!,
-            //                                   //           height: 78.h,
-            //                                   //           width: 120.w,
-            //                                   //           fit: BoxFit.cover,
-            //                                   //         ),
-            //                                   //       )
-            //                                   // :
-            //                                   Image.asset(
-            //                                     'assets/images/bmw.jpeg',
-            //                                     height: 78.h,
-            //                                     // width: 120.w,
-            //                                     fit: BoxFit.cover,
-            //                                   ),
-            //                                   // if (imageFile == null)
-            //                                   //   Text(
-            //                                   //     'Car Picture',
-            //                                   //     style: GoogleFonts.inter(
-            //                                   //       fontSize: 12.sp,
-            //                                   //       color:
-            //                                   //           const Color(0xFF6750A4),
-            //                                   //       fontWeight: FontWeight.w600,
-            //                                   //     ),
-            //                                   //   ),
-            //                                 ],
-            //                               ),
-            //                             ),
-            //                           ),
-            //                           Stack(
-            //                             children: [
-            //                               GestureDetector(
-            //                                 onTap: () async {
-            //                                   await _requestPermissions();
-            //                                   await _getLocation(context);
-            //                                 },
-            //                                 child: Container(
-            //                                   height: 80.h,
-            //                                   width: 120.w,
-            //                                   decoration: BoxDecoration(
-            //                                     borderRadius:
-            //                                         BorderRadius.circular(10),
-            //                                     boxShadow: [
-            //                                       BoxShadow(
-            //                                         color: AppTemplate
-            //                                             .enabledBorderClr,
-            //                                         offset: Offset(2.w, 4.h),
-            //                                         blurRadius: 4.r,
-            //                                         spreadRadius: 2.r,
-            //                                       ),
-            //                                     ],
-            //                                   ),
-            //                                   child: ClipRRect(
-            //                                     borderRadius:
-            //                                         BorderRadius.circular(5.r),
-            //                                     child: const Image(
-            //                                       image: AssetImage(
-            //                                           'assets/images/map.jpeg'),
-            //                                       fit: BoxFit.cover,
-            //                                     ),
-            //                                   ),
-            //                                 ),
-            //                               ),
-            //                               Positioned(
-            //                                 top: 20.h,
-            //                                 left: 37.w,
-            //                                 child: Image(
-            //                                   image: const AssetImage(
-            //                                       'assets/images/Map pin.png'),
-            //                                   height: 45.w,
-            //                                 ),
-            //                               ),
-            //                             ],
-            //                           ),
-            //                         ],
-            //                       ),
-            //                     ],
-            //                   ),
-            //                 ),
-            //               ),
-            //             ),
-            //           ),
-            //           if (index != 0)
-            //             Positioned(
-            //               right: 10.w,
-            //               top: -5.h,
-            //               child: GestureDetector(
-            //                 onTap: () => _removeCard(index),
-            //                 child: Container(
-            //                   decoration: BoxDecoration(
-            //                     borderRadius: BorderRadius.circular(15.r),
-            //                     boxShadow: [
-            //                       BoxShadow(
-            //                         color: AppTemplate.enabledBorderClr,
-            //                         offset: Offset(0.w, 4.h),
-            //                         blurRadius: 4.r,
-            //                       ),
-            //                     ],
-            //                   ),
-            //                   child: CircleAvatar(
-            //                     backgroundColor: AppTemplate.primaryClr,
-            //                     radius: 15.r,
-            //                     child: SvgPicture.asset(
-            //                         'assets/svg/red_close.svg'),
-            //                   ),
-            //                 ),
-            //               ),
-            //             ),
-            //         ],
-            //       );
-            //     },
-            //   ),
-            // ),
+            Expanded(
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: 1,
+                itemBuilder: (context, index) {
+                  print('Building CreateCustomerCard widget at index $index');
+                  return Stack(
+                    children: [
+                      Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 25.w, vertical: 10.h),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: AppTemplate.primaryClr,
+                              borderRadius: BorderRadius.circular(5.r),
+                              border:
+                                  Border.all(color: const Color(0xFFD4D4D4)),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFFD4D4D4),
+                                  blurRadius: 4.r,
+                                  spreadRadius: 2.r,
+                                ),
+                              ],
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 25.w, vertical: 25.h),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Textfieldwidget(
+                                    controller: carModelNameControllers![index],
+                                    labelTxt: 'Car Model',
+                                    labelTxtClr: const Color(0xFF929292),
+                                    enabledBorderClr: const Color(0xFFD4D4D4),
+                                    focusedBorderClr: const Color(0xFFD4D4D4),
+                                  ),
+                                  SizedBox(height: 25.h),
+                                  Textfieldwidget(
+                                    controller: carNoControllers![index],
+                                    labelTxt: 'Vehicle No',
+                                    labelTxtClr: const Color(0xFF929292),
+                                    enabledBorderClr: const Color(0xFFD4D4D4),
+                                    focusedBorderClr: const Color(0xFFD4D4D4),
+                                  ),
+                                  SizedBox(height: 25.h),
+                                  // Row(
+                                  //   mainAxisAlignment:
+                                  //       MainAxisAlignment.spaceBetween,
+                                  //   children: [
+                                  //     GestureDetector(
+                                  //       onTap: () => _pickImage(context),
+                                  //       child: Container(
+                                  //         width: 120.w,
+                                  //         height: 80.h,
+                                  //         decoration: BoxDecoration(
+                                  //           color: AppTemplate.primaryClr,
+                                  //           borderRadius:
+                                  //               BorderRadius.circular(5.r),
+                                  //           border: Border.all(
+                                  //             color: const Color(0xFFCCC3E5),
+                                  //           ),
+                                  //           boxShadow: [
+                                  //             BoxShadow(
+                                  //               color: AppTemplate
+                                  //                   .enabledBorderClr,
+                                  //               offset: Offset(2.w, 4.h),
+                                  //               blurRadius: 4.r,
+                                  //             ),
+                                  //           ],
+                                  //         ),
+                                  //         child: Column(
+                                  //           mainAxisAlignment:
+                                  //               MainAxisAlignment.center,
+                                  //           children: [
+                                  //             // imageFile != null
+                                  //             //     ? ClipRRect(
+                                  //             //         borderRadius:
+                                  //             //             BorderRadius.circular(
+                                  //             //                 5.r),
+                                  //             //         child: Image.file(
+                                  //             //           imageFile!,
+                                  //             //           height: 78.h,
+                                  //             //           width: 120.w,
+                                  //             //           fit: BoxFit.cover,
+                                  //             //         ),
+                                  //             //       )
+                                  //             // :
+                                  //             Image.asset(
+                                  //               'assets/images/bmw.jpeg',
+                                  //               height: 78.h,
+                                  //               // width: 120.w,
+                                  //               fit: BoxFit.cover,
+                                  //             ),
+                                  //             // if (imageFile == null)
+                                  //             //   Text(
+                                  //             //     'Car Picture',
+                                  //             //     style: GoogleFonts.inter(
+                                  //             //       fontSize: 12.sp,
+                                  //             //       color:
+                                  //             //           const Color(0xFF6750A4),
+                                  //             //       fontWeight: FontWeight.w600,
+                                  //             //     ),
+                                  //             //   ),
+                                  //           ],
+                                  //         ),
+                                  //       ),
+                                  //     ),
+                                  //     Stack(
+                                  //       children: [
+                                  //         GestureDetector(
+                                  //           onTap: () async {
+                                  //             await _requestPermissions();
+                                  //             await _getLocation(context);
+                                  //           },
+                                  //           child: Container(
+                                  //             height: 80.h,
+                                  //             width: 120.w,
+                                  //             decoration: BoxDecoration(
+                                  //               borderRadius:
+                                  //                   BorderRadius.circular(10),
+                                  //               boxShadow: [
+                                  //                 BoxShadow(
+                                  //                   color: AppTemplate
+                                  //                       .enabledBorderClr,
+                                  //                   offset: Offset(2.w, 4.h),
+                                  //                   blurRadius: 4.r,
+                                  //                   spreadRadius: 2.r,
+                                  //                 ),
+                                  //               ],
+                                  //             ),
+                                  //             child: ClipRRect(
+                                  //               borderRadius:
+                                  //                   BorderRadius.circular(5.r),
+                                  //               child: const Image(
+                                  //                 image: AssetImage(
+                                  //                     'assets/images/map.jpeg'),
+                                  //                 fit: BoxFit.cover,
+                                  //               ),
+                                  //             ),
+                                  //           ),
+                                  //         ),
+                                  //         Positioned(
+                                  //           top: 20.h,
+                                  //           left: 37.w,
+                                  //           child: Image(
+                                  //             image: const AssetImage(
+                                  //                 'assets/images/Map pin.png'),
+                                  //             height: 45.w,
+                                  //           ),
+                                  //         ),
+                                  //       ],
+                                  //     ),
+                                  //   ],
+                                  // ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (index != 0)
+                        Positioned(
+                          right: 10.w,
+                          top: -5.h,
+                          child: GestureDetector(
+                            onTap: () => _removeCard(index),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15.r),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppTemplate.enabledBorderClr,
+                                    offset: Offset(0.w, 4.h),
+                                    blurRadius: 4.r,
+                                  ),
+                                ],
+                              ),
+                              child: CircleAvatar(
+                                backgroundColor: AppTemplate.primaryClr,
+                                radius: 15.r,
+                                child: SvgPicture.asset(
+                                    'assets/svg/red_close.svg'),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
+            ),
             // Padding(
             //   padding: EdgeInsets.symmetric(horizontal: 25.w, vertical: 10.h),
             //   child: Row(
