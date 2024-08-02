@@ -24,7 +24,7 @@ class Menu {
             child: Material(
               color: Colors.transparent,
               child: Container(
-                height: 360.h,
+                height: 365.h,
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                   color: Colors.white,

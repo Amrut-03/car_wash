@@ -101,7 +101,7 @@ class EmployeeController extends GetxController {
 
   Future<void> confirmRemoveEmployee(
       BuildContext context, String emp_id) async {
-    print("confirmRemoveEmployee called with emp_id: $emp_id"); // Debug print
+    print("confirmRemoveEmployee called with emp_id: $emp_id");
 
     bool? shouldRemove = await showDialog<bool>(
       context: context,
@@ -417,44 +417,6 @@ class _EmployeeState extends State<Employee> {
     );
   }
 
-  // var temp;
-  // void employeeList(String searchTerm) async {
-  //   var request = http.MultipartRequest(
-  //     'POST',
-  //     Uri.parse('https://wash.sortbe.com/API/Admin/User/User-List'),
-  //   );
-  //   request.fields.addAll({
-  //     'enc_key': encKey,
-  //     'emp_id': '123',
-  //     'search_name': searchTerm,
-  //   });
-
-  //   http.StreamedResponse response = await request.send();
-
-  //   if (response.statusCode == 200) {
-  //     var responseBody = await response.stream.bytesToString();
-  //     setState(() {
-  //       temp = json.decode(responseBody);
-  //     });
-  //   } else {
-  //     print(response.reasonPhrase);
-  //   }
-  // }
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   searchController.addListener(() {
-  //     employeeList(searchController.text);
-  //   });
-  // }
-
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   employeeList('');
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -687,6 +649,9 @@ class _EmployeeState extends State<Employee> {
                             ),
                           ),
                         ),
+                        SizedBox(
+                          height: 20.h,
+                        )
                       ],
                     );
                   }

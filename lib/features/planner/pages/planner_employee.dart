@@ -99,12 +99,16 @@ class EmployeePlanner extends StatelessWidget {
         children: [
           const Header(txt: 'Planner'),
           SizedBox(height: 20.h),
-          Text(
-            'Schedule Planner - $formattedDate',
-            style: GoogleFonts.inter(
-              color: AppTemplate.textClr,
-              fontSize: 20.sp,
-              fontWeight: FontWeight.w600,
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.w),
+            child: Text(
+              'Schedule Planner - $formattedDate',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                color: AppTemplate.textClr,
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
           SizedBox(height: 20.h),
