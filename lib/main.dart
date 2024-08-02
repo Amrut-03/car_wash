@@ -1,4 +1,6 @@
+import 'package:car_wash/common/widgets/demo.dart';
 import 'package:car_wash/features/dashboard.dart';
+import 'package:car_wash/features/employee/editEmployee.dart';
 import 'package:car_wash/features/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -43,9 +45,11 @@ class MyApp extends StatelessWidget {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? name = prefs.getString('name');
     String? image = prefs.getString('employee_pic');
+    String? emp_id = prefs.getString('emp_id');
     return {
       'name': name ?? '',
       'image': image ?? '',
+      'emp_id': emp_id ?? '',
     };
   }
 
@@ -55,39 +59,43 @@ class MyApp extends StatelessWidget {
         designSize: const Size(360, 690),
         builder: (_, child) {
           return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            home: FutureBuilder<bool>(
-              future: checkLoginStatus(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return const Center(child: Text('Error loading data'));
-                } else if (snapshot.hasData && snapshot.data == true) {
-                  return FutureBuilder<Map<String, String>>(
-                    future: getUserData(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      } else if (snapshot.hasError) {
-                        return const Center(child: Text('Error loading data'));
-                      } else if (snapshot.hasData) {
-                        final userData = snapshot.data!;
-                        return DashBoard(
-                          name: userData['name']!,
-                          image: userData['image']!,
-                        );
-                      } else {
-                        return const LoginScreen();
-                      }
-                    },
-                  );
-                } else {
-                  return const LoginScreen();
-                }
-              },
-            ),
-          );
+              debugShowCheckedModeBanner: false,
+              home: FutureBuilder<bool>(
+                future: checkLoginStatus(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return const Center(child: Text('Error loading data'));
+                  } else if (snapshot.hasData && snapshot.data == true) {
+                    return FutureBuilder<Map<String, String>>(
+                      future: getUserData(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return const Center(
+                              child: Text('Error loading data'));
+                        } else if (snapshot.hasData) {
+                          final userData = snapshot.data!;
+                          return DashBoard(
+                            name: userData['name']!,
+                            image: userData['image']!,
+                            empid: userData['emp_id']!,
+                          );
+                        } else {
+                          return const LoginScreen();
+                        }
+                      },
+                    );
+                  } else {
+                    return const LoginScreen();
+                  }
+                },
+              ));
+          // home: EditEmployeePage());
         });
   }
 }

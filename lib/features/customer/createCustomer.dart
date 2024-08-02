@@ -11,7 +11,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -106,7 +105,6 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
       isLoading = true;
     });
     try {
-      // Validate Customer Name and Mobile Number
       if (customerController.text.isEmpty) {
         setState(() {
           isLoading = false;
@@ -122,7 +120,6 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
         return;
       }
 
-      // Validate Car Information
       for (int i = 0; i < carModelNameControllers.length; i++) {
         if (carModelNameControllers[i].text.isEmpty) {
           setState(() {
@@ -140,7 +137,6 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
         }
       }
 
-      // Validate at least one image file
       bool hasImage = false;
       for (final imageFile in imageFiles) {
         if (imageFile != null && await imageFile.exists()) {
@@ -172,20 +168,6 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
         _showErrorSnackBar("Please give the Co-ordinates");
         return;
       }
-      // if (lat < -90 || lat > 90) {
-      //   setState(() {
-      //     isLoading = false;
-      //   });
-      //   _showErrorSnackBar("Latitude must be between -90 and 90");
-      //   return;
-      // }
-      // if (long < -180 || long > 180) {
-      //   setState(() {
-      //     isLoading = false;
-      //   });
-      //   _showErrorSnackBar("Longitude must be between -180 and 180");
-      //   return;
-      // }
 
       var request = http.MultipartRequest(
         'POST',
@@ -430,364 +412,425 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
     final customerCards = ref.watch(customerCardProvider);
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       backgroundColor: AppTemplate.primaryClr,
-      body: Center(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Header(txt: 'Create Customer'),
-            SizedBox(
-              height: 20.h,
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25.w),
-              child: Text(
-                'Customer Creation',
-                style: GoogleFonts.inter(
-                  color: AppTemplate.textClr,
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 20.h,
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25.w),
-              child: Textfieldwidget(
-                controller: customerController,
-                labelTxt: 'Customer Name',
-                labelTxtClr: const Color(0xFF929292),
-                enabledBorderClr: const Color(0xFFD4D4D4),
-                focusedBorderClr: const Color(0xFFD4D4D4),
-              ),
-            ),
-            SizedBox(
-              height: 20.h,
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25.w),
-              child: TextField(
-                keyboardType: TextInputType.phone,
-                controller: mobileController,
-                cursorColor: AppTemplate.enabledBorderClr,
-                maxLength: 10,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(10),
-                ],
-                decoration: InputDecoration(
-                  labelText: "Mobile Number",
-                  labelStyle: GoogleFonts.inter(
-                      fontSize: 12.sp,
-                      color: const Color(0xFF929292),
-                      fontWeight: FontWeight.w400),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5.r),
-                    borderSide:
-                        BorderSide(color: AppTemplate.shadowClr, width: 1.5.w),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5.r),
-                    borderSide:
-                        BorderSide(color: AppTemplate.shadowClr, width: 1.5.w),
+      bottomNavigationBar: BottomAppBar(
+        color: AppTemplate.primaryClr,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10.w),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                width: 69.w,
+                height: 50.h,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5.r),
+                  border: Border.all(
+                    color: const Color(0xFf1E3763),
+                    width: 1.5.w,
                   ),
                 ),
-              ),
-            ),
-            SizedBox(
-              height: 0.h,
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25.w),
-              child: Text(
-                'Car Listing',
-                style: GoogleFonts.inter(
-                  color: AppTemplate.textClr,
-                  fontSize: 15.sp,
-                  fontWeight: FontWeight.w400,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.add,
+                    color: const Color(0xFf1E3763),
+                    size: 35.w,
+                  ),
+                  onPressed: _addNewCard,
                 ),
               ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                itemCount: carModelNameControllers.length,
-                itemBuilder: (context, index) {
-                  final carModelController = carModelNameControllers[index];
-                  final carNoController = carNoControllers[index];
-                  final imageFile = imageFiles[index];
-
-                  return Stack(
-                    children: [
-                      Center(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 25.w, vertical: 10.h),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: AppTemplate.primaryClr,
-                              borderRadius: BorderRadius.circular(5.r),
-                              border:
-                                  Border.all(color: const Color(0xFFD4D4D4)),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(0xFFD4D4D4),
-                                  blurRadius: 4.r,
-                                  spreadRadius: 2.r,
-                                ),
-                              ],
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 25.w, vertical: 25.h),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Textfieldwidget(
-                                    controller: carModelController,
-                                    labelTxt: 'Car Model',
-                                    labelTxtClr: const Color(0xFF929292),
-                                    enabledBorderClr: const Color(0xFFD4D4D4),
-                                    focusedBorderClr: const Color(0xFFD4D4D4),
-                                  ),
-                                  SizedBox(height: 25.h),
-                                  Textfieldwidget(
-                                    controller: carNoController,
-                                    labelTxt: 'Vehicle No',
-                                    labelTxtClr: const Color(0xFF929292),
-                                    enabledBorderClr: const Color(0xFFD4D4D4),
-                                    focusedBorderClr: const Color(0xFFD4D4D4),
-                                  ),
-                                  SizedBox(height: 25.h),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () => _pickImage(context, index),
-                                        child: Container(
-                                          width: 120.w,
-                                          height: 80.h,
-                                          decoration: BoxDecoration(
-                                            color: AppTemplate.primaryClr,
-                                            borderRadius:
-                                                BorderRadius.circular(5.r),
-                                            border: Border.all(
-                                                color: const Color(0xFFCCC3E5)),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: AppTemplate
-                                                    .enabledBorderClr,
-                                                offset: Offset(2.w, 4.h),
-                                                blurRadius: 4.r,
-                                              ),
-                                            ],
-                                          ),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              imageFile != null
-                                                  ? ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              5.r),
-                                                      child: Image.file(
-                                                        imageFile,
-                                                        height: 78.h,
-                                                        width: 120.w,
-                                                        fit: BoxFit.cover,
-                                                      ),
-                                                    )
-                                                  : SvgPicture.asset(
-                                                      'assets/svg/Camera.svg'),
-                                              if (imageFile == null)
-                                                Text(
-                                                  'Car Picture',
-                                                  style: GoogleFonts.inter(
-                                                    fontSize: 12.sp,
-                                                    color:
-                                                        const Color(0xFF6750A4),
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      GestureDetector(
-                                        onTapDown: (_) {
-                                          setState(() {
-                                            _scale =
-                                                0.95; // Scale down when tapped
-                                          });
-                                        },
-                                        onTapUp: (_) async {
-                                          setState(() {
-                                            _scale =
-                                                1.0; // Scale back to normal
-                                          });
-                                          await _requestPermissions();
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(SnackBar(
-                                            backgroundColor: AppTemplate.bgClr,
-                                            content: Text(
-                                              "Please wait..!",
-                                              style: GoogleFonts.inter(
-                                                color: AppTemplate.primaryClr,
-                                                fontWeight: FontWeight.w400,
-                                              ),
-                                            ),
-                                          ));
-                                          await _getLocation(context);
-                                        },
-                                        onTapCancel: () {
-                                          setState(() {
-                                            _scale =
-                                                1.0; // Scale back to normal if the tap is canceled
-                                          });
-                                        },
-                                        child: AnimatedScale(
-                                          scale: _scale,
-                                          duration:
-                                              const Duration(milliseconds: 100),
-                                          child: Stack(
-                                            children: [
-                                              Container(
-                                                height: 80.h,
-                                                width: 120.w,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: AppTemplate
-                                                          .enabledBorderClr,
-                                                      offset: Offset(2.w, 4.h),
-                                                      blurRadius: 4.r,
-                                                      spreadRadius: 2.r,
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          5.r),
-                                                  child: const Image(
-                                                    image: AssetImage(
-                                                        'assets/images/map.jpeg'),
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                ),
-                                              ),
-                                              Positioned(
-                                                  top: 20.h,
-                                                  left: 37.w,
-                                                  child: SvgPicture.asset(
-                                                      'assets/svg/Map pin.svg')
-                                                  // Image(
-                                                  //   image: const AssetImage(
-                                                  //       'assets/images/Map pin.png'),
-                                                  //   height: 45.w,
-                                                  // ),
-                                                  ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+              isLoading
+                  ? SizedBox(
+                      width: 227.w,
+                      height: 50.h,
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          color: Color.fromARGB(255, 0, 52, 182),
                         ),
                       ),
-                      if (index != 0)
-                        Positioned(
-                          right: 10.w,
-                          top: -5.h,
-                          child: GestureDetector(
-                            onTap: () => _removeCard(index),
+                    )
+                  : Buttonwidget(
+                      width: 227.w,
+                      height: 50.h,
+                      buttonClr: const Color(0xFf1E3763),
+                      txt: 'Create',
+                      textClr: AppTemplate.primaryClr,
+                      textSz: 18.sp,
+                      onClick: () async {
+                        await createCustomer();
+                        //Navigator.pop(context);
+                      },
+                    ),
+            ],
+          ),
+        ),
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Header(txt: 'Create Customer'),
+              SizedBox(
+                height: 20.h,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 25.w),
+                child: Text(
+                  'Customer Creation',
+                  style: GoogleFonts.inter(
+                    color: AppTemplate.textClr,
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 20.h,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 25.w),
+                child: Textfieldwidget(
+                  controller: customerController,
+                  labelTxt: 'Customer Name',
+                  labelTxtClr: const Color(0xFF929292),
+                  enabledBorderClr: const Color(0xFFD4D4D4),
+                  focusedBorderClr: const Color(0xFFD4D4D4),
+                ),
+              ),
+              SizedBox(
+                height: 20.h,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 25.w),
+                child: TextField(
+                  keyboardType: TextInputType.phone,
+                  controller: mobileController,
+                  cursorColor: AppTemplate.enabledBorderClr,
+                  maxLength: 10,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(10),
+                  ],
+                  decoration: InputDecoration(
+                    labelText: "Mobile Number",
+                    labelStyle: GoogleFonts.inter(
+                        fontSize: 12.sp,
+                        color: const Color(0xFF929292),
+                        fontWeight: FontWeight.w400),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5.r),
+                      borderSide: BorderSide(
+                          color: AppTemplate.shadowClr, width: 1.5.w),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5.r),
+                      borderSide: BorderSide(
+                          color: AppTemplate.shadowClr, width: 1.5.w),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 0.h,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 25.w),
+                child: Text(
+                  'Car Listing',
+                  style: GoogleFonts.inter(
+                    color: AppTemplate.textClr,
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 300.h,
+                child: ListView.builder(
+                  controller: _scrollController,
+                  itemCount: carModelNameControllers.length,
+                  itemBuilder: (context, index) {
+                    final carModelController = carModelNameControllers[index];
+                    final carNoController = carNoControllers[index];
+                    final imageFile = imageFiles[index];
+
+                    return Stack(
+                      children: [
+                        Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 25.w, vertical: 10.h),
                             child: Container(
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15.r),
+                                color: AppTemplate.primaryClr,
+                                borderRadius: BorderRadius.circular(5.r),
+                                border:
+                                    Border.all(color: const Color(0xFFD4D4D4)),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppTemplate.enabledBorderClr,
-                                    offset: Offset(0.w, 4.h),
+                                    color: const Color(0xFFD4D4D4),
                                     blurRadius: 4.r,
+                                    spreadRadius: 2.r,
                                   ),
                                 ],
                               ),
-                              child: CircleAvatar(
-                                backgroundColor: AppTemplate.primaryClr,
-                                radius: 15.r,
-                                child: SvgPicture.asset(
-                                    'assets/svg/red_close.svg'),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 25.w, vertical: 25.h),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Textfieldwidget(
+                                      controller: carModelController,
+                                      labelTxt: 'Car Model',
+                                      labelTxtClr: const Color(0xFF929292),
+                                      enabledBorderClr: const Color(0xFFD4D4D4),
+                                      focusedBorderClr: const Color(0xFFD4D4D4),
+                                    ),
+                                    SizedBox(height: 25.h),
+                                    Textfieldwidget(
+                                      controller: carNoController,
+                                      labelTxt: 'Vehicle No',
+                                      labelTxtClr: const Color(0xFF929292),
+                                      enabledBorderClr: const Color(0xFFD4D4D4),
+                                      focusedBorderClr: const Color(0xFFD4D4D4),
+                                    ),
+                                    SizedBox(height: 25.h),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () =>
+                                              _pickImage(context, index),
+                                          child: Container(
+                                            width: 120.w,
+                                            height: 80.h,
+                                            decoration: BoxDecoration(
+                                              color: AppTemplate.primaryClr,
+                                              borderRadius:
+                                                  BorderRadius.circular(5.r),
+                                              border: Border.all(
+                                                  color:
+                                                      const Color(0xFFCCC3E5)),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: AppTemplate
+                                                      .enabledBorderClr,
+                                                  offset: Offset(2.w, 4.h),
+                                                  blurRadius: 4.r,
+                                                ),
+                                              ],
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                imageFile != null
+                                                    ? ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(5.r),
+                                                        child: Image.file(
+                                                          imageFile,
+                                                          height: 78.h,
+                                                          width: 120.w,
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      )
+                                                    : SvgPicture.asset(
+                                                        'assets/svg/Camera.svg'),
+                                                if (imageFile == null)
+                                                  Text(
+                                                    'Car Picture',
+                                                    style: GoogleFonts.inter(
+                                                      fontSize: 12.sp,
+                                                      color: const Color(
+                                                          0xFF6750A4),
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        GestureDetector(
+                                          onTapDown: (_) {
+                                            setState(() {
+                                              _scale =
+                                                  0.95; // Scale down when tapped
+                                            });
+                                          },
+                                          onTapUp: (_) async {
+                                            setState(() {
+                                              _scale =
+                                                  1.0; // Scale back to normal
+                                            });
+                                            await _requestPermissions();
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(SnackBar(
+                                              backgroundColor:
+                                                  AppTemplate.bgClr,
+                                              content: Text(
+                                                "Please wait..!",
+                                                style: GoogleFonts.inter(
+                                                  color: AppTemplate.primaryClr,
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                              ),
+                                            ));
+                                            await _getLocation(context);
+                                          },
+                                          onTapCancel: () {
+                                            setState(() {
+                                              _scale =
+                                                  1.0; // Scale back to normal if the tap is canceled
+                                            });
+                                          },
+                                          child: AnimatedScale(
+                                            scale: _scale,
+                                            duration: const Duration(
+                                                milliseconds: 100),
+                                            child: Stack(
+                                              children: [
+                                                Container(
+                                                  height: 80.h,
+                                                  width: 120.w,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: AppTemplate
+                                                            .enabledBorderClr,
+                                                        offset:
+                                                            Offset(2.w, 4.h),
+                                                        blurRadius: 4.r,
+                                                        spreadRadius: 2.r,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5.r),
+                                                    child: const Image(
+                                                      image: AssetImage(
+                                                          'assets/images/map.jpeg'),
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Positioned(
+                                                    top: 20.h,
+                                                    left: 37.w,
+                                                    child: SvgPicture.asset(
+                                                        'assets/svg/Map pin.svg')
+                                                    // Image(
+                                                    //   image: const AssetImage(
+                                                    //       'assets/images/Map pin.png'),
+                                                    //   height: 45.w,
+                                                    // ),
+                                                    ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         ),
-                    ],
-                  );
-                },
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25.w, vertical: 10.h),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    width: 69.w,
-                    height: 50.h,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5.r),
-                      border: Border.all(
-                        color: const Color(0xFf1E3763),
-                        width: 1.5.w,
-                      ),
-                    ),
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.add,
-                        color: const Color(0xFf1E3763),
-                        size: 40.w,
-                      ),
-                      onPressed: _addNewCard,
-                    ),
-                  ),
-                  isLoading
-                      ? SizedBox(
-                          width: 227.w,
-                          height: 50.h,
-                          child: const Center(
-                            child: CircularProgressIndicator(
-                              color: Color.fromARGB(255, 0, 52, 182),
+                        if (index != 0)
+                          Positioned(
+                            right: 10.w,
+                            top: -5.h,
+                            child: GestureDetector(
+                              onTap: () => _removeCard(index),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15.r),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppTemplate.enabledBorderClr,
+                                      offset: Offset(0.w, 4.h),
+                                      blurRadius: 4.r,
+                                    ),
+                                  ],
+                                ),
+                                child: CircleAvatar(
+                                  backgroundColor: AppTemplate.primaryClr,
+                                  radius: 15.r,
+                                  child: SvgPicture.asset(
+                                      'assets/svg/red_close.svg'),
+                                ),
+                              ),
                             ),
                           ),
-                        )
-                      : Buttonwidget(
-                          width: 227.w,
-                          height: 50.h,
-                          buttonClr: const Color(0xFf1E3763),
-                          txt: 'Create',
-                          textClr: AppTemplate.primaryClr,
-                          textSz: 18.sp,
-                          onClick: () async {
-                            await createCustomer();
-                            //Navigator.pop(context);
-                          },
-                        ),
-                ],
+                      ],
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+              // Padding(
+              //   padding: EdgeInsets.symmetric(horizontal: 25.w, vertical: 10.h),
+              //   child: Row(
+              //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //     children: [
+              //       Container(
+              //         width: 69.w,
+              //         height: 50.h,
+              //         decoration: BoxDecoration(
+              //           borderRadius: BorderRadius.circular(5.r),
+              //           border: Border.all(
+              //             color: const Color(0xFf1E3763),
+              //             width: 1.5.w,
+              //           ),
+              //         ),
+              //         child: IconButton(
+              //           icon: Icon(
+              //             Icons.add,
+              //             color: const Color(0xFf1E3763),
+              //             size: 40.w,
+              //           ),
+              //           onPressed: _addNewCard,
+              //         ),
+              //       ),
+              //       isLoading
+              //           ? SizedBox(
+              //               width: 227.w,
+              //               height: 50.h,
+              //               child: const Center(
+              //                 child: CircularProgressIndicator(
+              //                   color: Color.fromARGB(255, 0, 52, 182),
+              //                 ),
+              //               ),
+              //             )
+              //           : Buttonwidget(
+              //               width: 227.w,
+              //               height: 50.h,
+              //               buttonClr: const Color(0xFf1E3763),
+              //               txt: 'Create',
+              //               textClr: AppTemplate.primaryClr,
+              //               textSz: 18.sp,
+              //               onClick: () async {
+              //                 await createCustomer();
+              //                 //Navigator.pop(context);
+              //               },
+              //             ),
+              //     ],
+              //   ),
+              // ),
+            ],
+          ),
         ),
       ),
     );

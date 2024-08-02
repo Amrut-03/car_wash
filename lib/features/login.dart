@@ -31,11 +31,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.initState();
   }
 
-  Future<void> _saveLoginStatus(String name, String image) async {
+  Future<void> _saveLoginStatus(
+      String name, String image, String emp_id) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', true);
     await prefs.setString('name', name);
     await prefs.setString('employee_pic', image);
+    await prefs.setString('emp_id', emp_id);
   }
 
   void _login(BuildContext context) async {
@@ -87,8 +89,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         ref.read(adminProvider.notifier).state = admin;
         String status = jsonResponse['status'];
         if (status == 'Success') {
-          await _saveLoginStatus(
-              jsonResponse['name'], jsonResponse['employee_pic']);
+          await _saveLoginStatus(jsonResponse['name'],
+              jsonResponse['employee_pic'], jsonResponse["emp_id"]);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: AppTemplate.bgClr,
@@ -105,6 +107,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 builder: (context) => DashBoard(
                       name: jsonResponse['name'],
                       image: jsonResponse['employee_pic'],
+                      empid: jsonResponse['emp_id'],
                     )),
             (Route<dynamic> route) => false,
           );

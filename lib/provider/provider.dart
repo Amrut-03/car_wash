@@ -23,6 +23,10 @@ class CustomerCardNotifier extends StateNotifier<List<CustomerCard>> {
     }
   }
 
+  void resetCards() {
+    state = [CustomerCard()];
+  }
+
   void addCard() {
     state = [...state, CustomerCard()];
   }
@@ -32,6 +36,10 @@ class CustomerCardNotifier extends StateNotifier<List<CustomerCard>> {
       state.removeAt(index);
       state = List.from(state);
     }
+  }
+
+  void clearCards() {
+    state = [];
   }
 }
 
@@ -78,6 +86,12 @@ final aadharBackProvider = StateProvider<File?>((ref) => null);
 final driveFrontProvider = StateProvider<File?>((ref) => null);
 final driveBackProvider = StateProvider<File?>((ref) => null);
 final employeePhotoProvider = StateProvider<File?>((ref) => null);
+
+final aadharFrontUrlProvider = StateProvider<String?>((ref) => null);
+final aadharBackUrlProvider = StateProvider<String?>((ref) => null);
+final driveFrontUrlProvider = StateProvider<String?>((ref) => null);
+final driveBackUrlProvider = StateProvider<String?>((ref) => null);
+final employeePhotoUrlProvider = StateProvider<String?>((ref) => null);
 
 //Admin provider
 final adminProvider = StateProvider<Admin>(

@@ -291,13 +291,6 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
       setState(() {
         isLoading = false;
       });
-      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      //     backgroundColor: AppTemplate.bgClr,
-      //     content: Text(
-      //       'Error: ${e.toString()}',
-      //       style: GoogleFonts.inter(
-      //           color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-      //     )));
     }
   }
 

@@ -268,7 +268,7 @@ class Customer extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 20.h),
+            // SizedBox(height: 20.h),
             Obx(() {
               if (customerController.body.isEmpty) {
                 return Center(
