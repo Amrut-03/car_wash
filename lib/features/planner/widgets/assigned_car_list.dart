@@ -6,6 +6,7 @@ import 'package:car_wash/common/widgets/textFieldWidget.dart';
 import 'package:car_wash/features/planner/model/assigned_car.dart';
 import 'package:car_wash/features/planner/model/wash_type.dart';
 import 'package:car_wash/features/planner/widgets/assigned_card.dart';
+import 'package:car_wash/provider/admin_provider.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -81,7 +82,7 @@ class _AssignedCarListState extends ConsumerState<AssignedCarList> {
       isLoading = true;
     });
     const url = 'https://wash.sortbe.com/API/Admin/Planner/Planner-Sorting';
-    final admin = ref.read(adminProvider);
+    final admin = ref.watch(authProvider);
     List<String> carIds = _assignedCars.map((car) => car.carId).toList();
 
     try {
@@ -89,7 +90,7 @@ class _AssignedCarListState extends ConsumerState<AssignedCarList> {
         Uri.parse(url),
         body: {
           'enc_key': encKey,
-          'emp_id': admin.id,
+          'emp_id': admin.admin!.id,
           'planner_date': plannerDate,
           'cleaner_key': widget.cleanerKey,
           'car_order': jsonEncode(carIds),

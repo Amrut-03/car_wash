@@ -4,6 +4,7 @@ import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
 import 'package:car_wash/features/dashboard.dart';
 import 'package:car_wash/features/planner/model/admin.dart';
+import 'package:car_wash/provider/admin_provider.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
@@ -79,14 +80,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (response.statusCode == 200) {
         String responseBody = await response.stream.bytesToString();
         var jsonResponse = jsonDecode(responseBody);
+       
 
         final admin = Admin(
-          empName: jsonResponse['name'] ?? 'Unknown',
-          id: jsonResponse['emp_id'] ?? '',
-          profilePic: jsonResponse['employee_pic'] ?? '',
+          empName: jsonResponse['name'],
+          id: jsonResponse['emp_id'],
+          profilePic: jsonResponse['employee_pic'],
         );
 
-        ref.read(adminProvider.notifier).state = admin;
+        ref.read(authProvider.notifier).login(admin);
+        print('Nmae - ${admin.empName}');
+        print('id - ${admin.id}');
+        print('pic - ${admin.profilePic}');
+        
         String status = jsonResponse['status'];
         if (status == 'Success') {
           await _saveLoginStatus(jsonResponse['name'],

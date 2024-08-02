@@ -93,11 +93,4 @@ final driveFrontUrlProvider = StateProvider<String?>((ref) => null);
 final driveBackUrlProvider = StateProvider<String?>((ref) => null);
 final employeePhotoUrlProvider = StateProvider<String?>((ref) => null);
 
-//Admin provider
-final adminProvider = StateProvider<Admin>(
-  (ref) => Admin(
-    empName: '',
-    id: '',
-    profilePic: '',
-  ),
-);
+
