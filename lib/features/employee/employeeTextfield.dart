@@ -126,7 +126,6 @@ class EmployeeTextfield extends ConsumerWidget {
         Uri.parse('https://wash.sortbe.com/API/Admin/User/Employee-Creation'));
     request.fields.addAll({
       'enc_key': encKey,
-feature-planner
       'emp_id': ref.read(adminProvider).id,
       'emp_name': empName,
       'dob': dob,
