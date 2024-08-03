@@ -276,15 +276,15 @@ class Menu {
             ));
       },
       transitionBuilder: (context, animation, secondaryAnimation, child) {
-        if (animation == null) {
-          print('Animation is null');
-          return SizedBox.shrink();
-        }
+        // if (animation == null) {
+        //   print('Animation is null');
+        //   return SizedBox.shrink();
+        // }
 
-        if (child == null) {
-          print('Child is null');
-          return SizedBox.shrink();
-        }
+        // if (child == null) {
+        //   print('Child is null');
+        //   return SizedBox.shrink();
+        // }
 
         return SlideTransition(
           position: Tween<Offset>(

@@ -1,9 +1,9 @@
 import 'package:car_wash/common/utils/constants.dart';
-import 'package:car_wash/common/widgets/demo.dart';
 import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/common/widgets/listedCarsList.dart';
 import 'package:car_wash/common/widgets/recentWashesList.dart';
 import 'package:car_wash/features/customer/customer.dart';
+import 'package:car_wash/features/customer/editCustomer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';

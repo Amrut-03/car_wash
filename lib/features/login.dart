@@ -125,7 +125,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             SnackBar(
                 backgroundColor: AppTemplate.bgClr,
                 content: Text(
-                  jsonResponse['remarks'] ?? 'Login failed',
+                  'Credentials are wrong',
                   style: GoogleFonts.inter(
                       color: AppTemplate.primaryClr,
                       fontWeight: FontWeight.w400),
@@ -146,7 +146,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               )),
         );
       }
-    } on http.ClientException catch (e) {
+    } on http.ClientException {
       setState(() {
         isLoading = false;
       });

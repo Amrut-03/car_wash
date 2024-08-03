@@ -409,8 +409,6 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
 
   @override
   Widget build(BuildContext context) {
-    final customerCards = ref.watch(customerCardProvider);
-
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: AppTemplate.primaryClr,
