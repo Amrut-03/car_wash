@@ -6,6 +6,7 @@ import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
 import 'package:car_wash/features/dashboard.dart';
 import 'package:car_wash/features/employee/employee.dart';
+import 'package:car_wash/provider/admin_provider.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -83,6 +84,7 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
     final phone1 = ref.read(phone1ControllerProvider).text;
     final phone2 = ref.read(phone2ControllerProvider).text;
     final password = ref.read(passwordControllerProvider).text;
+    final admin = ref.read(authProvider);
     setState(() {
       isLoading = true;
     });
@@ -162,7 +164,7 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
         Uri.parse('https://wash.sortbe.com/API/Admin/User/Employee-Creation'));
     request.fields.addAll({
       'enc_key': encKey,
-      'emp_id': ref.read(adminProvider).id,
+      'emp_id': admin.admin!.id,
       'emp_name': empName,
       'dob': dob,
       'address': address,

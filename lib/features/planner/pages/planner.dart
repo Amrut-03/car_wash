@@ -10,12 +10,14 @@ import 'package:car_wash/features/planner/model/car_params.dart';
 import 'package:car_wash/features/planner/model/wash_type.dart';
 import 'package:car_wash/features/planner/widgets/assigned_car_list.dart';
 import 'package:car_wash/features/planner/widgets/cars_to_wash_widget.dart';
+import 'package:car_wash/provider/admin_provider.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Planner extends ConsumerStatefulWidget {
   const Planner({super.key, required this.empName, required this.empId});
@@ -34,12 +36,17 @@ class _PlannerState extends ConsumerState<Planner> {
   List<AllCar> filteredCars = [];
   String start = '';
   String end = '';
-  bool isLoading = false;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
     searchEmployee.addListener(_filterCars);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     fetchCars();
     fetchWashes();
   }
@@ -67,15 +74,16 @@ class _PlannerState extends ConsumerState<Planner> {
   }
 
   Future<void> fetchCars() async {
-    setState(() {
-      isLoading = true;
-    });
     const url = 'https://wash.sortbe.com/API/Admin/Planner/Client-Planner';
 
-    final admin = ref.read(adminProvider);
+    final admin = ref.watch(authProvider);
 
-    final carParams = CarParams(
-      empId: admin.id,
+    if (admin.admin == null) {
+      print('Error: Admin is null');
+    }
+
+    final carParams = await CarParams(
+      empId: admin.admin!.id,
       searchName: searchEmployee.text,
       cleanerKey: widget.empId,
     );
@@ -85,7 +93,7 @@ class _PlannerState extends ConsumerState<Planner> {
         Uri.parse(url),
         body: {
           'enc_key': encKey,
-          'emp_id': admin.id,
+          'emp_id': carParams.empId,
           'search_name': carParams.searchName,
           'planner_date': plannerDate,
           'cleaner_key': carParams.cleanerKey,
@@ -97,15 +105,17 @@ class _PlannerState extends ConsumerState<Planner> {
         List<dynamic> allCarsJson = responseData['data']['all_cars'] ?? [];
         List<dynamic> assignedCarsJson =
             responseData['data']['assigned_cars'] ?? [];
-        setState(() {
-          allCars =
-              List<AllCar>.from(allCarsJson.map((x) => AllCar.fromJson(x)));
-          assignedCars = List<AssignedCar>.from(
-              assignedCarsJson.map((x) => AssignedCar.fromJson(x)));
-          start = responseData['start_km'];
-          end = responseData['end_km'];
-          filteredCars = allCars;
-        });
+        if (mounted) {
+          setState(() {
+            allCars =
+                List<AllCar>.from(allCarsJson.map((x) => AllCar.fromJson(x)));
+            assignedCars = List<AssignedCar>.from(
+                assignedCarsJson.map((x) => AssignedCar.fromJson(x)));
+            start = responseData['start_km'];
+            end = responseData['end_km'];
+            filteredCars = allCars;
+          });
+        }
       } else {
         throw Exception('Failed to load cars');
       }
@@ -131,11 +141,13 @@ class _PlannerState extends ConsumerState<Planner> {
 
       final responseData = jsonDecode(response.body);
       if (responseData['status'] == "Success") {
-        setState(() {
-          washTypes = (responseData['data'] as List)
-              .map((item) => WashType.fromJson(item))
-              .toList();
-        });
+        if (mounted) {
+          setState(() {
+            washTypes = (responseData['data'] as List)
+                .map((item) => WashType.fromJson(item))
+                .toList();
+          });
+        }
       } else {
         // Handle server error
         print('Server error: ${response.statusCode}');

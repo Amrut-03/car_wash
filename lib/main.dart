@@ -1,5 +1,6 @@
 import 'package:car_wash/features/dashboard.dart';
 import 'package:car_wash/features/login.dart';
+import 'package:car_wash/provider/admin_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,69 +32,31 @@ void main() {
   });
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
-  Future<bool> checkLoginStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('isLoggedIn') ?? false;
-  }
-
-  Future<Map<String, String>> getUserData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? name = prefs.getString('name');
-    String? image = prefs.getString('employee_pic');
-    String? emp_id = prefs.getString('emp_id');
-    return {
-      'name': name ?? '',
-      'image': image ?? '',
-      'emp_id': emp_id ?? '',
-    };
-  }
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
     return ScreenUtilInit(
-        designSize: const Size(360, 690),
-        builder: (_, child) {
-          return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              home: FutureBuilder<bool>(
-                future: checkLoginStatus(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return const Center(child: Text('Error loading data'));
-                  } else if (snapshot.hasData && snapshot.data == true) {
-                    return FutureBuilder<Map<String, String>>(
-                      future: getUserData(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        } else if (snapshot.hasError) {
-                          return const Center(
-                              child: Text('Error loading data'));
-                        } else if (snapshot.hasData) {
-                          final userData = snapshot.data!;
-                          return DashBoard(
-                            name: userData['name']!,
-                            image: userData['image']!,
-                            empid: userData['emp_id']!,
-                          );
-                        } else {
-                          return const LoginScreen();
-                        }
-                      },
-                    );
-                  } else {
-                    return const LoginScreen();
-                  }
-                },
-              ));
-          // home: EditEmployeePage());
-        });
+      designSize: const Size(360, 690),
+      builder: (_, child) {
+        Widget home;
+        if (!authState.isLoggedIn) {
+          home = const LoginScreen();
+        } else {
+          home = DashBoard(
+            name: authState.admin!.empName,
+            image: authState.admin!.profilePic,
+            empid: authState.admin!.id,
+          );
+        }
+
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: home,
+        );
+      },
+    );
   }
 }
