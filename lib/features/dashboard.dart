@@ -3,12 +3,53 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:car_wash/common/utils/constants.dart';
-import 'package:car_wash/common/widgets/cardLists.dart';
 import 'package:car_wash/common/widgets/upwardMenu.dart';
+
+class DashboardController extends GetxController {
+  var isLoading = true.obs;
+  var dashboardData = {}.obs;
+  var employeeCount = '0'.obs;
+  var customerCount = '0'.obs;
+  var washInfoList = [].obs;
+
+  @override
+  void onInit() {
+    fetchDashboardData();
+    super.onInit();
+  }
+
+  Future<void> fetchDashboardData() async {
+    try {
+      isLoading(true);
+      var request = http.MultipartRequest('POST',
+          Uri.parse('https://wash.sortbe.com/API/Admin/Dashboard/Dashboard'));
+      request.fields
+          .addAll({'enc_key': 'C0oRAe1QNtn3zYNvJ8rv', 'emp_id': '123'});
+
+      http.StreamedResponse response = await request.send();
+      if (response.statusCode == 200) {
+        String responseBody = await response.stream.bytesToString();
+        var data = jsonDecode(responseBody);
+
+        dashboardData.value = data;
+        employeeCount.value = data['total_employee'] ?? '0';
+        customerCount.value = data['total_customer'] ?? '0';
+        washInfoList.value = data['wash_info'] ?? [];
+      } else {
+        print('Failed to load data: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
+    } finally {
+      isLoading(false);
+    }
+  }
+}
 
 // ignore: must_be_immutable
 class DashBoard extends StatefulWidget {
@@ -27,27 +68,27 @@ class DashBoard extends StatefulWidget {
 }
 
 class _DashBoardState extends State<DashBoard> {
-  Future<Map<String, dynamic>?> dashBoardData() async {
-    try {
-      var request = http.MultipartRequest('POST',
-          Uri.parse('https://wash.sortbe.com/API/Admin/Dashboard/Dashboard'));
-      request.fields
-          .addAll({'enc_key': 'C0oRAe1QNtn3zYNvJ8rv', 'emp_id': '123'});
+  // Future<Map<String, dynamic>?> dashBoardData() async {
+  //   try {
+  //     var request = http.MultipartRequest('POST',
+  //         Uri.parse('https://wash.sortbe.com/API/Admin/Dashboard/Dashboard'));
+  //     request.fields
+  //         .addAll({'enc_key': 'C0oRAe1QNtn3zYNvJ8rv', 'emp_id': '123'});
 
-      http.StreamedResponse response = await request.send();
-      if (response.statusCode == 200) {
-        String responseBody = await response.stream.bytesToString();
-        var data = jsonDecode(responseBody);
-        return data;
-      } else {
-        print('Failed to load data: ${response.reasonPhrase}');
-        return null;
-      }
-    } catch (e) {
-      print('Error fetching data: $e');
-      return null;
-    }
-  }
+  //     http.StreamedResponse response = await request.send();
+  //     if (response.statusCode == 200) {
+  //       String responseBody = await response.stream.bytesToString();
+  //       var data = jsonDecode(responseBody);
+  //       return data;
+  //     } else {
+  //       print('Failed to load data: ${response.reasonPhrase}');
+  //       return null;
+  //     }
+  //   } catch (e) {
+  //     print('Error fetching data: $e');
+  //     return null;
+  //   }
+  // }
 
   @override
   void initState() {
@@ -58,29 +99,22 @@ class _DashBoardState extends State<DashBoard> {
   @override
   @override
   Widget build(BuildContext context) {
+    final DashboardController dashboardController =
+        Get.put(DashboardController());
     return Scaffold(
       backgroundColor: AppTemplate.primaryClr,
-      body: FutureBuilder<Map<String, dynamic>?>(
-        future: dashBoardData(),
-        builder: (BuildContext context,
-            AsyncSnapshot<Map<String, dynamic>?> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+      body: Obx(
+        () {
+          if (dashboardController.isLoading.value) {
             return Center(
               child: CircularProgressIndicator(
                 backgroundColor: AppTemplate.primaryClr,
                 color: Color.fromARGB(255, 0, 52, 182),
               ),
             );
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data == null) {
+          } else if (!dashboardController.dashboardData.isNotEmpty) {
             return Center(child: Text('No data available'));
           } else {
-            var data = snapshot.data!;
-            var employeeCount = data['total_employee'] ?? '0';
-            var customerCount = data['total_customer'] ?? '0';
-            var washInfoList = data['wash_info'];
-
             return Center(
               child: Stack(
                 children: [
@@ -111,34 +145,18 @@ class _DashBoardState extends State<DashBoard> {
                                 children: [
                                   ListTile(
                                     leading: ClipOval(
-                                      child: Image.network(
-                                        height: 30,
-                                        widget.image,
-                                        loadingBuilder: (BuildContext context,
-                                            Widget child,
-                                            ImageChunkEvent? loadingProgress) {
-                                          if (loadingProgress == null) {
-                                            return child;
-                                          } else {
-                                            return Image.asset(
-                                              'assets/images/noavatar.png',
-                                              height: 30,
-                                              fit: BoxFit.cover,
-                                            );
-                                          }
-                                        },
-                                        errorBuilder: (BuildContext context,
-                                            Object error,
-                                            StackTrace? stackTrace) {
-                                          return Image.asset(
-                                            'assets/images/noavatar.png',
-                                            height: 30,
-                                            fit: BoxFit.cover,
-                                          );
-                                        },
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
+                                        child: Image.network(
+                                      widget.image,
+                                      height: 25.h,
+                                      errorBuilder: (BuildContext context,
+                                          Object exception,
+                                          StackTrace? stackTrace) {
+                                        return Image.asset(
+                                          'assets/images/noavatar.png',
+                                          height: 25.h,
+                                        ); // Fallback image
+                                      },
+                                    )),
                                     title: Text(
                                       "Hi ${widget.name}",
                                       style: GoogleFonts.inter(
@@ -189,9 +207,11 @@ class _DashBoardState extends State<DashBoard> {
                                 ),
                                 Expanded(
                                   child: ListView.builder(
-                                    itemCount: washInfoList.length,
+                                    itemCount:
+                                        dashboardController.washInfoList.length,
                                     itemBuilder: (context, index) {
-                                      final washInfo = washInfoList[index];
+                                      final washInfo = dashboardController
+                                          .washInfoList[index];
                                       return Visibility(
                                         visible: washInfo != null,
                                         replacement: Text('No Record Found'),
@@ -284,9 +304,10 @@ class _DashBoardState extends State<DashBoard> {
                                                         child: Padding(
                                                           padding: EdgeInsets
                                                               .symmetric(
-                                                            horizontal: 10.w,
-                                                            vertical: 3.h,
-                                                          ),
+                                                                  horizontal:
+                                                                      10.w,
+                                                                  vertical:
+                                                                      3.h),
                                                           child: Text(
                                                             washInfo[
                                                                     'wash_type'] ??
@@ -339,7 +360,7 @@ class _DashBoardState extends State<DashBoard> {
                                                   ),
                                                 ],
                                               ),
-                                            )
+                                            ),
                                           ],
                                         ),
                                       );
@@ -391,16 +412,16 @@ class _DashBoardState extends State<DashBoard> {
                               children: [
                                 Column(
                                   children: [
-                                    Text(
-                                      employeeCount != null
-                                          ? employeeCount
-                                          : "0",
-                                      style: GoogleFonts.inter(
-                                        color: AppTemplate.buttonClr,
-                                        fontSize: 22.sp,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                                    Obx(() {
+                                      return Text(
+                                        dashboardController.employeeCount.value,
+                                        style: GoogleFonts.inter(
+                                          color: AppTemplate.buttonClr,
+                                          fontSize: 22.sp,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      );
+                                    }),
                                     Text(
                                       "Employee",
                                       style: GoogleFonts.inter(
@@ -412,18 +433,19 @@ class _DashBoardState extends State<DashBoard> {
                                   ],
                                 ),
                                 SizedBox(width: 20.w),
+                                // Customer Count
                                 Column(
                                   children: [
-                                    Text(
-                                      customerCount != null
-                                          ? customerCount
-                                          : "0",
-                                      style: GoogleFonts.inter(
-                                        color: AppTemplate.buttonClr,
-                                        fontSize: 22.sp,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                                    Obx(() {
+                                      return Text(
+                                        dashboardController.customerCount.value,
+                                        style: GoogleFonts.inter(
+                                          color: AppTemplate.buttonClr,
+                                          fontSize: 22.sp,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      );
+                                    }),
                                     Text(
                                       "Customers",
                                       style: GoogleFonts.inter(

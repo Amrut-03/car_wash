@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
+import 'package:car_wash/features/dashboard.dart';
 import 'package:car_wash/features/employee/employee.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -301,6 +302,8 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
     final driveFront = ref.watch(driveFrontProvider);
     final driveBack = ref.watch(driveBackProvider);
     final employeePhoto = ref.watch(employeePhotoProvider);
+    final DashboardController dashboardController =
+        Get.put(DashboardController());
 
     Widget imagePreview(File? image) {
       return image != null
@@ -775,6 +778,7 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
                     onClick: () async {
                       await createEmployee(context, ref);
                       controller.fetchEmployeeList();
+                      dashboardController.fetchDashboardData();
                     },
                   ),
           ],

@@ -1,6 +1,4 @@
-import 'package:car_wash/common/widgets/demo.dart';
 import 'package:car_wash/features/dashboard.dart';
-import 'package:car_wash/features/employee/editEmployee.dart';
 import 'package:car_wash/features/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
