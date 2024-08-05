@@ -1,17 +1,18 @@
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/features/customer/carWashedDetails.dart';
+import 'package:car_wash/features/customer/model/customer_profile_model.dart';
 import 'package:car_wash/features/employee/model/employee_data_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class RecentWashesList extends StatelessWidget {
-  const RecentWashesList({super.key, required this.wash});
-  final List<Wash> wash;
+class CustomerRecentWashesList extends StatelessWidget {
+  const CustomerRecentWashesList({super.key, required this.washList});
+  final List<WashListItem> washList;
 
   @override
   Widget build(BuildContext context) {
-    return wash.isEmpty
+    return washList.isEmpty
         ? Expanded(
             child: Padding(
               padding: const EdgeInsets.only(top: 50.0),
@@ -28,7 +29,7 @@ class RecentWashesList extends StatelessWidget {
           )
         : Expanded(
             child: ListView.builder(
-              itemCount: wash.length,
+              itemCount: washList.length,
               itemBuilder: (context, index) {
                 return Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20.w),
@@ -39,7 +40,7 @@ class RecentWashesList extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) => CarWashedDetails(
-                              washId: wash[index].washId,
+                              washId: washList[index].id,
                             ),
                           ),
                         ),
@@ -65,19 +66,21 @@ class RecentWashesList extends StatelessWidget {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    wash[index].washTime,
+                                    washList[index].washDate == null
+                                        ? '00:00'
+                                        : '${washList[index].washDate}',
                                     style: GoogleFonts.inter(
                                         color: AppTemplate.textClr,
                                         fontWeight: FontWeight.w400,
                                         fontSize: 15.sp),
                                   ),
                                   Text(
-                                    wash[index].washStatus,
+                                    washList[index].washStatus,
                                     style: GoogleFonts.inter(
                                       fontStyle: FontStyle.italic,
                                       fontWeight: FontWeight.w400,
-                                      color:
-                                          statusColor[wash[index].washStatus],
+                                      color: statusColor[
+                                          washList[index].washStatus],
                                       fontSize: 13.sp,
                                     ),
                                   )

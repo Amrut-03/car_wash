@@ -91,12 +91,6 @@ class _DashBoardState extends State<DashBoard> {
   // }
 
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
-  @override
   @override
   Widget build(BuildContext context) {
     final DashboardController dashboardController =
@@ -268,21 +262,19 @@ class _DashBoardState extends State<DashBoard> {
                                                             GoogleFonts.inter(
                                                           fontWeight:
                                                               FontWeight.w600,
-                                                          color:
-                                                              washInfo["wash_status"] ==
-                                                                      "Completed"
-                                                                  ? const Color
-                                                                      .fromRGBO(
-                                                                      86,
-                                                                      156,
-                                                                      0,
-                                                                      10)
-                                                                  : const Color
-                                                                      .fromRGBO(
-                                                                      255,
-                                                                      195,
-                                                                      0,
-                                                                      10),
+                                                          color: washInfo[
+                                                                      "wash_status"] ==
+                                                                  "Completed"
+                                                              ? const Color
+                                                                  .fromRGBO(
+                                                                  86,
+                                                                  156,
+                                                                  0,
+                                                                  10,
+                                                                )
+                                                              : const Color
+                                                                  .fromRGBO(255,
+                                                                  195, 0, 10),
                                                           fontSize: 10.sp,
                                                         ),
                                                       ),

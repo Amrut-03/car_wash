@@ -1,27 +1,155 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/header.dart';
+import 'package:car_wash/features/customer/model/wash_info_model.dart';
+import 'package:car_wash/provider/admin_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_launcher_icons/xml_templates.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 
-TextEditingController issueController = TextEditingController();
-
-class CarWashedDetails extends StatefulWidget {
-  const CarWashedDetails({super.key});
+class CarWashedDetails extends ConsumerStatefulWidget {
+  const CarWashedDetails({super.key, required this.washId});
+  final String washId;
 
   @override
-  State<CarWashedDetails> createState() => _CarWashedDetailsState();
+  ConsumerState<CarWashedDetails> createState() => _CarWashedDetailsState();
 }
 
-class _CarWashedDetailsState extends State<CarWashedDetails> {
-  String isTicket = 'Close Ticket';
+class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
+  WashResponse? washResponse;
+  List<CleanedPhoto> beforeWashPhotos = [];
+  List<CleanedPhoto> afterWashPhotos = [];
+  TextEditingController issueController = TextEditingController();
+
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    isTicket;
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    fetchWashInfo();
+  }
+
+  Future<void> fetchWashInfo() async {
+    const url = 'https://wash.sortbe.com/API/Admin/Client/Wash-Information';
+
+    final authState = ref.watch(authProvider);
+    print('admin = ${authState.admin!.id}');
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        body: {
+          'enc_key': encKey,
+          'emp_id': authState.admin!.id,
+          'wash_id': widget.washId,
+        },
+      );
+
+      var responseData = jsonDecode(response.body);
+      print('Response - $responseData');
+
+      if (responseData['status'] == 'Success') {
+        setState(() {
+          washResponse = WashResponse.fromJson(responseData);
+          beforeWashPhotos = washResponse!.cleanedPhotos
+              .where((photo) => photo.cleanDuration == 'Before')
+              .toList();
+          afterWashPhotos = washResponse!.cleanedPhotos
+              .where((photo) => photo.cleanDuration == 'After')
+              .toList();
+        });
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      log('Error = $e');
+    }
+  }
+
+  Future<void> createTicket() async {
+    const url = 'https://wash.sortbe.com/API/Admin/Client/Ticket-Creation';
+
+    final authState = ref.watch(authProvider);
+    print('admin = ${authState.admin!.id}');
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        body: {
+          'enc_key': encKey,
+          'emp_id': authState.admin!.id,
+          'wash_id': widget.washId,
+          'remarks': issueController.text,
+        },
+      );
+
+      var responseData = jsonDecode(response.body);
+      print('Response - $responseData');
+
+      if (responseData['status'] == 'Success') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: AppTemplate.bgClr,
+            content: Text(
+              'Ticket Created Successfully',
+              style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        );
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      log('Error = $e');
+    }
+  }
+
+  Future<void> closeTicket(String ticketId) async {
+    const url = 'https://wash.sortbe.com/API/Admin/Client/Ticket-Close';
+
+    final authState = ref.watch(authProvider);
+    print('admin = ${authState.admin!.id}');
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        body: {
+          'enc_key': encKey,
+          'emp_id': authState.admin!.id,
+          'ticket_id': ticketId,
+        },
+      );
+
+      var responseData = jsonDecode(response.body);
+      print('Response - $responseData');
+
+      if (responseData['status'] == 'Success') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: AppTemplate.bgClr,
+            content: Text(
+              'Ticket Resolved Successfully',
+              style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        );
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      log('Error = $e');
+    }
   }
 
   @override
@@ -60,8 +188,8 @@ class _CarWashedDetailsState extends State<CarWashedDetails> {
                     cursorColor: const Color(0xFFD4D4D4),
                     controller: issueController,
                     decoration: InputDecoration(
-                      labelText: 'Issue Remarks',
-                      labelStyle:
+                      hintText: 'Issue Remarks',
+                      hintStyle:
                           GoogleFonts.inter(color: const Color(0xFF929292)),
                       focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(
@@ -70,24 +198,17 @@ class _CarWashedDetailsState extends State<CarWashedDetails> {
                           borderSide: BorderSide(
                               color: const Color(0xFFD4D4D4), width: 1.5.w)),
                     ),
-                    maxLines: 4,
+                    maxLines: 5,
                   ),
                   SizedBox(height: 20.h),
                   ElevatedButton(
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          backgroundColor: AppTemplate.bgClr,
-                          content: Text(
-                            'Issue submitted Successfully',
-                            style: GoogleFonts.inter(
-                                color: AppTemplate.primaryClr,
-                                fontWeight: FontWeight.w400),
-                          )));
-                      setState(() {});
+                      createTicket();
+                      fetchWashInfo();
                       Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(
-                      minimumSize: Size(227.w, 50.h),
+                      minimumSize: Size(227.w, 50),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5.r)),
                       backgroundColor: const Color(0xFF1E3763),
@@ -115,171 +236,19 @@ class _CarWashedDetailsState extends State<CarWashedDetails> {
 
     return Scaffold(
       backgroundColor: AppTemplate.primaryClr,
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Header(txt: 'Abinanthan'),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25.w, vertical: 25.h),
-              child: Container(
-                decoration: BoxDecoration(
-                    color: AppTemplate.primaryClr,
-                    boxShadow: [
-                      BoxShadow(
-                          color: const Color(0xFFE1E1E1),
-                          blurRadius: 4.r,
-                          spreadRadius: 0.r,
-                          offset: Offset(0.w, 4.h))
-                    ],
-                    borderRadius: BorderRadius.circular(10.r),
-                    border: Border.all(color: const Color(0xFFE1E1E1))),
-                child: Padding(
-                  padding: EdgeInsets.all(15.h),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Abinanthan',
-                            style: GoogleFonts.inter(
-                                color: AppTemplate.textClr,
-                                fontWeight: FontWeight.w400,
-                                fontSize: 15.sp),
-                          ),
-                          Text(
-                            "13 July 2024",
-                            style: GoogleFonts.inter(
-                                color: AppTemplate.textClr,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 13.sp),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        '+91 98765 43210',
-                        style: GoogleFonts.inter(
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w800,
-                            color: const Color(0xFF001C63)),
-                      ),
-                      SizedBox(
-                        height: 15.r,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Exterior Wash',
-                            style: GoogleFonts.inter(
-                                fontWeight: FontWeight.w400,
-                                fontStyle: FontStyle.italic,
-                                color: AppTemplate.textClr,
-                                fontSize: 12.sp),
-                          ),
-                          Text(
-                            'Pending',
-                            style: GoogleFonts.inter(
-                                fontWeight: FontWeight.w400,
-                                color: const Color.fromRGBO(255, 195, 0, 10),
-                                fontSize: 13.sp),
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25.w),
-              child: Text(
-                'Before Wash',
-                style: GoogleFonts.inter(
-                    fontWeight: FontWeight.w700,
-                    color: AppTemplate.textClr,
-                    fontSize: 13.sp),
-              ),
-            ),
-            SizedBox(
-              height: 10.h,
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25.w, vertical: 10.h),
-              child: Container(
-                height: 140.h,
-                width: 220.w,
-                decoration: BoxDecoration(
-                    color: AppTemplate.primaryClr,
-                    boxShadow: [
-                      BoxShadow(
-                          color: const Color(0xFFE1E1E1),
-                          blurRadius: 4.r,
-                          spreadRadius: 0.r,
-                          offset: Offset(0.w, 4.h))
-                    ],
-                    borderRadius: BorderRadius.circular(5.r),
-                    border: Border.all(color: const Color(0xFFE1E1E1))),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(5.r),
-                  child: Image.asset(
-                    'assets/images/bmw.jpeg',
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 10.h,
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25.w),
-              child: Text(
-                'After Wash',
-                style: GoogleFonts.inter(
-                    fontWeight: FontWeight.w700,
-                    color: AppTemplate.textClr,
-                    fontSize: 13.sp),
-              ),
-            ),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 25.w),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 10.h),
-                      child: Container(
-                        height: 140.h,
-                        width: 220.w,
-                        decoration: BoxDecoration(
-                            color: AppTemplate.primaryClr,
-                            boxShadow: [
-                              BoxShadow(
-                                  color: const Color(0xFFE1E1E1),
-                                  blurRadius: 4.r,
-                                  spreadRadius: 0.r,
-                                  offset: Offset(0.w, 4.h))
-                            ],
-                            borderRadius: BorderRadius.circular(5.r),
-                            border: Border.all(color: const Color(0xFFE1E1E1))),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(5.r),
-                          child: Image.asset(
-                            'assets/images/bmw.jpeg',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 20.w,
-                    ),
-                    Container(
+      body: washResponse == null
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Header(txt: washResponse!.cleanerName),
+                  Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 25.w, vertical: 25.h),
+                    child: Container(
                       decoration: BoxDecoration(
                           color: AppTemplate.primaryClr,
                           boxShadow: [
@@ -289,370 +258,558 @@ class _CarWashedDetailsState extends State<CarWashedDetails> {
                                 spreadRadius: 0.r,
                                 offset: Offset(0.w, 4.h))
                           ],
-                          borderRadius: BorderRadius.circular(5.r),
+                          borderRadius: BorderRadius.circular(10.r),
                           border: Border.all(color: const Color(0xFFE1E1E1))),
-                      child: SizedBox(
-                          height: 140.h,
-                          width: 220.w,
-                          child: const Image(
-                            image: AssetImage('assets/images/bmw1.jpeg'),
-                            fit: BoxFit.cover,
-                          )),
-                    ),
-                    SizedBox(
-                      width: 20.w,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 10.h),
-                      child: Container(
-                        height: 140.h,
-                        width: 220.w,
-                        decoration: BoxDecoration(
-                            color: AppTemplate.primaryClr,
-                            boxShadow: [
-                              BoxShadow(
-                                  color: const Color(0xFFE1E1E1),
-                                  blurRadius: 4.r,
-                                  spreadRadius: 0.r,
-                                  offset: Offset(0.w, 4.h))
-                            ],
-                            borderRadius: BorderRadius.circular(5.r),
-                            border: Border.all(color: const Color(0xFFE1E1E1))),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(5.r),
-                          child: Image.asset(
-                            'assets/images/bmw.jpeg',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 20.w,
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: AppTemplate.primaryClr,
-                          boxShadow: [
-                            BoxShadow(
-                                color: const Color(0xFFE1E1E1),
-                                blurRadius: 4.r,
-                                spreadRadius: 0.r,
-                                offset: Offset(0.w, 4.h))
-                          ],
-                          borderRadius: BorderRadius.circular(5.r),
-                          border: Border.all(color: const Color(0xFFE1E1E1))),
-                      child: SizedBox(
-                          height: 140.h,
-                          width: 220.w,
-                          child: const Image(
-                            image: AssetImage('assets/images/bmw1.jpeg'),
-                            fit: BoxFit.cover,
-                          )),
-                    ),
-                    SizedBox(
-                      width: 20.w,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 10.h),
-                      child: Container(
-                        height: 140.h,
-                        width: 220.w,
-                        decoration: BoxDecoration(
-                            color: AppTemplate.primaryClr,
-                            boxShadow: [
-                              BoxShadow(
-                                  color: const Color(0xFFE1E1E1),
-                                  blurRadius: 4.r,
-                                  spreadRadius: 0.r,
-                                  offset: Offset(0.w, 4.h))
-                            ],
-                            borderRadius: BorderRadius.circular(5.r),
-                            border: Border.all(color: const Color(0xFFE1E1E1))),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(5.r),
-                          child: Image.asset(
-                            'assets/images/bmw.jpeg',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 20.w,
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: AppTemplate.primaryClr,
-                          boxShadow: [
-                            BoxShadow(
-                                color: const Color(0xFFE1E1E1),
-                                blurRadius: 4.r,
-                                spreadRadius: 0.r,
-                                offset: Offset(0.w, 4.h))
-                          ],
-                          borderRadius: BorderRadius.circular(5.r),
-                          border: Border.all(color: const Color(0xFFE1E1E1))),
-                      child: SizedBox(
-                          height: 140.h,
-                          width: 220.w,
-                          child: const Image(
-                            image: AssetImage('assets/images/bmw1.jpeg'),
-                            fit: BoxFit.cover,
-                          )),
-                    ),
-                    SizedBox(
-                      width: 20.w,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 10.h),
-                      child: Container(
-                        height: 140.h,
-                        width: 220.w,
-                        decoration: BoxDecoration(
-                            color: AppTemplate.primaryClr,
-                            boxShadow: [
-                              BoxShadow(
-                                  color: const Color(0xFFE1E1E1),
-                                  blurRadius: 4.r,
-                                  spreadRadius: 0.r,
-                                  offset: Offset(0.w, 4.h))
-                            ],
-                            borderRadius: BorderRadius.circular(5.r),
-                            border: Border.all(color: const Color(0xFFE1E1E1))),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(5.r),
-                          child: Image.asset(
-                            'assets/images/bmw.jpeg',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 20.w,
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: AppTemplate.primaryClr,
-                          boxShadow: [
-                            BoxShadow(
-                                color: const Color(0xFFE1E1E1),
-                                blurRadius: 4.r,
-                                spreadRadius: 0.r,
-                                offset: Offset(0.w, 4.h))
-                          ],
-                          borderRadius: BorderRadius.circular(5.r),
-                          border: Border.all(color: const Color(0xFFE1E1E1))),
-                      child: SizedBox(
-                          height: 140.h,
-                          width: 220.w,
-                          child: const Image(
-                            image: AssetImage('assets/images/bmw1.jpeg'),
-                            fit: BoxFit.cover,
-                          )),
-                    ),
-                    SizedBox(
-                      width: 20.w,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 10.h),
-                      child: Container(
-                        height: 140.h,
-                        width: 220.w,
-                        decoration: BoxDecoration(
-                            color: AppTemplate.primaryClr,
-                            boxShadow: [
-                              BoxShadow(
-                                  color: const Color(0xFFE1E1E1),
-                                  blurRadius: 4.r,
-                                  spreadRadius: 0.r,
-                                  offset: Offset(0.w, 4.h))
-                            ],
-                            borderRadius: BorderRadius.circular(5.r),
-                            border: Border.all(color: const Color(0xFFE1E1E1))),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(5.r),
-                          child: Image.asset(
-                            'assets/images/bmw.jpeg',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 20.w,
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: AppTemplate.primaryClr,
-                          boxShadow: [
-                            BoxShadow(
-                                color: const Color(0xFFE1E1E1),
-                                blurRadius: 4.r,
-                                spreadRadius: 0.r,
-                                offset: Offset(0.w, 4.h))
-                          ],
-                          borderRadius: BorderRadius.circular(5.r),
-                          border: Border.all(color: const Color(0xFFE1E1E1))),
-                      child: SizedBox(
-                          height: 140.h,
-                          width: 220.w,
-                          child: const Image(
-                            image: AssetImage('assets/images/bmw1.jpeg'),
-                            fit: BoxFit.cover,
-                          )),
-                    )
-                  ],
-                ),
-              ),
-            ),
-            issueController.text.isNotEmpty
-                ? Padding(
-                    padding: EdgeInsets.all(25.w),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      child: Padding(
+                        padding: EdgeInsets.all(15.h),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Ticket',
-                              style: GoogleFonts.inter(
-                                  color: AppTemplate.textClr,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 13.sp,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppTemplate.textClr),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  washResponse!.cleanerName,
+                                  style: GoogleFonts.inter(
+                                      color: AppTemplate.textClr,
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 15.sp),
+                                ),
+                                Text(
+                                  washResponse!.assignedDate,
+                                  style: GoogleFonts.inter(
+                                      color: AppTemplate.textClr,
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 13.sp),
+                                ),
+                              ],
                             ),
-                            TextButton(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: Text(
-                                        'Are You Sure?',
-                                        style: GoogleFonts.inter(
-                                            color: AppTemplate.textClr,
-                                            fontSize: 15.sp,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                      actions: <Widget>[
-                                        Center(
-                                          child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
-                                              children: [
-                                                ElevatedButton(
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                          backgroundColor:
-                                                              const Color(
-                                                                  0xFf1E3763)),
-                                                  child: Text(
-                                                    'Yes',
-                                                    style: GoogleFonts.inter(
-                                                        color: Colors.white),
-                                                  ),
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop();
-                                                    setState(() {
-                                                      isTicket =
-                                                          'Ticket Closed';
-                                                    });
-                                                  },
-                                                ),
-                                                SizedBox(
-                                                  width: 10.w,
-                                                ),
-                                                ElevatedButton(
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                          backgroundColor:
-                                                              const Color(
-                                                                  0xFf1E3763)),
-                                                  child: Text(
-                                                    'No',
-                                                    style: GoogleFonts.inter(
-                                                        color: Colors.white),
-                                                  ),
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                ),
-                                              ]),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
+                            Text(
+                              washResponse!.mobileNo,
+                              style: GoogleFonts.inter(
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.w800,
+                                  color: const Color(0xFF001C63)),
+                            ),
+                            SizedBox(
+                              height: 15.r,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  washResponse!.washType,
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w400,
+                                    fontStyle: FontStyle.italic,
+                                    color: AppTemplate.textClr,
+                                    fontSize: 12.sp,
+                                  ),
+                                ),
+                                Text(
+                                  washResponse!.washStatus,
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w400,
+                                    color:
+                                        statusColor[washResponse!.washStatus],
+                                    fontSize: 13.sp,
+                                  ),
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  //body
+                  washResponse!.washStatus == 'Cancelled'
+                      ? Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(left: 25.w),
                               child: Text(
-                                isTicket,
+                                'Car Picture',
                                 style: GoogleFonts.inter(
-                                  color: const Color(0xFFC80000),
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 12.sp,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: const Color(0xFFC80000),
+                                  fontWeight: FontWeight.w700,
+                                  color: AppTemplate.textClr,
+                                  fontSize: 15.sp,
                                 ),
                               ),
                             ),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                left: 25.w,
+                                right: 10.h,
+                                bottom: 10.h,
+                                top: 20.h,
+                              ),
+                              child: Container(
+                                height: 150.h,
+                                width: 220.w,
+                                decoration: BoxDecoration(
+                                  color: AppTemplate.primaryClr,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xFFE1E1E1),
+                                      blurRadius: 4.r,
+                                      spreadRadius: 0.r,
+                                      offset: Offset(0.w, 4.h),
+                                    ),
+                                  ],
+                                  borderRadius: BorderRadius.circular(5.r),
+                                  border: Border.all(
+                                    color: const Color(0xFFE1E1E1),
+                                  ),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(5.r),
+                                  child: Image.network(
+                                    washResponse!.cancelProof ?? '',
+                                    fit: BoxFit.cover,
+                                    loadingBuilder:
+                                        (context, child, loadingProgress) {
+                                      if (loadingProgress == null) {
+                                        return child;
+                                      } else {
+                                        return Center(
+                                            child: CircularProgressIndicator());
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding:
+                                      EdgeInsets.only(left: 25.w, top: 20.h),
+                                  child: Text(
+                                    'Cancel Reason:',
+                                    style: GoogleFonts.inter(
+                                      fontWeight: FontWeight.w700,
+                                      color: AppTemplate.textClr,
+                                      fontSize: 15.sp,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 10.w),
+                                Container(
+                                  margin: EdgeInsets.only(top: 25),
+                                  child: Text(
+                                    washResponse!.cancelReason ?? '',
+                                    style: GoogleFonts.inter(
+                                      fontWeight: FontWeight.w400,
+                                      color: AppTemplate.textClr,
+                                      fontSize: 13.sp,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 130.h),
+                          ],
+                        )
+                      : Column(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 25.w),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Before Wash',
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w700,
+                                    color: AppTemplate.textClr,
+                                    fontSize: 15.sp,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10.h,
+                            ),
+                            if (beforeWashPhotos.isEmpty)
+                              Container(
+                                height: 150.h,
+                                child: Center(
+                                  child: Text(
+                                    'Work not started yet !!',
+                                    style: GoogleFonts.inter(
+                                      color: AppTemplate.textClr,
+                                      fontSize: 11.sp,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            if (beforeWashPhotos.isNotEmpty)
+                              Container(
+                                padding: EdgeInsets.only(left: 25.w),
+                                height: 150.h,
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: beforeWashPhotos.length,
+                                  itemBuilder: (context, index) {
+                                    return Padding(
+                                      padding: EdgeInsets.only(
+                                        right: 10.h,
+                                        bottom: 10.h,
+                                        top: 10.h,
+                                      ),
+                                      child: Container(
+                                        height: 150.h,
+                                        width: 220.w,
+                                        decoration: BoxDecoration(
+                                          color: AppTemplate.primaryClr,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: const Color(0xFFE1E1E1),
+                                              blurRadius: 4.r,
+                                              spreadRadius: 0.r,
+                                              offset: Offset(0.w, 4.h),
+                                            ),
+                                          ],
+                                          borderRadius:
+                                              BorderRadius.circular(5.r),
+                                          border: Border.all(
+                                            color: const Color(0xFFE1E1E1),
+                                          ),
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(5.r),
+                                          child: Image.network(
+                                            beforeWashPhotos[index].carImage,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                              return Image.asset(
+                                                'assets/images/bmw.jpeg',
+                                                height: 150.h,
+                                                width: 220.w,
+                                                fit: BoxFit.cover,
+                                              );
+                                            },
+                                            loadingBuilder: (context, child,
+                                                loadingProgress) {
+                                              if (loadingProgress == null) {
+                                                return child;
+                                              } else {
+                                                return Center(
+                                                    child:
+                                                        CircularProgressIndicator());
+                                              }
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            SizedBox(
+                              height: 10.h,
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 25.w),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'After Wash',
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w700,
+                                    color: AppTemplate.textClr,
+                                    fontSize: 15.sp,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10.h,
+                            ),
+                            if (afterWashPhotos.isEmpty)
+                              Container(
+                                height: 150.h,
+                                child: Center(
+                                  child: Text(
+                                    'Work not started yet !!',
+                                    style: GoogleFonts.inter(
+                                      color: AppTemplate.textClr,
+                                      fontSize: 11.sp,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            if (beforeWashPhotos.isNotEmpty)
+                              Container(
+                                padding: EdgeInsets.only(left: 25.w),
+                                height: 150.h,
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: afterWashPhotos.length,
+                                  itemBuilder: (context, index) {
+                                    return Padding(
+                                      padding: EdgeInsets.only(
+                                        right: 10.h,
+                                        bottom: 10.h,
+                                        top: 10.h,
+                                      ),
+                                      child: Container(
+                                        height: 150.h,
+                                        width: 220.w,
+                                        decoration: BoxDecoration(
+                                          color: AppTemplate.primaryClr,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: const Color(0xFFE1E1E1),
+                                              blurRadius: 4.r,
+                                              spreadRadius: 0.r,
+                                              offset: Offset(0.w, 4.h),
+                                            ),
+                                          ],
+                                          borderRadius:
+                                              BorderRadius.circular(5.r),
+                                          border: Border.all(
+                                            color: const Color(0xFFE1E1E1),
+                                          ),
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(5.r),
+                                          child: Image.network(
+                                            afterWashPhotos[index].carImage,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                              return Image.asset(
+                                                'assets/images/bmw1.jpeg',
+                                                height: 150.h,
+                                                width: 220.w,
+                                                fit: BoxFit.cover,
+                                              );
+                                            },
+                                            loadingBuilder: (context, child,
+                                                loadingProgress) {
+                                              if (loadingProgress == null) {
+                                                return child;
+                                              } else {
+                                                return Center(
+                                                    child:
+                                                        CircularProgressIndicator());
+                                              }
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
                           ],
                         ),
-                        SizedBox(
-                          height: 20.h,
+                  //tickets
+                  washResponse!.ticket.length == 0
+                      ? SizedBox()
+                      : ListView.builder(
+                          physics: NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: washResponse!.ticket.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: EdgeInsets.only(
+                                left: 20.w,
+                                right: 20.w,
+                                bottom: 25.w,
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Ticket',
+                                        style: GoogleFonts.inter(
+                                            color: AppTemplate.textClr,
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 13.sp,
+                                            decoration:
+                                                TextDecoration.underline,
+                                            decorationColor:
+                                                AppTemplate.textClr),
+                                      ),
+                                      washResponse!.ticket[index].status ==
+                                              'Resolved'
+                                          ? Padding(
+                                              padding:
+                                                  EdgeInsets.only(right: 20.w),
+                                              child: Text(
+                                                washResponse!
+                                                    .ticket[index].status,
+                                                style: GoogleFonts.inter(
+                                                  color: Colors.green,
+                                                  fontWeight: FontWeight.w400,
+                                                  fontSize: 13.sp,
+                                                ),
+                                              ),
+                                            )
+                                          : TextButton(
+                                              onPressed: () {
+                                                showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return AlertDialog(
+                                                      title: Text(
+                                                        'Are You Sure?',
+                                                        style:
+                                                            GoogleFonts.inter(
+                                                          color: AppTemplate
+                                                              .textClr,
+                                                          fontSize: 15.sp,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                      ),
+                                                      actions: <Widget>[
+                                                        Center(
+                                                          child: Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .end,
+                                                              children: [
+                                                                ElevatedButton(
+                                                                  style: ElevatedButton
+                                                                      .styleFrom(
+                                                                    backgroundColor:
+                                                                        const Color(
+                                                                            0xFf1E3763),
+                                                                  ),
+                                                                  child: Text(
+                                                                    'Yes',
+                                                                    style: GoogleFonts.inter(
+                                                                        color: Colors
+                                                                            .white),
+                                                                  ),
+                                                                  onPressed:
+                                                                      () async {
+                                                                    await closeTicket(washResponse!
+                                                                        .ticket[
+                                                                            index]
+                                                                        .ticketId);
+                                                                    await fetchWashInfo();
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop();
+                                                                  },
+                                                                ),
+                                                                SizedBox(
+                                                                  width: 10.w,
+                                                                ),
+                                                                ElevatedButton(
+                                                                  style: ElevatedButton.styleFrom(
+                                                                      backgroundColor:
+                                                                          const Color(
+                                                                              0xFf1E3763)),
+                                                                  child: Text(
+                                                                    'No',
+                                                                    style: GoogleFonts.inter(
+                                                                        color: Colors
+                                                                            .white),
+                                                                  ),
+                                                                  onPressed:
+                                                                      () {
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop();
+                                                                  },
+                                                                ),
+                                                              ]),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  },
+                                                );
+                                              },
+                                              child: Text(
+                                                'Close Ticket',
+                                                style: GoogleFonts.inter(
+                                                  color:
+                                                      const Color(0xFFC80000),
+                                                  fontWeight: FontWeight.w400,
+                                                  fontSize: 12.sp,
+                                                  decoration:
+                                                      TextDecoration.underline,
+                                                  decorationColor:
+                                                      const Color(0xFFC80000),
+                                                ),
+                                              ),
+                                            ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 20.h,
+                                  ),
+                                  Text(
+                                    washResponse!.ticket[index].ticketContent,
+                                    style: GoogleFonts.inter(
+                                      color: AppTemplate.textClr,
+                                      fontSize: 13.sp,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            );
+                          },
                         ),
-                        Text(
-                          issueController.text,
-                          style: GoogleFonts.inter(
-                              color: AppTemplate.textClr,
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w400),
-                        )
+                  //create ticket and send to whatsapp
+                  Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 25.w, vertical: 10.h),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                          onTap: () => showModalBottomSheetCustom(context),
+                          child: Container(
+                              width: 69.w,
+                              height: 50.h,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5.r),
+                                border: Border.all(
+                                  color: const Color(0xFFC80000),
+                                  width: 1.5.w,
+                                ),
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.all(15.w),
+                                child: SvgPicture.asset(
+                                  'assets/svg/puzzle.svg',
+                                ),
+                              )),
+                        ),
+                        Buttonwidget(
+                          width: 227.w,
+                          height: 50.h,
+                          buttonClr: const Color(0xFf1E3763),
+                          txt: 'Send to Whatsapp',
+                          textClr: AppTemplate.primaryClr,
+                          textSz: 16.sp,
+                          onClick: () {},
+                        ),
                       ],
                     ),
-                  )
-                : Container(),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25.w, vertical: 10.h),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  GestureDetector(
-                    onTap: () => showModalBottomSheetCustom(context),
-                    child: Container(
-                        width: 69.w,
-                        height: 50.h,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5.r),
-                          border: Border.all(
-                            color: const Color(0xFFC80000),
-                            width: 1.5.w,
-                          ),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.all(15.w),
-                          child: SvgPicture.asset(
-                            'assets/svg/puzzle.svg',
-                          ),
-                        )),
-                  ),
-                  Buttonwidget(
-                    width: 227.w,
-                    height: 50.h,
-                    buttonClr: const Color(0xFf1E3763),
-                    txt: 'Send to Whatsapp',
-                    textClr: AppTemplate.primaryClr,
-                    textSz: 16.sp,
-                    onClick: () {},
                   ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 }

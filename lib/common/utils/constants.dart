@@ -11,14 +11,28 @@ class AppTemplate {
 }
 
 String encKey = 'C0oRAe1QNtn3zYNvJ8rv';
-String plannerDate = DateFormat('yyyy-MM-dd').format(
-  DateTime.now().add(
-    const Duration(days: 1),
-  ),
-);
 
-String formattedDate = DateFormat('d MMMM yyyy').format(
-    DateTime.now().add(
-      const Duration(days: 1),
-    ),
-  );
+String getPlannerDate(String format) {
+  DateTime now = DateTime.now();
+  DateTime dateToShow;
+
+  if (now.hour < 12) {
+    dateToShow = now;
+  } else {
+    dateToShow = now.add(Duration(days: 1));
+  }
+
+  return DateFormat(format).format(dateToShow);
+}
+
+String plannerDate1 = getPlannerDate('yyyy-MM-dd');
+String plannerDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+String formattedDate1 = getPlannerDate('d MMMM yyyy');
+String formattedDate = DateFormat('d MMMM yyyy').format(DateTime.now());
+
+Map<String, Color> statusColor = {
+  'Pending': const Color.fromRGBO(255, 195, 0, 10),
+  'Completed': const Color.fromRGBO(86, 156, 0, 10),
+  'Cancelled': Color.fromARGB(246, 236, 50, 72),
+};

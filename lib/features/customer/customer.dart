@@ -312,7 +312,7 @@ class Customer extends StatelessWidget {
                               onTap: () {
                                 if (customer['client_name'] != null) {
                                   print(customer['client_name']);
-                                  print(customer['client_id']);
+                                  print(customer['id']);
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
