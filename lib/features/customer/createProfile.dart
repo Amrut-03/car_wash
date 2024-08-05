@@ -1,16 +1,24 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/demo.dart';
 import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/common/widgets/listedCarsList.dart';
 import 'package:car_wash/common/widgets/recentWashesList.dart';
 import 'package:car_wash/features/customer/customer.dart';
+import 'package:car_wash/features/customer/model/customer_profile_model.dart';
+import 'package:car_wash/features/customer/widgets/customer_recent_washes.dart';
+import 'package:car_wash/provider/admin_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 
-class CustomerProfile extends StatefulWidget {
+class CustomerProfile extends ConsumerStatefulWidget {
   final String customerName;
   final String customerId;
   const CustomerProfile({
@@ -20,12 +28,20 @@ class CustomerProfile extends StatefulWidget {
   });
 
   @override
-  State<CustomerProfile> createState() => _CustomerProfileState();
+  ConsumerState<CustomerProfile> createState() => _CustomerProfileState();
 }
 
-class _CustomerProfileState extends State<CustomerProfile> {
+class _CustomerProfileState extends ConsumerState<CustomerProfile> {
   final CustomerController customerController = Get.put(CustomerController());
   bool isCarWashed = true;
+  CustomerData? customerData;
+  bool isLoading = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    fetchCustomerProfile();
+  }
 
   void showCustomerOptions(BuildContext context) {
     showModalBottomSheet(
@@ -93,173 +109,236 @@ class _CustomerProfileState extends State<CustomerProfile> {
     );
   }
 
+  Future<void> fetchCustomerProfile() async {
+    const url = 'https://wash.sortbe.com/API/Admin/Client/Client-Profile';
+
+    final authState = ref.watch(authProvider);
+    print('admin = ${authState.admin!.id}');
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        body: {
+          'enc_key': encKey,
+          'emp_id': authState.admin!.id,
+          'customer_id': widget.customerId,
+        },
+      );
+
+      var responseData = jsonDecode(response.body);
+      print('Response - $responseData');
+
+      if (responseData['status'] == 'Success') {
+        print('data $responseData');
+        if (responseData != null) {
+          setState(() {
+            customerData = CustomerData.fromJson(responseData);
+          });
+        } else {
+          throw Exception('Data field is null');
+        }
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      log('Error = $e');
+    } finally {
+      if (isLoading) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTemplate.primaryClr,
       body: Center(
-        child: Column(
-          children: [
-            const Header(txt: 'Customer Profile'),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25.w, vertical: 25.h),
-              child: GestureDetector(
-                onTap: () {
-                  showCustomerOptions(context);
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: AppTemplate.primaryClr,
-                      boxShadow: [
-                        BoxShadow(
-                            color: const Color(0xFFE1E1E1),
-                            blurRadius: 4.r,
-                            spreadRadius: 0.r,
-                            offset: Offset(0.w, 4.h))
-                      ],
-                      borderRadius: BorderRadius.circular(10.r),
-                      border: Border.all(color: const Color(0xFFE1E1E1))),
-                  child: Padding(
-                    padding: EdgeInsets.all(15.h),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.customerName,
-                          style: GoogleFonts.inter(
-                              color: AppTemplate.textClr,
-                              fontWeight: FontWeight.w400,
-                              fontSize: 15.sp),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "87686798989",
-                              style: GoogleFonts.inter(
-                                  fontSize: 13.sp,
-                                  fontWeight: FontWeight.w800,
-                                  color: const Color(0xFF001C63)),
-                            ),
-                            Row(
-                              children: [
-                                SvgPicture.asset('assets/svg/car.svg'),
-                                SizedBox(
-                                  width: 5.w,
-                                ),
-                                Text(
-                                  '2',
-                                  style: GoogleFonts.inter(
-                                      color: const Color(0xFF6750A4),
-                                      fontSize: 30.sp,
-                                      fontWeight: FontWeight.w800),
-                                )
-                              ],
+        child: customerData == null
+            ? CircularProgressIndicator()
+            : Column(
+                children: [
+                  const Header(txt: 'Customer Profile'),
+                  Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 25.w, vertical: 25.h),
+                    child: GestureDetector(
+                      onTap: () {
+                        showCustomerOptions(context);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppTemplate.primaryClr,
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFE1E1E1),
+                              blurRadius: 4.r,
+                              spreadRadius: 0.r,
+                              offset: Offset(0.w, 4.h),
                             ),
                           ],
+                          borderRadius: BorderRadius.circular(10.r),
+                          border: Border.all(
+                            color: const Color(0xFFE1E1E1),
+                          ),
                         ),
-                        SizedBox(
-                          height: 15.r,
+                        child: Padding(
+                          padding: EdgeInsets.all(15.h),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                customerData!.customerName,
+                                style: GoogleFonts.inter(
+                                    color: AppTemplate.textClr,
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 15.sp),
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    customerData!.mobileNo,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 13.sp,
+                                      fontWeight: FontWeight.w800,
+                                      color: const Color(0xFF001C63),
+                                    ),
+                                  ),
+                                  Row(
+                                    children: [
+                                      SvgPicture.asset('assets/svg/car.svg'),
+                                      SizedBox(
+                                        width: 5.w,
+                                      ),
+                                      Text(
+                                        '${customerData!.carList.length}',
+                                        style: GoogleFonts.inter(
+                                          color: const Color(0xFF6750A4),
+                                          fontSize: 30.sp,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 15.r,
+                              ),
+                              Text(
+                                'Since ${customerData!.dateTime}',
+                                style: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w400,
+                                  fontStyle: FontStyle.italic,
+                                  color: AppTemplate.textClr,
+                                  fontSize: 12.sp,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        Text(
-                          'Since May 2024',
-                          style: GoogleFonts.inter(
-                              fontWeight: FontWeight.w400,
-                              fontStyle: FontStyle.italic,
-                              color: AppTemplate.textClr,
-                              fontSize: 12.sp),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      isCarWashed = !isCarWashed;
-                    });
-                  },
-                  child: Container(
-                    width: 140.w,
-                    height: 38.h,
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                            color: isCarWashed
-                                ? Colors.transparent
-                                : const Color(0xFF001C63),
-                            width: 2.w),
-                        borderRadius: BorderRadius.circular(5.r),
-                        color: isCarWashed
-                            ? const Color(0xFF001C63)
-                            : AppTemplate.primaryClr),
-                    child: Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-                      child: Center(
-                        child: Text('Recent Washes',
-                            style: GoogleFonts.inter(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w800,
-                              color: isCarWashed
-                                  ? AppTemplate.primaryClr
-                                  : const Color(0xFF001C63),
-                            )),
                       ),
                     ),
                   ),
-                ),
-                SizedBox(
-                  width: 10.w,
-                ),
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      isCarWashed = !isCarWashed;
-                    });
-                  },
-                  child: Container(
-                      width: 140.w,
-                      height: 38.h,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5.r),
-                          border: Border.all(
-                              color: !isCarWashed
-                                  ? Colors.transparent
-                                  : const Color(0xFF001C63),
-                              width: 2.w),
-                          color: !isCarWashed
-                              ? const Color(0xFF001C63)
-                              : AppTemplate.primaryClr),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 10.w, vertical: 3.h),
-                        child: Center(
-                          child: Text(
-                            'Listed Cars',
-                            style: GoogleFonts.inter(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w800,
-                              color: !isCarWashed
-                                  ? AppTemplate.primaryClr
-                                  : const Color(0xFF001C63),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            isCarWashed = !isCarWashed;
+                          });
+                        },
+                        child: Container(
+                          width: 140.w,
+                          height: 38.h,
+                          decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: isCarWashed
+                                      ? Colors.transparent
+                                      : const Color(0xFF001C63),
+                                  width: 2.w),
+                              borderRadius: BorderRadius.circular(5.r),
+                              color: isCarWashed
+                                  ? const Color(0xFF001C63)
+                                  : AppTemplate.primaryClr),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 8.w, vertical: 3.h),
+                            child: Center(
+                              child: Text(
+                                'Recent Washes',
+                                style: GoogleFonts.inter(
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.w800,
+                                  color: isCarWashed
+                                      ? AppTemplate.primaryClr
+                                      : const Color(0xFF001C63),
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      )),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 20.h,
-            ),
-            isCarWashed ? const RecentWashesList() : const Listedcarslist()
-          ],
-        ),
+                      ),
+                      SizedBox(
+                        width: 10.w,
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            isCarWashed = !isCarWashed;
+                          });
+                        },
+                        child: Container(
+                          width: 140.w,
+                          height: 38.h,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5.r),
+                              border: Border.all(
+                                  color: !isCarWashed
+                                      ? Colors.transparent
+                                      : const Color(0xFF001C63),
+                                  width: 2.w),
+                              color: !isCarWashed
+                                  ? const Color(0xFF001C63)
+                                  : AppTemplate.primaryClr),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10.w, vertical: 3.h),
+                            child: Center(
+                              child: Text(
+                                'Listed Cars',
+                                style: GoogleFonts.inter(
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.w800,
+                                  color: !isCarWashed
+                                      ? AppTemplate.primaryClr
+                                      : const Color(0xFF001C63),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 20.h,
+                  ),
+                  isCarWashed
+                      ? CustomerRecentWashesList(
+                          washList: customerData!.washList,
+                        )
+                      : Listedcarslist(
+                          carItem: customerData!.carList,
+                          name: customerData!.customerName,
+                        ),
+                ],
+              ),
       ),
     );
   }

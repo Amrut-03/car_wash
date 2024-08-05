@@ -135,10 +135,15 @@ class Menu {
                         Padding(
                           padding: EdgeInsets.only(top: 20.h),
                           child: GestureDetector(
-                            onTap: () => Navigator.push(
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => EmployeePlanner())),
+                                  builder: (context) => EmployeePlanner(),
+                                ),
+                              );
+                            },
                             child: Row(
                               children: [
                                 SizedBox(
@@ -276,16 +281,6 @@ class Menu {
             ));
       },
       transitionBuilder: (context, animation, secondaryAnimation, child) {
-        if (animation == null) {
-          print('Animation is null');
-          return SizedBox.shrink();
-        }
-
-        if (child == null) {
-          print('Child is null');
-          return SizedBox.shrink();
-        }
-
         return SlideTransition(
           position: Tween<Offset>(
             begin: Offset(0.w, -1.h),

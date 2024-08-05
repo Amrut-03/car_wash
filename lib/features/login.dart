@@ -80,7 +80,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (response.statusCode == 200) {
         String responseBody = await response.stream.bytesToString();
         var jsonResponse = jsonDecode(responseBody);
-       
 
         final admin = Admin(
           empName: jsonResponse['name'],
@@ -92,7 +91,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         print('Nmae - ${admin.empName}');
         print('id - ${admin.id}');
         print('pic - ${admin.profilePic}');
-        
+
         String status = jsonResponse['status'];
         if (status == 'Success') {
           await _saveLoginStatus(jsonResponse['name'],
@@ -110,11 +109,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-                builder: (context) => DashBoard(
-                      name: jsonResponse['name'],
-                      image: jsonResponse['employee_pic'],
-                      empid: jsonResponse['emp_id'],
-                    )),
+              builder: (context) => DashBoard(
+                name: jsonResponse['name'],
+                image: jsonResponse['employee_pic'],
+                empid: jsonResponse['emp_id'],
+              ),
+            ),
             (Route<dynamic> route) => false,
           );
         } else {
@@ -123,13 +123,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                backgroundColor: AppTemplate.bgClr,
-                content: Text(
-                  jsonResponse['remarks'] ?? 'Login failed',
-                  style: GoogleFonts.inter(
-                      color: AppTemplate.primaryClr,
-                      fontWeight: FontWeight.w400),
-                )),
+              backgroundColor: AppTemplate.bgClr,
+              content: Text(
+                jsonResponse['remarks'] ?? 'Login failed',
+                style: GoogleFonts.inter(
+                    color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+              ),
+            ),
           );
         }
       } else {
@@ -138,12 +138,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              backgroundColor: AppTemplate.bgClr,
-              content: Text(
-                'Credentials are wrong',
-                style: GoogleFonts.inter(
-                    color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-              )),
+            backgroundColor: AppTemplate.bgClr,
+            content: Text(
+              'Credentials are wrong',
+              style: GoogleFonts.inter(
+                  color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+            ),
+          ),
         );
       }
     } on http.ClientException catch (e) {
@@ -160,18 +161,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           // SnackBar(backgroundColor: AppTemplate.bgClr,content: Text('Network error: ${e.message}')),
           );
     } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            backgroundColor: AppTemplate.bgClr,
-            content: Text(
-              'Unexpected error: ${e.toString()}',
-              style: GoogleFonts.inter(
-                  color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-            )),
-      );
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              backgroundColor: AppTemplate.bgClr,
+              content: Text(
+                'Unexpected error: ${e.toString()}',
+                style: GoogleFonts.inter(
+                    color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+              )),
+        );
+      }
     }
   }
 

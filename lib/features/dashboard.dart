@@ -27,6 +27,28 @@ class DashBoard extends StatefulWidget {
 }
 
 class _DashBoardState extends State<DashBoard> {
+  // late Future<Map<String, dynamic>?> _dashboardDataFuture;
+  // bool _isLoading = true;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   setState(() {
+  //     dashBoardData();
+  //   });
+  // }
+
+  // Future<void> _refreshData() async {
+  //   setState(() {
+  //     _isLoading = true;
+  //     _dashboardDataFuture = dashBoardData();
+  //   });
+  //   await _dashboardDataFuture;
+  //   setState(() {
+  //     _isLoading = false;
+  //   });
+  // }
+
   Future<Map<String, dynamic>?> dashBoardData() async {
     try {
       var request = http.MultipartRequest('POST',
@@ -50,17 +72,11 @@ class _DashBoardState extends State<DashBoard> {
   }
 
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
-  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTemplate.primaryClr,
-      body: FutureBuilder<Map<String, dynamic>?>(
+      body: FutureBuilder(
         future: dashBoardData(),
         builder: (BuildContext context,
             AsyncSnapshot<Map<String, dynamic>?> snapshot) {
@@ -248,21 +264,19 @@ class _DashBoardState extends State<DashBoard> {
                                                             GoogleFonts.inter(
                                                           fontWeight:
                                                               FontWeight.w600,
-                                                          color:
-                                                              washInfo["wash_status"] ==
-                                                                      "Completed"
-                                                                  ? const Color
-                                                                      .fromRGBO(
-                                                                      86,
-                                                                      156,
-                                                                      0,
-                                                                      10)
-                                                                  : const Color
-                                                                      .fromRGBO(
-                                                                      255,
-                                                                      195,
-                                                                      0,
-                                                                      10),
+                                                          color: washInfo[
+                                                                      "wash_status"] ==
+                                                                  "Completed"
+                                                              ? const Color
+                                                                  .fromRGBO(
+                                                                  86,
+                                                                  156,
+                                                                  0,
+                                                                  10,
+                                                                )
+                                                              : const Color
+                                                                  .fromRGBO(255,
+                                                                  195, 0, 10),
                                                           fontSize: 10.sp,
                                                         ),
                                                       ),
