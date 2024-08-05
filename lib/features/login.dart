@@ -123,13 +123,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              backgroundColor: AppTemplate.bgClr,
-              content: Text(
-                jsonResponse['remarks'] ?? 'Login failed',
-                style: GoogleFonts.inter(
-                    color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-              ),
-            ),
+                backgroundColor: AppTemplate.bgClr,
+                content: Text(
+                  'Credentials are wrong',
+                  style: GoogleFonts.inter(
+                      color: AppTemplate.primaryClr,
+                      fontWeight: FontWeight.w400),
+                )),
           );
         }
       } else {
@@ -147,7 +147,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
         );
       }
-    } on http.ClientException catch (e) {
+    } on http.ClientException {
       setState(() {
         isLoading = false;
       });

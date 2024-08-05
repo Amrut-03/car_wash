@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:car_wash/common/utils/constants.dart';
-import 'package:car_wash/common/widgets/demo.dart';
 import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/common/widgets/listedCarsList.dart';
 import 'package:car_wash/common/widgets/recentWashesList.dart';
@@ -10,6 +9,7 @@ import 'package:car_wash/features/customer/customer.dart';
 import 'package:car_wash/features/customer/model/customer_profile_model.dart';
 import 'package:car_wash/features/customer/widgets/customer_recent_washes.dart';
 import 'package:car_wash/provider/admin_provider.dart';
+import 'package:car_wash/features/customer/editCustomer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

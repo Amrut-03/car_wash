@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
+import 'package:car_wash/features/dashboard.dart';
 import 'package:car_wash/features/employee/employee.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -160,6 +161,8 @@ class _AdminTextFieldState extends State<AdminTextField> {
 
   @override
   Widget build(BuildContext context) {
+    final DashboardController dashboardController =
+        Get.put(DashboardController());
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -308,6 +311,7 @@ class _AdminTextFieldState extends State<AdminTextField> {
                     onClick: () async {
                       await createAdmin(context);
                       controller.fetchEmployeeList();
+                      dashboardController.fetchDashboardData();
                     },
                   ),
           ],
