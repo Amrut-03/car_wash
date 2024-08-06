@@ -98,7 +98,7 @@ class _AttendancePageState extends State<AttendancePage> {
     return Scaffold(
       backgroundColor: AppTemplate.primaryClr,
       body: isLoading
-          ? Center(
+         ? Center(
               child: Column(
               children: [
                 Header(txt: 'Attendance'),
