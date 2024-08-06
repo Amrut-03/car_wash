@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:car_wash/features/planner/model/admin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -92,5 +91,3 @@ final aadharBackUrlProvider = StateProvider<String?>((ref) => null);
 final driveFrontUrlProvider = StateProvider<String?>((ref) => null);
 final driveBackUrlProvider = StateProvider<String?>((ref) => null);
 final employeePhotoUrlProvider = StateProvider<String?>((ref) => null);
-
-

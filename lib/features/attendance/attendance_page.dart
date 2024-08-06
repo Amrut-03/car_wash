@@ -98,7 +98,23 @@ class _AttendancePageState extends State<AttendancePage> {
     return Scaffold(
       backgroundColor: AppTemplate.primaryClr,
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(
+              child: Column(
+              children: [
+                Header(txt: 'Attendance'),
+                Spacer(),
+                Center(
+                  child: Text(
+                    'No records found',
+                    style: GoogleFonts.inter(
+                        color: AppTemplate.bgClr,
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w400),
+                  ),
+                ),
+                Spacer(),
+              ],
+            ))
           : SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

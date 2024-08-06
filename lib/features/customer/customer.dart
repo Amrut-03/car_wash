@@ -9,7 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/features/Customer/createCustomer.dart';
-import 'package:car_wash/features/customer/createProfile.dart';
+import 'package:car_wash/features/customer/customerProfile.dart';
 
 class CustomerController extends GetxController {
   var isLoading = true.obs;

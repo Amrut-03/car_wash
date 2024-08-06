@@ -5,7 +5,6 @@ import 'package:car_wash/common/widgets/textFieldWidget.dart';
 import 'package:car_wash/features/dashboard.dart';
 import 'package:car_wash/features/planner/model/admin.dart';
 import 'package:car_wash/provider/admin_provider.dart';
-import 'package:car_wash/provider/provider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -80,7 +79,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (response.statusCode == 200) {
         String responseBody = await response.stream.bytesToString();
         var jsonResponse = jsonDecode(responseBody);
-       
 
         final admin = Admin(
           empName: jsonResponse['name'],
@@ -92,7 +90,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         print('Nmae - ${admin.empName}');
         print('id - ${admin.id}');
         print('pic - ${admin.profilePic}');
-        
+
         String status = jsonResponse['status'];
         if (status == 'Success') {
           await _saveLoginStatus(jsonResponse['name'],
@@ -125,7 +123,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             SnackBar(
                 backgroundColor: AppTemplate.bgClr,
                 content: Text(
-                  'Credentials are wrong',
+                  jsonResponse['remarks'] ?? 'Login failed',
                   style: GoogleFonts.inter(
                       color: AppTemplate.primaryClr,
                       fontWeight: FontWeight.w400),
