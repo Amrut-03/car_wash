@@ -28,7 +28,6 @@ class EmployeeTextfield extends ConsumerStatefulWidget {
 
 class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
   bool isLoading = false;
-  final EmployeeController controller = Get.put(EmployeeController());
   @override
   void initState() {
     super.initState();
@@ -304,8 +303,8 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
     final driveFront = ref.watch(driveFrontProvider);
     final driveBack = ref.watch(driveBackProvider);
     final employeePhoto = ref.watch(employeePhotoProvider);
-    final DashboardController dashboardController =
-        Get.put(DashboardController());
+    final employeeController = ref.read(employeeProvider.notifier);
+    // final dashBoardState = ref.read(dashboardProvider.notifier);
 
     Widget imagePreview(File? image) {
       return image != null
@@ -779,8 +778,8 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
                     textSz: 18.sp,
                     onClick: () async {
                       await createEmployee(context, ref);
-                      controller.fetchEmployeeList();
-                      dashboardController.fetchDashboardData();
+                      employeeController.fetchEmployeeList();
+                      // dashBoardState.fetchDashboardData();
                     },
                   ),
           ],

@@ -11,13 +11,11 @@ import 'package:car_wash/features/planner/model/wash_type.dart';
 import 'package:car_wash/features/planner/widgets/assigned_car_list.dart';
 import 'package:car_wash/features/planner/widgets/cars_to_wash_widget.dart';
 import 'package:car_wash/provider/admin_provider.dart';
-import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Planner extends ConsumerStatefulWidget {
   const Planner({super.key, required this.empName, required this.empId});

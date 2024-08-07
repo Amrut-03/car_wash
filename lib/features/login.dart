@@ -5,7 +5,6 @@ import 'package:car_wash/common/widgets/textFieldWidget.dart';
 import 'package:car_wash/features/dashboard.dart';
 import 'package:car_wash/features/planner/model/admin.dart';
 import 'package:car_wash/provider/admin_provider.dart';
-import 'package:car_wash/provider/provider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -125,7 +124,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             SnackBar(
                 backgroundColor: AppTemplate.bgClr,
                 content: Text(
-                  'Credentials are wrong',
+                  jsonResponse['remarks'] ?? 'Login failed',
                   style: GoogleFonts.inter(
                       color: AppTemplate.primaryClr,
                       fontWeight: FontWeight.w400),

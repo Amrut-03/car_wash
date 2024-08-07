@@ -7,7 +7,6 @@ import 'package:car_wash/features/planner/model/assigned_car.dart';
 import 'package:car_wash/features/planner/model/wash_type.dart';
 import 'package:car_wash/features/planner/widgets/assigned_card.dart';
 import 'package:car_wash/provider/admin_provider.dart';
-import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

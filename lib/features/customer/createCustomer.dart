@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
+import 'package:car_wash/features/customer/customer.dart';
+import 'package:car_wash/provider/admin_provider.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -101,6 +105,7 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
   }
 
   Future<void> createCustomer() async {
+    final admin = ref.read(authProvider);
     setState(() {
       isLoading = true;
     });
@@ -152,16 +157,12 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
         return;
       }
 
-      print("++++++++++++++++++++++++++++++++++++++");
-      print(lat);
-      print(long);
       if (lat == null ||
           long == null ||
           lat! < -90 ||
           lat! > 90 ||
           long! < -180 ||
           long! > 180) {
-        print("-----------------------------------------");
         setState(() {
           isLoading = false;
         });
@@ -178,14 +179,17 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
         final imageFile = imageFiles[i];
         if (imageFile != null && await imageFile.exists()) {
           request.files.add(
-            await http.MultipartFile.fromPath('car_pic$i', imageFile.path),
+            await http.MultipartFile.fromPath(
+                'car_pic${i + 1}', imageFile.path),
           );
+          print(imageFile.path);
         } else {
           setState(() {
             isLoading = false;
           });
           _showErrorSnackBar(
               "No image file to upload or file doesn't exist at index $i");
+          return;
         }
       }
 
@@ -199,44 +203,58 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
         });
       }
 
-      // Add other fields to the request
       request.fields.addAll({
         'enc_key': encKey,
-        'emp_id': '123',
+        'emp_id': admin.admin!.id,
         'client_name': customerController.text,
         'mobile': mobileController.text,
-        'car_info': carInfoList.toString(),
+        'car_info': jsonEncode(carInfoList),
       });
 
-      // Send the request
       http.StreamedResponse response = await request.send();
+      String temp = await response.stream.bytesToString();
+      // var body = jsonDecode(temp);
 
-      if (response.statusCode == 200) {
-        _showErrorSnackBar("Employee Account Created Successfully");
-        Navigator.pop(context);
-      } else {
+      try {
+        var body = jsonDecode(temp);
+        if (response.statusCode == 200 && body['status'] == "Success") {
+          _showErrorSnackBar("Employee Account Created Successfully");
+          Navigator.pop(context);
+          print(carInfoList);
+          print(body);
+          print(imageFile!.path);
+        } else {
+          setState(() {
+            isLoading = false;
+          });
+        }
+      } catch (e) {
         setState(() {
           isLoading = false;
         });
-        _showErrorSnackBar(response.reasonPhrase.toString());
+        // _showErrorSnackBar("Unexpected response format: $temp");
+        print("Unexpected response format: $temp");
       }
     } catch (e) {
       setState(() {
         isLoading = false;
       });
       _showErrorSnackBar('Error creating customer: $e');
+      print(e.toString());
     }
   }
 
   void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      backgroundColor: AppTemplate.bgClr,
-      content: Text(
-        message,
-        style: GoogleFonts.inter(
-            color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: AppTemplate.bgClr,
+        content: Text(
+          message,
+          style: GoogleFonts.inter(
+              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+        ),
       ),
-    ));
+    );
   }
 
   void _scrollToBottom() {
@@ -397,9 +415,11 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
         await ImagePicker().pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
       final file = File(pickedFile.path);
-      setState(() {
-        imageFiles[index] = file;
-      });
+      setState(
+        () {
+          imageFiles[index] = file;
+        },
+      );
     } else {
       print('No image picked');
     }
@@ -409,6 +429,7 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
 
   @override
   Widget build(BuildContext context) {
+    final customerNotifier = ref.read(customerProvider.notifier);
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: AppTemplate.primaryClr,
@@ -457,7 +478,7 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                       textSz: 18.sp,
                       onClick: () async {
                         await createCustomer();
-                        //Navigator.pop(context);
+                        customerNotifier.CustomerList();
                       },
                     ),
             ],

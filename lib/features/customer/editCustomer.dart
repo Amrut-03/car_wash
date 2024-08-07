@@ -2,13 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:car_wash/features/customer/customer.dart';
+import 'package:car_wash/provider/admin_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
@@ -56,7 +56,7 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
     _loadCustomerData();
   }
 
-  // List<String> carImageUrls = [];
+  List<String> carImageUrls = [];
   List<File?> imageFiles = [];
   Future<void> _pickImage(BuildContext context, int index) async {
     print('_pickImage called for index $index');
@@ -188,9 +188,9 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
           carPhotosController = [];
           carLatControllers = [];
           carLongControllers = [];
-          imageFiles = [];
+          // imageFiles = [];
         }
-
+        print(carModelNameControllers);
         isLoading = false; // Data is loaded, so set loading to false
       });
     } catch (e) {
@@ -202,13 +202,14 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
   }
 
   Future<Map<String, dynamic>> fetchCustomerData(String customerId) async {
+    final admin = ref.read(authProvider);
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('https://wash.sortbe.com/API/Admin/Client/Client-View'),
     );
     request.fields.addAll({
-      'enc_key': 'C0oRAe1QNtn3zYNvJ8rv',
-      'emp_id': '123',
+      'enc_key': encKey,
+      'emp_id': admin.admin!.id,
       'customer_id': customerId,
     });
 
@@ -243,9 +244,8 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
       var carData = {
         'model_name': carModelNameControllers![i].text,
         'vehicle_no': carNoControllers![i].text,
-        'car_image': imageFiles[i] != null && await imageFiles[i]!.exists()
-            ? 'car_pic$i'
-            : carPhotosController![i].text,
+        // 'car_image':
+        //     imageFiles[i] != null ? 'car_pic$i' : carPhotosController![i].text,
         'latitude': carLatControllers != null && i < carLatControllers!.length
             ? carLatControllers![i].text
             : '',
@@ -254,6 +254,7 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                 ? carLongControllers![i].text
                 : '',
       };
+      print(imageFile);
 
       if (i < existingCarIds.length) {
         carData['car_id'] = existingCarIds[i];
@@ -263,11 +264,6 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
       }
     }
 
-    // Debugging prints
-    print('Available car data list: $availableCarDataList');
-    print('New car data list: $newCarDataList');
-
-    // Add car image files
     for (int i = 0; i < imageFiles.length; i++) {
       final imageFile = imageFiles[i];
       if (imageFile != null && await imageFile.exists()) {
@@ -278,10 +274,16 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
       }
     }
 
+    print(imageFiles);
+
+    // Debugging prints
+    print('Available car data list: $availableCarDataList');
+    print('New car data list: $newCarDataList');
+    final admin = ref.read(authProvider);
     // Add fields to the request
     request.fields.addAll({
-      'enc_key': 'C0oRAe1QNtn3zYNvJ8rv',
-      'emp_id': '123',
+      'enc_key': encKey,
+      'emp_id': admin.admin!.id,
       'customer_id': widget.customer_id,
       'client_name': customerController.text,
       'mobile': mobileController.text,
@@ -295,10 +297,15 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
 
     try {
       http.StreamedResponse response = await request.send();
-
+      String temp = await response.stream.bytesToString();
+      // print(temp);
+      // var body = jsonDecode(temp);
       if (response.statusCode == 200) {
         print('Customer data updated successfully');
         showValidationError("Customer data updated successfully");
+        print('Available car data list: $availableCarDataList');
+        print('New car data list: $newCarDataList');
+        // print(body);
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => Customer()));
       } else {
@@ -522,8 +529,7 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
 
   @override
   Widget build(BuildContext context) {
-    final CustomerController _CustomerController =
-        Get.put(CustomerController());
+    final customerNotifier = ref.read(customerProvider.notifier);
     Widget imagePreview(File? imageFile, String? imageUrl) {
       if (imageFile != null) {
         return ClipRRect(
@@ -631,7 +637,8 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                       onClick: () async {
                         await fetchCustomerData(widget.customer_id);
                         await _updateCustomerData();
-                        await _CustomerController.customerList();
+
+                        customerNotifier.CustomerList();
                       },
                     ),
             ],
