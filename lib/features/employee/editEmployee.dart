@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:car_wash/features/employee/employee.dart';
+import 'package:car_wash/provider/admin_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,7 +35,6 @@ class EditEmployee extends ConsumerStatefulWidget {
 }
 
 class _EditEmployeeState extends ConsumerState<EditEmployee> {
-  final EmployeeController controller = Get.put(EmployeeController());
   bool isLoading = false;
   Future<void> _pickImage(BuildContext context, WidgetRef ref,
       StateProvider<File?> imageProvider) async {
@@ -134,18 +134,24 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
   }
 
   Future<void> employeeEdit(BuildContext context, WidgetRef ref) async {
+    final admin = ref.read(authProvider);
     // Helper function to show snack bar
     void showValidationError(String message) {
-      setState(() {
-        isLoading = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      setState(
+        () {
+          isLoading = false;
+        },
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
           backgroundColor: AppTemplate.bgClr,
           content: Text(
             message,
             style: GoogleFonts.inter(
                 color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-          )));
+          ),
+        ),
+      );
     }
 
     setState(() {
@@ -179,7 +185,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
         Uri.parse('https://wash.sortbe.com/API/Admin/User/Employee-Edit'));
     request.fields.addAll({
       'enc_key': encKey,
-      'emp_id': '123',
+      'emp_id': admin.admin!.id,
       'emp_name': empName,
       'dob': dob,
       'address': address,
@@ -334,27 +340,9 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
           fit: BoxFit.cover,
         );
       }
-      // }
-      // else if (imageData is String && imageData.isNotEmpty) {
-      //   // Display the image from URL
-      //   return ClipRRect(
-      //     borderRadius: BorderRadius.circular(5.r),
-      //     child: Image.file(
-      //       imageData,
-      //       height: 85.w,
-      //       width: double.infinity,
-      //       fit: BoxFit.cover,
-      //     ),
-      //   );
-      // }
-      // else {
-      //   return Image.asset(
-      //     'assets/images/aadhar.png',
-      //     height: 45.w,
-      //     width: double.infinity,
-      //   );
-      // }
     }
+
+    final employeeController = ref.read(employeeProvider.notifier);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -1124,7 +1112,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                 textSz: 18.sp,
                                 onClick: () async {
                                   await employeeEdit(context, ref);
-                                  controller.fetchEmployeeList();
+                                  employeeController.fetchEmployeeList();
                                   print(
                                       "+++++++++++++++++++++++++++++++++++++++++++++");
                                   print(widget.empid);

@@ -1,7 +1,7 @@
 import 'package:car_wash/features/attendance/attendance_page.dart';
 import 'package:car_wash/features/customer/customer.dart';
 import 'package:car_wash/features/planner/pages/planner_employee.dart';
-import 'package:car_wash/features/employee/employee.dart' as emp;
+import 'package:car_wash/features/employee/employee.dart';
 import 'package:car_wash/features/salary/pages/employee_salary.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -105,8 +105,7 @@ class Menu {
                             onTap: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        const emp.Employee())),
+                                    builder: (context) => EmployeePage())),
                             child: Row(
                               children: [
                                 SizedBox(

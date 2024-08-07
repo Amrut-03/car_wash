@@ -6,6 +6,7 @@ import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
 import 'package:car_wash/features/customer/customer.dart';
+import 'package:car_wash/provider/admin_provider.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -104,6 +105,7 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
   }
 
   Future<void> createCustomer() async {
+    final admin = ref.read(authProvider);
     setState(() {
       isLoading = true;
     });
@@ -203,7 +205,7 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
 
       request.fields.addAll({
         'enc_key': encKey,
-        'emp_id': '123',
+        'emp_id': admin.admin!.id,
         'client_name': customerController.text,
         'mobile': mobileController.text,
         'car_info': jsonEncode(carInfoList),
@@ -427,8 +429,7 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
 
   @override
   Widget build(BuildContext context) {
-    final CustomerController _customercontroller =
-        Get.put(CustomerController());
+    final customerNotifier = ref.read(customerProvider.notifier);
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: AppTemplate.primaryClr,
@@ -477,7 +478,7 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                       textSz: 18.sp,
                       onClick: () async {
                         await createCustomer();
-                        _customercontroller.customerList();
+                        customerNotifier.CustomerList();
                       },
                     ),
             ],

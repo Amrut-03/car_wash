@@ -4,23 +4,26 @@ import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/features/attendance/attendance_record.dart';
+import 'package:car_wash/provider/admin_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AttendancePage extends StatefulWidget {
+class AttendancePage extends ConsumerStatefulWidget {
   const AttendancePage({super.key});
 
   @override
-  State<AttendancePage> createState() => _AttendancePageState();
+  ConsumerState<AttendancePage> createState() => _AttendancePageState();
 }
 
-class _AttendancePageState extends State<AttendancePage> {
+class _AttendancePageState extends ConsumerState<AttendancePage> {
   Map<String, dynamic>? currentAttendance;
   bool isLoading = true;
 
   Future<void> fetchAttendance() async {
+    final admin = ref.read(authProvider);
     setState(() {
       isLoading = true;
     });
@@ -29,7 +32,7 @@ class _AttendancePageState extends State<AttendancePage> {
         'POST',
         Uri.parse(
             'https://wash.sortbe.com/API/Admin/Attendance/Attendance-List'));
-    request.fields.addAll({'enc_key': encKey, 'emp_id': "123"});
+    request.fields.addAll({'enc_key': encKey, 'emp_id': admin.admin!.id});
 
     http.StreamedResponse response = await request.send();
     String temp = await response.stream.bytesToString();
@@ -51,6 +54,7 @@ class _AttendancePageState extends State<AttendancePage> {
   }
 
   Future<void> attendenceUpdate(String status) async {
+    final admin = ref.read(authProvider); // Use ref to access the provider
     if (currentAttendance == null) return;
 
     var request = http.MultipartRequest(
@@ -59,7 +63,7 @@ class _AttendancePageState extends State<AttendancePage> {
             'https://wash.sortbe.com/API/Admin/Attendance/Attendance-Status'));
     request.fields.addAll({
       'enc_key': encKey,
-      'emp_id': '123',
+      'emp_id': admin.admin!.id,
       'attendance_user': currentAttendance!['employee_key'],
       'attendance_status': status,
     });
@@ -101,8 +105,8 @@ class _AttendancePageState extends State<AttendancePage> {
           ? Center(
               child: Column(
               children: [
-                Header(txt: 'Attendance'),
-                Spacer(),
+                const Header(txt: 'Attendance'),
+                const Spacer(),
                 Center(
                   child: Text(
                     'No records found',
@@ -112,7 +116,7 @@ class _AttendancePageState extends State<AttendancePage> {
                         fontWeight: FontWeight.w400),
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
               ],
             ))
           : SingleChildScrollView(

@@ -177,6 +177,191 @@ class _DashBoardState extends State<DashBoard> {
                               fontWeight: FontWeight.w400),
                         ),
                       ),
+                      // Expanded(
+                      //   child: Container(
+                      //     width: double.infinity,
+                      //     color: Colors.white,
+                      //     child: Padding(
+                      //       padding: EdgeInsets.symmetric(horizontal: 25.w),
+                      //       child: Column(
+                      //         crossAxisAlignment: CrossAxisAlignment.start,
+                      //         children: [
+                      //           SizedBox(height: 60.h),
+                      //           Text(
+                      //             'Today\'s Wash',
+                      //             style: GoogleFonts.inter(
+                      //               color: AppTemplate.textClr,
+                      //               fontSize: 20.sp,
+                      //               fontWeight: FontWeight.w600,
+                      //             ),
+                      //           ),
+                      //           Expanded(
+                      //             child: ListView.builder(
+                      //               itemCount:
+                      //                   dashboardController.washInfoList.length,
+                      //               itemBuilder: (context, index) {
+                      //                 final washInfo = dashboardController
+                      //                     .washInfoList[index];
+                      //                 return Visibility(
+                      //                   visible: washInfo != null,
+                      //                   replacement: Text('No Record Found'),
+                      //                   child: Stack(
+                      //                     children: [
+                      //                       Container(
+                      //                         margin: EdgeInsets.symmetric(
+                      //                             vertical: 10.h),
+                      //                         padding: EdgeInsets.all(15.h),
+                      //                         decoration: BoxDecoration(
+                      //                           color: AppTemplate.primaryClr,
+                      //                           borderRadius:
+                      //                               BorderRadius.circular(10.r),
+                      //                           border: Border.all(
+                      //                               color: const Color(
+                      //                                   0xFFE1E1E1)),
+                      //                           boxShadow: [
+                      //                             BoxShadow(
+                      //                               color:
+                      //                                   const Color(0xFFE1E1E1),
+                      //                               blurRadius: 4.r,
+                      //                               spreadRadius: 0.r,
+                      //                               offset: Offset(0.w, 4.h),
+                      //                             ),
+                      //                           ],
+                      //                         ),
+                      //                         child: Column(
+                      //                           crossAxisAlignment:
+                      //                               CrossAxisAlignment.start,
+                      //                           children: [
+                      //                             Row(
+                      //                               mainAxisAlignment:
+                      //                                   MainAxisAlignment
+                      //                                       .spaceBetween,
+                      //                               children: [
+                      //                                 Text(
+                      //                                   washInfo[
+                      //                                           'vehicle_no'] ??
+                      //                                       'Unknown Vehicle',
+                      //                                   style:
+                      //                                       GoogleFonts.inter(
+                      //                                     color: AppTemplate
+                      //                                         .textClr,
+                      //                                     fontWeight:
+                      //                                         FontWeight.bold,
+                      //                                   ),
+                      //                                 ),
+                      //                                 Text(
+                      //                                   washInfo['wash_status'] ==
+                      //                                           "Completed"
+                      //                                       ? 'Completed'
+                      //                                       : 'Pending',
+                      //                                   style:
+                      //                                       GoogleFonts.inter(
+                      //                                     fontWeight:
+                      //                                         FontWeight.w600,
+                      //                                     color:
+                      //                                         washInfo["wash_status"] ==
+                      //                                                 "Completed"
+                      //                                             ? const Color
+                      //                                                 .fromRGBO(
+                      //                                                 86,
+                      //                                                 156,
+                      //                                                 0,
+                      //                                                 10)
+                      //                                             : const Color
+                      //                                                 .fromRGBO(
+                      //                                                 255,
+                      //                                                 195,
+                      //                                                 0,
+                      //                                                 10),
+                      //                                     fontSize: 10.sp,
+                      //                                   ),
+                      //                                 ),
+                      //                               ],
+                      //                             ),
+                      //                             SizedBox(height: 5.h),
+                      //                             Row(
+                      //                               children: [
+                      //                                 Container(
+                      //                                   decoration:
+                      //                                       BoxDecoration(
+                      //                                     borderRadius:
+                      //                                         BorderRadius
+                      //                                             .circular(
+                      //                                                 10.r),
+                      //                                     color: const Color(
+                      //                                         0xFF001C63),
+                      //                                   ),
+                      //                                   child: Padding(
+                      //                                     padding: EdgeInsets
+                      //                                         .symmetric(
+                      //                                             horizontal:
+                      //                                                 10.w,
+                      //                                             vertical:
+                      //                                                 3.h),
+                      //                                     child: Text(
+                      //                                       washInfo[
+                      //                                               'wash_type'] ??
+                      //                                           'Unknown Wash Type',
+                      //                                       style: GoogleFonts
+                      //                                           .inter(
+                      //                                         fontSize: 8.sp,
+                      //                                         fontWeight:
+                      //                                             FontWeight
+                      //                                                 .w600,
+                      //                                         color: AppTemplate
+                      //                                             .primaryClr,
+                      //                                       ),
+                      //                                     ),
+                      //                                   ),
+                      //                                 ),
+                      //                               ],
+                      //                             ),
+                      //                             SizedBox(height: 8.h),
+                      //                           ],
+                      //                         ),
+                      //                       ),
+                      //                       Positioned(
+                      //                         right: 20,
+                      //                         bottom: 30,
+                      //                         child: Row(
+                      //                           children: [
+                      //                             Text(
+                      //                               washInfo['employee_name'] ??
+                      //                                   'Unknown Employee',
+                      //                               style: GoogleFonts.inter(
+                      //                                 color:
+                      //                                     AppTemplate.textClr,
+                      //                                 fontWeight:
+                      //                                     FontWeight.bold,
+                      //                                 fontSize: 8.sp,
+                      //                               ),
+                      //                             ),
+                      //                             SizedBox(width: 5.w),
+                      //                             CircleAvatar(
+                      //                               radius: 12.5.r,
+                      //                               backgroundImage:
+                      //                                   NetworkImage(
+                      //                                 washInfo['employee_pic'] !=
+                      //                                         null
+                      //                                     ? washInfo[
+                      //                                         'employee_pic']
+                      //                                     : 'assets/images/noavatar.png',
+                      //                               ),
+                      //                             ),
+                      //                           ],
+                      //                         ),
+                      //                       ),
+                      //                     ],
+                      //                   ),
+                      //                 );
+                      //               },
+                      //             ),
+                      //           ),
+                      //         ],
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                   Positioned(

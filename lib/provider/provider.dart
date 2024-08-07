@@ -1,4 +1,8 @@
 import 'dart:io';
+import 'package:car_wash/features/customer/customer.dart';
+import 'package:car_wash/features/dashboard.dart';
+import 'package:car_wash/features/employee/employee.dart';
+import 'package:car_wash/provider/admin_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -91,3 +95,18 @@ final aadharBackUrlProvider = StateProvider<String?>((ref) => null);
 final driveFrontUrlProvider = StateProvider<String?>((ref) => null);
 final driveBackUrlProvider = StateProvider<String?>((ref) => null);
 final employeePhotoUrlProvider = StateProvider<String?>((ref) => null);
+
+final customerProvider = StateNotifierProvider<CustomerNotifier, CustomerState>(
+  (ref) => CustomerNotifier(ref),
+);
+
+final employeeProvider = StateNotifierProvider<EmployeeNotifier, EmployeeState>(
+  (ref) => EmployeeNotifier(ref, ref.read(authProvider).admin!.id),
+);
+
+// final dashboardProvider =
+//     StateNotifierProvider<DashboardNotifier, DashboardState>((ref) {
+//   return DashboardNotifier(ref, ref.read(authProvider).admin!.id);
+// });
+
+final empIdProvider = StateProvider<String>((ref) => '');
