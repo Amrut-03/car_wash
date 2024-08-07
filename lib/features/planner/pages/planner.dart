@@ -245,22 +245,36 @@ class _PlannerState extends ConsumerState<Planner> {
                   ? const Center(
                       child: CircularProgressIndicator(),
                     )
-                  : Container(
-                      constraints: const BoxConstraints(minHeight: 400),
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: filteredCars.length,
-                        itemBuilder: (context, index) {
-                          return CarsToWashWidget(
-                            washTypes: washTypes,
-                            car: filteredCars[index],
-                            cleanerKey: widget.empId,
-                            onAssigned: refreshPage,
-                          );
-                        },
-                      ),
-                    ),
+                  : filteredCars.isEmpty
+                      ? Column(
+                          children: [
+                            SizedBox(height: 170),
+                            Center(
+                              child: Text(
+                                'No Cars Found...',
+                                style: TextStyle(
+                                  fontSize: 25,
+                                ),
+                              ),
+                            )
+                          ],
+                        )
+                      : Container(
+                          constraints: const BoxConstraints(minHeight: 400),
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: filteredCars.length,
+                            itemBuilder: (context, index) {
+                              return CarsToWashWidget(
+                                washTypes: washTypes,
+                                car: filteredCars[index],
+                                cleanerKey: widget.empId,
+                                onAssigned: refreshPage,
+                              );
+                            },
+                          ),
+                        ),
             ],
           ),
         ),
