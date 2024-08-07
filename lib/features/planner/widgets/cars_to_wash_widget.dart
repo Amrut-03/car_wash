@@ -10,6 +10,7 @@ import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -34,6 +35,34 @@ class CarsToWashWidget extends ConsumerStatefulWidget {
 class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
   final TextEditingController remarksController = TextEditingController();
   WashType? currentOption;
+
+  void showOverlaySnackBar(BuildContext context, String message, Color color) {
+    final overlay = Overlay.of(context);
+    final overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+        child: Material(
+          color: Colors.transparent,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 100),
+            child: Container(
+              alignment: Alignment.bottomCenter,
+              color: color,
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(
+                message,
+                style: GoogleFonts.inter(color: Colors.white),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    overlay.insert(overlayEntry);
+    Future.delayed(Duration(seconds: 3), () {
+      overlayEntry.remove();
+    });
+  }
 
   Future<void> assign(WashType washType) async {
     final admin = ref.watch(authProvider);
@@ -159,7 +188,7 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 25, vertical: 15),
-                                    child: TextField(
+                                    child: TextFormField(
                                       controller: remarksController,
                                       maxLines: 5,
                                       textAlignVertical: TextAlignVertical.top,
@@ -171,6 +200,7 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
                                             fontSize: 15.sp,
                                             color: const Color(0xFF929292),
                                             fontWeight: FontWeight.w400),
+                                        border: InputBorder.none,
                                         enabledBorder: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(5.r),
@@ -224,21 +254,21 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
                                                 controller
                                                     .plannerEmployeeList();
                                               } else {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  SnackBar(
-                                                    backgroundColor:
-                                                        AppTemplate.bgClr,
-                                                    content: Text(
+                                                Fluttertoast.showToast(
+                                                  msg:
                                                       'Please select a wash type',
-                                                      style: GoogleFonts.inter(
-                                                          color: AppTemplate
-                                                              .primaryClr,
-                                                          fontWeight:
-                                                              FontWeight.w400),
-                                                    ),
-                                                  ),
+                                                  toastLength:
+                                                      Toast.LENGTH_LONG,
+                                                  gravity: ToastGravity.TOP,
+                                                  backgroundColor: Colors.red,
+                                                  fontSize: 18,
+                                                  textColor: Colors.white,
+                                                  timeInSecForIosWeb: 3,
                                                 );
+                                                // showOverlaySnackBar(
+                                                //     context,
+                                                //     'Please select a wash type',
+                                                //     Colors.red);
                                               }
                                             },
                                           ),

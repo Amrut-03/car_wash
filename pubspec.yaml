@@ -54,6 +54,7 @@ dependencies:
   path_provider: ^2.1.4
   image_gallery_saver: ^2.0.3
   maps_launcher: ^2.2.1
+  fluttertoast: ^8.2.6
 
 dev_dependencies:
   flutter_test:

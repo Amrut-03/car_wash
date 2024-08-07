@@ -26,6 +26,7 @@ class CustomerController extends GetxController {
     });
   }
 
+
   @override
   void onClose() {
     searchController.dispose();
@@ -167,9 +168,11 @@ class Customer extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const CreateCustomer())),
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CreateCustomer(),
+                      ),
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: SizedBox(
