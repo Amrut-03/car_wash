@@ -43,7 +43,6 @@ class EmployeeState {
     );
   }
 
-  @override
   List<Object> get props => [isLoading, noRecordsFound, employeeList];
 }
 
@@ -169,6 +168,7 @@ class EmployeeNotifier extends StateNotifier<EmployeeState> {
   }
 }
 
+// ignore: must_be_immutable
 class EmployeePage extends ConsumerWidget {
   TextEditingController reTypePasswordController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -177,7 +177,89 @@ class EmployeePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final employeeController = ref.watch(employeeProvider.notifier);
 
-    void showPasswordOption(BuildContext context) {
+    void changePassword(String empId) async {
+      // Validate Password and ReTypePassword fields
+      if (passwordController.text.isEmpty) {
+        awesomeTopSnackbar(
+          context,
+          "Please Enter Password",
+          textStyle: GoogleFonts.inter(
+              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          backgroundColor: AppTemplate.bgClr,
+        );
+        return;
+      }
+
+      if (reTypePasswordController.text.isEmpty) {
+        awesomeTopSnackbar(
+          context,
+          "Please Enter ReTypePassword",
+          textStyle: GoogleFonts.inter(
+              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          backgroundColor: AppTemplate.bgClr,
+        );
+        return; // Exit the function if retype password is empty
+      }
+
+      // Check if Password and ReTypePassword match
+      if (passwordController.text != reTypePasswordController.text) {
+        awesomeTopSnackbar(
+          context,
+          "Password and ReTyped Password do not match",
+          textStyle: GoogleFonts.inter(
+              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          backgroundColor: AppTemplate.bgClr,
+        );
+        return; // Exit the function if passwords do not match
+      }
+      final admin = ref.read(authProvider);
+      // Proceed with the network request if all validations pass
+      var request = http.MultipartRequest(
+          'POST',
+          Uri.parse(
+              'https://wash.sortbe.com/API/Admin/User/Employee-Password'));
+      request.fields.addAll({
+        'enc_key': encKey,
+        'emp_id': admin.admin!.id,
+        'user_id': empId,
+        'password': passwordController.text
+      });
+
+      try {
+        http.StreamedResponse response = await request.send();
+        String temp = await response.stream.bytesToString();
+        var body = jsonDecode(temp);
+
+        if (response.statusCode == 200) {
+          awesomeTopSnackbar(
+            context,
+            "Password Changed Successfully",
+            textStyle: GoogleFonts.inter(
+                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+            backgroundColor: AppTemplate.bgClr,
+          );
+          // Navigator.pop(context);
+        } else {
+          awesomeTopSnackbar(
+            context,
+            "Error: ${body['status']}",
+            textStyle: GoogleFonts.inter(
+                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+            backgroundColor: AppTemplate.bgClr,
+          );
+        }
+      } catch (e) {
+        awesomeTopSnackbar(
+          context,
+          "An error occurred: $e",
+          textStyle: GoogleFonts.inter(
+              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          backgroundColor: AppTemplate.bgClr,
+        );
+      }
+    }
+
+    void showPasswordOption(BuildContext context, String emp_id) {
       showModalBottomSheet(
         backgroundColor: AppTemplate.primaryClr,
         context: context,
@@ -250,6 +332,7 @@ class EmployeePage extends ConsumerWidget {
                         textClr: AppTemplate.primaryClr,
                         textSz: 18.sp,
                         onClick: () {
+                          changePassword(emp_id);
                           employeeController.fetchEmployeeList();
                         },
                       ),
@@ -261,88 +344,6 @@ class EmployeePage extends ConsumerWidget {
           );
         },
       );
-    }
-
-    void changePassword() async {
-      // Validate Password and ReTypePassword fields
-      if (passwordController.text.isEmpty) {
-        awesomeTopSnackbar(
-          context,
-          "Please Enter Password",
-          textStyle: GoogleFonts.inter(
-              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-          backgroundColor: AppTemplate.bgClr,
-        );
-        return;
-      }
-
-      if (reTypePasswordController.text.isEmpty) {
-        awesomeTopSnackbar(
-          context,
-          "Please Enter ReTypePassword",
-          textStyle: GoogleFonts.inter(
-              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-          backgroundColor: AppTemplate.bgClr,
-        );
-        return; // Exit the function if retype password is empty
-      }
-
-      // Check if Password and ReTypePassword match
-      if (passwordController.text != reTypePasswordController.text) {
-        awesomeTopSnackbar(
-          context,
-          "Password and ReTyped Password do not match",
-          textStyle: GoogleFonts.inter(
-              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-          backgroundColor: AppTemplate.bgClr,
-        );
-        return; // Exit the function if passwords do not match
-      }
-
-      // Proceed with the network request if all validations pass
-      var request = http.MultipartRequest(
-          'POST',
-          Uri.parse(
-              'https://wash.sortbe.com/API/Admin/User/Employee-Password'));
-      request.fields.addAll({
-        'enc_key': encKey,
-        'emp_id': '123',
-        'user_id': '92076c04ab38bea36aa757078c675080',
-        'password': passwordController.text
-      });
-
-      try {
-        http.StreamedResponse response = await request.send();
-        String temp = await response.stream.bytesToString();
-        var body = jsonDecode(temp);
-
-        if (response.statusCode == 200) {
-          awesomeTopSnackbar(
-            context,
-            "Password Changed Successfully",
-            textStyle: GoogleFonts.inter(
-                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-            backgroundColor: AppTemplate.bgClr,
-          );
-          // Navigator.pop(context);
-        } else {
-          awesomeTopSnackbar(
-            context,
-            "Error: ${body['status']}",
-            textStyle: GoogleFonts.inter(
-                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-            backgroundColor: AppTemplate.bgClr,
-          );
-        }
-      } catch (e) {
-        awesomeTopSnackbar(
-          context,
-          "An error occurred: $e",
-          textStyle: GoogleFonts.inter(
-              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-          backgroundColor: AppTemplate.bgClr,
-        );
-      }
     }
 
     void showEmployeeOptions(
@@ -414,7 +415,7 @@ class EmployeePage extends ConsumerWidget {
                         style: GoogleFonts.inter(
                             fontWeight: FontWeight.w800, fontSize: 18.sp)),
                     onTap: () {
-                      showPasswordOption(context);
+                      showPasswordOption(context, employee_id);
                     },
                   ),
                   ListTile(

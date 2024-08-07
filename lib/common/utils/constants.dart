@@ -18,7 +18,7 @@ String plannerDate = DateFormat('yyyy-MM-dd').format(
 );
 
 String formattedDate = DateFormat('d MMMM yyyy').format(
-    DateTime.now().add(
-      const Duration(days: 1),
-    ),
-  );
+  DateTime.now().add(
+    const Duration(days: 1),
+  ),
+);

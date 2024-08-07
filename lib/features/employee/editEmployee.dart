@@ -1,14 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:car_wash/features/employee/employee.dart';
 import 'package:car_wash/provider/admin_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
@@ -108,12 +106,13 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
   }
 
   Future<Map<String, dynamic>?> EmployeeInfo() async {
+    final admin = ref.read(authProvider);
     try {
       var request = http.MultipartRequest('POST',
           Uri.parse('https://wash.sortbe.com/API/Admin/User/Employee-View'));
       request.fields.addAll({
-        'enc_key': 'C0oRAe1QNtn3zYNvJ8rv',
-        'emp_id': '123',
+        'enc_key': encKey,
+        'emp_id': admin.admin!.id,
         'user_id': widget.empid,
       });
 

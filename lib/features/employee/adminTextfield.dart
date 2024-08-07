@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
+import 'package:car_wash/provider/admin_provider.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -128,6 +129,8 @@ class _AdminTextFieldState extends ConsumerState<AdminTextField> {
       return;
     }
 
+    final admin = ref.read(authProvider);
+
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('https://wash.sortbe.com/API/Admin/User/Employee-Creation'),
@@ -135,7 +138,7 @@ class _AdminTextFieldState extends ConsumerState<AdminTextField> {
 
     request.fields.addAll({
       'enc_key': encKey,
-      'emp_id': '123',
+      'emp_id': admin.admin!.id,
       'emp_name': adminController.text,
       'phone_1': phone1Controller.text,
       'phone_2': '',
