@@ -102,7 +102,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
     return Scaffold(
       backgroundColor: AppTemplate.primaryClr,
       body: isLoading
-          ? Center(
+         ? Center(
               child: Column(
               children: [
                 const Header(txt: 'Attendance'),
