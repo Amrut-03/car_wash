@@ -219,6 +219,7 @@ class _AdminTextFieldState extends ConsumerState<AdminTextField> {
   @override
   Widget build(BuildContext context) {
     final employeeController = ref.watch(employeeProvider.notifier);
+    final dashboardNotifier = ref.read(dashboardProvider.notifier);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -368,6 +369,7 @@ class _AdminTextFieldState extends ConsumerState<AdminTextField> {
                       await createAdmin();
                       employeeController.fetchEmployeeList();
                       // dashboardController.fetchDashboardData();
+                      dashboardNotifier.fetchDashboardData();
                     },
                   ),
           ],

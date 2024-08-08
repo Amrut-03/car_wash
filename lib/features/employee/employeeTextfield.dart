@@ -305,7 +305,7 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
     final driveBack = ref.watch(driveBackProvider);
     final employeePhoto = ref.watch(employeePhotoProvider);
     final employeeController = ref.read(employeeProvider.notifier);
-    // final dashBoardState = ref.read(dashboardProvider.notifier);
+    final dashboardNotifier = ref.read(dashboardProvider.notifier);
 
     Widget imagePreview(File? image) {
       return image != null
@@ -783,7 +783,7 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
                     onClick: () async {
                       await createEmployee(context, ref);
                       employeeController.fetchEmployeeList();
-                      // dashBoardState.fetchDashboardData();
+                      dashboardNotifier.fetchDashboardData();
                     },
                   ),
           ],

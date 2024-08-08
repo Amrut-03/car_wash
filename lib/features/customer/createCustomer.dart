@@ -448,6 +448,7 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
   @override
   Widget build(BuildContext context) {
     final customerNotifier = ref.read(customerProvider.notifier);
+    final dashboardNotifier = ref.read(dashboardProvider.notifier);
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: AppTemplate.primaryClr,
@@ -496,7 +497,8 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                       textSz: 18.sp,
                       onClick: () async {
                         await createCustomer();
-                        customerNotifier.CustomerList();
+                        await customerNotifier.CustomerList();
+                        await dashboardNotifier.fetchDashboardData();
                       },
                     ),
             ],

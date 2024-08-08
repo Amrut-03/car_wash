@@ -113,14 +113,19 @@ class EmployeeNotifier extends StateNotifier<EmployeeState> {
       'enc_key': encKey,
       'emp_id': adminId,
       'user_id': empId,
-      'password': 'your_password', // Replace with the actual password
+      'password': '12345',
     });
 
     final response = await request.send();
 
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Employee Removed Successfully')),
+        SnackBar(
+            backgroundColor: AppTemplate.bgClr,
+            content: Text(
+              'Employee Removed Successfully',
+              style: GoogleFonts.inter(color: AppTemplate.primaryClr),
+            )),
       );
       final updatedList = state.employeeList
           .where((employee) => employee['employee_id'] != empId)
@@ -139,16 +144,44 @@ class EmployeeNotifier extends StateNotifier<EmployeeState> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: AppTemplate.primaryClr,
           title: const Text('Confirm Removal'),
           content: const Text('Are you sure you want to remove this employee?'),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('No'),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: AppTemplate.bgClr,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 3),
+                child: TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text(
+                    'No',
+                    style: GoogleFonts.inter(color: AppTemplate.primaryClr),
+                  ),
+                ),
+              ),
             ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Yes'),
+            SizedBox(
+              width: 10,
+            ),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: AppTemplate.bgClr,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 3),
+                child: TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: Text(
+                    'Yes',
+                    style: GoogleFonts.inter(color: AppTemplate.primaryClr),
+                  ),
+                ),
+              ),
             ),
           ],
         );
@@ -350,6 +383,7 @@ class EmployeePage extends ConsumerWidget {
         BuildContext context, String employee_id, WidgetRef ref) {
       // Access the EmployeeNotifier instead of EmployeeState
       final employeeNotifier = ref.read(employeeProvider.notifier);
+      final dashboardNotifier = ref.read(dashboardProvider.notifier);
 
       showModalBottomSheet(
         backgroundColor: AppTemplate.primaryClr,
@@ -426,6 +460,7 @@ class EmployeePage extends ConsumerWidget {
                     onTap: () async {
                       await employeeNotifier.confirmRemoveEmployee(
                           context, employee_id);
+                      await dashboardNotifier.fetchDashboardData();
                       Navigator.pop(context);
                     },
                   ),

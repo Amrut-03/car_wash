@@ -28,6 +28,7 @@ class _CustomerProfileState extends ConsumerState<CustomerProfile> {
   bool isCarWashed = true;
 
   void showCustomerOptions(BuildContext context) {
+    final dashboardNotifier = ref.read(dashboardProvider.notifier);
     showModalBottomSheet(
       backgroundColor: AppTemplate.primaryClr,
       context: context,
@@ -83,6 +84,7 @@ class _CustomerProfileState extends ConsumerState<CustomerProfile> {
                         ref.read(customerProvider.notifier);
                     await customerNotifier.confirmRemoveCustomer(
                         context, widget.customerId);
+                    await dashboardNotifier.fetchDashboardData();
                     await Navigator.push(context,
                         MaterialPageRoute(builder: (context) => Customer()));
                   },

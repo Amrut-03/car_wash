@@ -50,8 +50,10 @@ class CustomerNotifier extends StateNotifier<CustomerState> {
           body: [],
           searchController: TextEditingController(),
         )) {
-    state.searchController.addListener(_search);
     CustomerList();
+    state.searchController.addListener(() {
+      CustomerList();
+    });
   }
 
   Future<void> CustomerList() async {
@@ -96,10 +98,6 @@ class CustomerNotifier extends StateNotifier<CustomerState> {
     }
   }
 
-  void _search() {
-    CustomerList();
-  }
-
   Future<void> removeCustomer(BuildContext context, String customerId) async {
     final admin = ref.read(authProvider);
     var request = http.MultipartRequest(
@@ -117,7 +115,12 @@ class CustomerNotifier extends StateNotifier<CustomerState> {
       http.StreamedResponse response = await request.send();
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Customer Removed Successfully')),
+          SnackBar(
+              backgroundColor: AppTemplate.bgClr,
+              content: Text(
+                'Customer Removed Successfully',
+                style: GoogleFonts.inter(color: AppTemplate.primaryClr),
+              )),
         );
         state = state.copyWith(
           body: state.body
@@ -139,20 +142,44 @@ class CustomerNotifier extends StateNotifier<CustomerState> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: AppTemplate.primaryClr,
           title: Text('Confirm Removal'),
           content: Text('Are you sure you want to remove this customer?'),
           actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: Text('No'),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: AppTemplate.bgClr,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 3),
+                child: TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text(
+                    'No',
+                    style: GoogleFonts.inter(color: AppTemplate.primaryClr),
+                  ),
+                ),
+              ),
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-              child: Text('Yes'),
+            SizedBox(
+              width: 10,
+            ),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: AppTemplate.bgClr,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 3),
+                child: TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: Text(
+                    'Yes',
+                    style: GoogleFonts.inter(color: AppTemplate.primaryClr),
+                  ),
+                ),
+              ),
             ),
           ],
         );

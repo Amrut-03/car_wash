@@ -553,6 +553,7 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
   @override
   Widget build(BuildContext context) {
     final customerNotifier = ref.read(customerProvider.notifier);
+    final dashboardNotifier = ref.read(dashboardProvider.notifier);
     Widget imagePreview(File? imageFile, String? imageUrl) {
       if (imageFile != null) {
         return ClipRRect(
@@ -660,8 +661,8 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                       onClick: () async {
                         await fetchCustomerData(widget.customer_id);
                         await _updateCustomerData();
-
-                        customerNotifier.CustomerList();
+                        await customerNotifier.CustomerList();
+                        await dashboardNotifier.fetchDashboardData();
                       },
                     ),
             ],

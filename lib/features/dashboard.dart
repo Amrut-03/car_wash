@@ -124,7 +124,7 @@ class DashBoard extends ConsumerWidget {
                                 ListTile(
                                   leading: ClipOval(
                                       child: Image.network(
-                                    image,
+                                    image!,
                                     height: 30,
                                     width: 30,
                                     errorBuilder: (BuildContext context,
