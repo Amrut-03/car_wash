@@ -4,7 +4,6 @@ import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/features/settings/model/price_model.dart';
 import 'package:car_wash/features/settings/widget/custom_washtype_widget.dart';
-import 'package:car_wash/features/settings/widget/settings_textfield.dart';
 import 'package:car_wash/provider/admin_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,7 +12,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
 class SettingsPage extends ConsumerStatefulWidget {
-  const SettingsPage({super.key});
+  const SettingsPage({Key? key}) : super(key: key);
 
   @override
   ConsumerState<SettingsPage> createState() => _SettingsPageState();
@@ -23,36 +22,40 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Map<String, List<PriceModel>> groupedPrices = {};
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
     getPrice();
   }
 
   Future<void> getPrice() async {
-    const url = 'https://wash.sortbe.com/API/Admin/Settings/Get-Pricing';
+    final admin = ref.read(authProvider);
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('https://wash.sortbe.com/API/Admin/Settings/Get-Pricing'),
+    );
+    request.fields.addAll({'enc_key': encKey, 'emp_id': admin.admin!.id});
 
-    final admin = ref.watch(authProvider);
+    http.StreamedResponse response = await request.send();
+    String temp = await response.stream.bytesToString();
+    var body = jsonDecode(temp);
 
-    try {
-      final response = await http.post(
-        Uri.parse(url),
-        body: {
-          'enc_key': encKey,
-          'emp_id': admin.admin!.id,
-        },
-      );
+    if (response.statusCode == 200) {
+      List<dynamic> data = body['data'];
+      List<PriceModel> prices =
+          data.map((e) => PriceModel.fromJson(e)).toList();
 
-      if (response.statusCode == 200) {
-        Map<String, dynamic> responseData = jsonDecode(response.body);
-        responseData['data'];
-        if (mounted) {
-          setState(() {});
+      // Grouping the prices by wash_types
+      groupedPrices = {};
+      for (var price in prices) {
+        if (!groupedPrices.containsKey(price.washType)) {
+          groupedPrices[price.washType] = [];
         }
-      } else {
-        throw Exception('Failed to load cars');
+        groupedPrices[price.washType]!.add(price);
       }
-    } catch (e) {
-      print('Error = $e');
+
+      setState(() {}); // To trigger a rebuild with the grouped data
+    } else {
+      print(response.reasonPhrase);
     }
   }
 
@@ -82,17 +85,26 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ],
               ),
             ),
-            Container(
-              height: 0.8 * MediaQuery.of(context).size.height,
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: 5,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    child: CustomWashtypeWidget(),
-                  );
-                },
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 25.h),
+              child: Container(
+                height: 0.8 * MediaQuery.of(context).size.height,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: groupedPrices.length,
+                  itemBuilder: (context, index) {
+                    String washType = groupedPrices.keys.elementAt(index);
+                    List<PriceModel> prices = groupedPrices[washType]!;
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      child: CustomWashtypeWidget(
+                        washType: washType,
+                        prices: prices,
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           ],

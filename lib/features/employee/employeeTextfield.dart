@@ -138,7 +138,21 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: AppTemplate.bgClr,
         content: Text(
-          'Please Enter Mobile Number',
+          'Please Enter Mobile Number 1',
+          style: GoogleFonts.inter(
+              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+        ),
+      ));
+      return;
+    }
+    if (phone2.isEmpty) {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: AppTemplate.bgClr,
+        content: Text(
+          'Please Enter Mobile Number 2',
           style: GoogleFonts.inter(
               color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
         ),

@@ -261,13 +261,13 @@ class Menu {
                             child: Row(
                               children: [
                                 SizedBox(
-                                  height: 30.0,
-                                  width: 30.0,
-                                  child: SvgPicture.asset(
-                                    'assets/svg/planner.svg',
-                                    color: const Color(0xFF545454),
-                                  ),
-                                ),
+                                    height: 30.0,
+                                    width: 30.0,
+                                    child: Icon(
+                                      Icons.settings,
+                                      size: 30,
+                                      color: const Color(0xFF545454),
+                                    )),
                                 Container(
                                   margin: const EdgeInsets.only(left: 10),
                                   child: Text(
