@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
@@ -17,6 +18,7 @@ import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart' as perm_handler;
 
 // ignore: must_be_immutable
 class EditCustomer extends ConsumerStatefulWidget {
@@ -34,11 +36,14 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
   TextEditingController mobileController = TextEditingController();
   List<TextEditingController>? carModelNameControllers;
   List<TextEditingController>? carNoControllers;
+  List<TextEditingController>? addressControllers;
+  List<TextEditingController>? carTypeControllers;
   List<TextEditingController>? carLatControllers;
   List<TextEditingController>? carLongControllers;
   List<TextEditingController>? carPhotosController;
   List<String> existingCarIds = [];
 
+  final ScrollController _scrollController = ScrollController();
   File? imageFile;
   double lat = 0.0;
   double long = 0.0;
@@ -50,11 +55,37 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
     mobileController = TextEditingController();
     carModelNameControllers = [];
     carNoControllers = [];
+    addressControllers = [];
+    carTypeControllers = [];
     _loadCustomerData();
   }
 
   List<String> carImageUrls = [];
   List<File?> imageFiles = [];
+  Future<void> _pickImage(BuildContext context, int index) async {
+    print('_pickImage called for index $index');
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.camera);
+
+    if (pickedFile != null) {
+      final File file = File(pickedFile.path);
+      print('Picked image path: ${pickedFile.path}');
+
+      setState(() {
+        if (index < imageFiles.length) {
+          imageFiles[index] = file;
+        } else {
+          imageFiles.add(file);
+        }
+
+        carPhotosController![index].text = pickedFile.path;
+        print(
+            'Updated carPhotosController[$index] with path: ${carPhotosController![index].text}'); // Debugging line
+      });
+    } else {
+      print('No image picked');
+    }
+  }
 
   bool validateFields() {
     if (customerController.text.isEmpty) {
@@ -81,6 +112,14 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
       if (carPhotosController![i].text.isEmpty &&
           (imageFiles[i] == null || !imageFiles[i]!.existsSync())) {
         showValidationError("Car image for car ${i + 1} is required");
+        return false;
+      }
+      if (carTypeControllers![i].text.isEmpty) {
+        showValidationError("Car Type for car ${i + 1} is required");
+        return false;
+      }
+      if (addressControllers![i].text.isEmpty) {
+        showValidationError("Address for car ${i + 1} is required");
         return false;
       }
       if (carLatControllers![i].text.isEmpty ||
@@ -145,6 +184,14 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
             (index) => TextEditingController(
                 text: data['customer_cars'][index]['latitude'] ?? ''),
           );
+          addressControllers = List.generate(
+            data['customer_cars'].length,
+            (index) => TextEditingController(),
+          );
+          carTypeControllers = List.generate(
+            data['customer_cars'].length,
+            (index) => TextEditingController(),
+          );
           carLongControllers = List.generate(
             data['customer_cars'].length,
             (index) => TextEditingController(
@@ -160,7 +207,9 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
           carPhotosController = [];
           carLatControllers = [];
           carLongControllers = [];
-          // imageFiles = [];
+          addressControllers = [];
+          carTypeControllers = [];
+          imageFiles = [];
         }
         print(carModelNameControllers);
         isLoading = false; // Data is loaded, so set loading to false
@@ -216,8 +265,10 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
       var carData = {
         'model_name': carModelNameControllers![i].text,
         'vehicle_no': carNoControllers![i].text,
-        // 'car_image':
-        //     imageFiles[i] != null ? 'car_pic$i' : carPhotosController![i].text,
+        'car_image':
+            imageFiles[i] != null ? 'car_pic$i' : carPhotosController![i].text,
+        'address': addressControllers![i].text,
+        'car_type': carTypeControllers![i].text,
         'latitude': carLatControllers != null && i < carLatControllers!.length
             ? carLatControllers![i].text
             : '',
@@ -226,7 +277,6 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                 ? carLongControllers![i].text
                 : '',
       };
-      print(imageFile);
 
       if (i < existingCarIds.length) {
         carData['car_id'] = existingCarIds[i];
@@ -236,22 +286,8 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
       }
     }
 
-    for (int i = 0; i < imageFiles.length; i++) {
-      final imageFile = imageFiles[i];
-      if (imageFile != null && await imageFile.exists()) {
-        print('Adding file for car_pic$i: ${imageFile.path}');
-        request.files.add(
-          await http.MultipartFile.fromPath('car_pic$i', imageFile.path),
-        );
-      }
-    }
-
-    print(imageFiles);
-
-    print('Available car data list: $availableCarDataList');
-    print('New car data list: $newCarDataList');
+    // Add fields to request
     final admin = ref.read(authProvider);
-
     request.fields.addAll({
       'enc_key': encKey,
       'emp_id': admin.admin!.id,
@@ -264,19 +300,27 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
       }),
     });
 
+    // Add files to request
+    for (int i = 0; i < imageFiles.length; i++) {
+      final imageFile = imageFiles[i];
+      if (imageFile != null && await imageFile.exists()) {
+        request.files.add(
+            await http.MultipartFile.fromPath('car_pic$i', imageFile.path));
+      }
+    }
+    // Debugging prints
     print('Request fields: ${request.fields}');
+    print(
+        'Request files: ${request.files.map((file) => file.filename).toList()}');
 
     try {
       http.StreamedResponse response = await request.send();
-      // String temp = await response.stream.bytesToString();
-      // print(temp);
-      // var body = jsonDecode(temp);
+      String responseBody = await response.stream.bytesToString();
+      print(responseBody);
+
       if (response.statusCode == 200) {
         print('Customer data updated successfully');
         showValidationError("Customer data updated successfully");
-        print('Available car data list: $availableCarDataList');
-        print('New car data list: $newCarDataList');
-        // print(body);
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => Customer()));
       } else {
@@ -289,14 +333,280 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
       showValidationError('An error occurred. Please try again.');
     } finally {
       setState(() {
-        isLoading = false;
+        isLoading = false; // Stop loading
       });
     }
+  }
+
+  void _addNewCard() {
+    // Add a new controller for each property
+    carModelNameControllers!.add(TextEditingController());
+    carNoControllers!.add(TextEditingController());
+    carLatControllers!.add(TextEditingController());
+    carLongControllers!.add(TextEditingController());
+    carPhotosController!.add(TextEditingController());
+    addressControllers!.add(TextEditingController());
+    carTypeControllers!.add(TextEditingController());
+
+    imageFiles.add(null);
+
+    ref.read(customerCardProvider.notifier).addCard();
+
+    _scrollToBottom();
+  }
+
+  void _removeCard(int index) {
+    if (carModelNameControllers!.length > 1) {
+      setState(() {
+        carModelNameControllers![index].dispose();
+        carNoControllers![index].dispose();
+        addressControllers![index].dispose();
+        carTypeControllers![index].dispose();
+
+        carModelNameControllers!.removeAt(index);
+        carNoControllers!.removeAt(index);
+        addressControllers!.removeAt(index);
+        carTypeControllers!.removeAt(index);
+
+        imageFiles.removeAt(index);
+      });
+      ref.read(customerCardProvider.notifier).removeCard(index);
+      _scrollUp();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: AppTemplate.bgClr,
+        content: Text(
+          "At least one car must be present",
+          style: GoogleFonts.inter(
+            color: AppTemplate.primaryClr,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      ));
+    }
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  void _scrollUp() {
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.pixels - 150.h,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      },
+    );
+  }
+
+  Future<void> _requestPermissions() async {
+    var status = await perm_handler.Permission.locationWhenInUse.status;
+    if (status.isDenied || status.isRestricted || status.isPermanentlyDenied) {
+      if (await perm_handler.Permission.locationWhenInUse.request().isGranted) {
+        print('Location permission granted');
+      } else {
+        print('Location permission denied');
+      }
+    } else if (status.isGranted) {
+      print('Location permission already granted');
+    }
+  }
+
+  Future<void> _getLocation(BuildContext context, int index) async {
+    bool serviceEnabled;
+    perm_handler.PermissionStatus permissionGranted;
+    Position position;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      await Geolocator.openLocationSettings();
+      if (!await Geolocator.isLocationServiceEnabled()) {
+        return;
+      }
+    }
+
+    permissionGranted = await perm_handler.Permission.locationWhenInUse.status;
+    if (permissionGranted == perm_handler.PermissionStatus.denied) {
+      permissionGranted =
+          await perm_handler.Permission.locationWhenInUse.request();
+      if (permissionGranted != perm_handler.PermissionStatus.granted) {
+        _showPermissionDeniedDialog(context);
+        return;
+      }
+    }
+
+    position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+
+    setState(() {
+      // Update the specific index for latitude and longitude
+      if (index < carLatControllers!.length) {
+        carLatControllers![index].text = position.latitude.toString();
+      } else {
+        carLatControllers!
+            .add(TextEditingController(text: position.latitude.toString()));
+      }
+      if (index < carLongControllers!.length) {
+        carLongControllers![index].text = position.longitude.toString();
+      } else {
+        carLongControllers!
+            .add(TextEditingController(text: position.longitude.toString()));
+      }
+    });
+
+    print(
+        'Updated location for index $index: Lat: ${position.latitude}, Long: ${position.longitude}');
+    _showLocationDialog(context, position.latitude, position.longitude);
+  }
+
+  void _showLocationDialog(
+      BuildContext context, double latitude, double longitude) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Location Retrieved',
+            style: GoogleFonts.inter(
+                color: AppTemplate.textClr,
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w600),
+          ),
+          content: Text(
+            'Your Live location is stored.',
+            style: GoogleFonts.inter(
+                fontSize: 12.sp,
+                color: AppTemplate.textClr,
+                fontWeight: FontWeight.w500),
+          ),
+          // Text('Lat: $latitude, Long: $longitude'),
+          actions: <Widget>[
+            Center(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFf1E3763)),
+                child: Text(
+                  'OK',
+                  style: GoogleFonts.inter(color: Colors.white),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showPermissionDeniedDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Location Permission Required',
+            style: GoogleFonts.inter(
+                color: AppTemplate.textClr,
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w600),
+          ),
+          content: Text(
+            'Please grant location permission to use this feature.',
+            style: GoogleFonts.inter(
+                fontSize: 12.sp,
+                color: AppTemplate.textClr,
+                fontWeight: FontWeight.w500),
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFf1E3763)),
+              child: Text(
+                'OK',
+                style: GoogleFonts.inter(color: Colors.white),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final customerNotifier = ref.read(customerProvider.notifier);
+    Widget imagePreview(File? imageFile, String? imageUrl) {
+      if (imageFile != null) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(5.r),
+          child: Image.file(
+            imageFile,
+            height: 78.h,
+            width: 120.w,
+            fit: BoxFit.cover,
+          ),
+        );
+      } else if (imageUrl != null && imageUrl.isNotEmpty) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(5.r),
+          child: Image.network(
+            imageUrl,
+            height: 78.h,
+            width: 120.w,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset('assets/svg/Camera.svg'),
+                  Text(
+                    'Car Picture',
+                    style: GoogleFonts.inter(
+                      fontSize: 12.sp,
+                      color: const Color(0xFF6750A4),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      } else {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset('assets/svg/Camera.svg'),
+            Text(
+              'Car Picture',
+              style: GoogleFonts.inter(
+                fontSize: 12.sp,
+                color: const Color(0xFF6750A4),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        );
+      }
+    }
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -326,7 +636,7 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                     ),
                     onPressed: () {
                       setState(() {
-                        // _addNewCard();
+                        _addNewCard();
                       });
                     }),
               ),
@@ -455,11 +765,16 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                   )
                 : Expanded(
                     child: ListView.builder(
-                      // controller: _scrollController,
+                      controller: _scrollController,
                       itemCount: carModelNameControllers!.length,
                       itemBuilder: (context, index) {
-                        print(
-                            'Building CreateCustomerCard widget at index $index');
+                        final carModelController =
+                            carModelNameControllers![index];
+                        final carNoController = carNoControllers![index];
+                        final addressController =
+                            addressControllers![index]; // Add this
+                        final carTypeController = carTypeControllers![index];
+                        final imageFile = imageFiles[index];
                         return Stack(
                           children: [
                             Center(
@@ -490,8 +805,7 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                                           CrossAxisAlignment.center,
                                       children: [
                                         Textfieldwidget(
-                                          controller:
-                                              carModelNameControllers![index],
+                                          controller: carModelController,
                                           labelTxt: 'Car Model',
                                           labelTxtClr: const Color(0xFF929292),
                                           enabledBorderClr:
@@ -501,8 +815,46 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                                         ),
                                         SizedBox(height: 25.h),
                                         Textfieldwidget(
-                                          controller: carNoControllers![index],
+                                          controller: carNoController,
                                           labelTxt: 'Vehicle No',
+                                          labelTxtClr: const Color(0xFF929292),
+                                          enabledBorderClr:
+                                              const Color(0xFFD4D4D4),
+                                          focusedBorderClr:
+                                              const Color(0xFFD4D4D4),
+                                        ),
+                                        SizedBox(height: 25.h),
+                                        TextField(
+                                          controller: addressController,
+                                          maxLines: 3,
+                                          cursorColor:
+                                              AppTemplate.enabledBorderClr,
+                                          decoration: InputDecoration(
+                                            labelText: 'Address',
+                                            labelStyle: GoogleFonts.inter(
+                                                fontSize: 12.sp,
+                                                color: const Color(0xFF929292),
+                                                fontWeight: FontWeight.w400),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(5.r),
+                                              borderSide: BorderSide(
+                                                  color: AppTemplate.shadowClr,
+                                                  width: 1.5.w),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(5.r),
+                                              borderSide: BorderSide(
+                                                  color: AppTemplate.shadowClr,
+                                                  width: 1.5.w),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(height: 25.h),
+                                        Textfieldwidget(
+                                          controller: carTypeController,
+                                          labelTxt: 'Car Type',
                                           labelTxtClr: const Color(0xFF929292),
                                           enabledBorderClr:
                                               const Color(0xFFD4D4D4),
@@ -522,8 +874,8 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                                                             index]
                                                         .text
                                                         .isEmpty) {
-                                                      // await _pickImage(
-                                                      //     context, index);
+                                                      await _pickImage(
+                                                          context, index);
                                                     }
                                                   },
                                                   child: SizedBox(
@@ -556,13 +908,13 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                                                             ),
                                                           ],
                                                         ),
-                                                        // child: imagePreview(
-                                                        //   imageFiles[
-                                                        //       index], // Pass the specific image file for this card
-                                                        //   carPhotosController![
-                                                        //           index]
-                                                        //       .text,
-                                                        // ), // Pass URL for preview
+                                                        child: imagePreview(
+                                                          imageFiles[
+                                                              index], // Pass the specific image file for this card
+                                                          carPhotosController![
+                                                                  index]
+                                                              .text,
+                                                        ), // Pass URL for preview
                                                       ),
                                                     ),
                                                   ),
@@ -625,9 +977,9 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                                             ),
                                             GestureDetector(
                                               onTap: () async {
-                                                // await _requestPermissions();
-                                                // await _getLocation(
-                                                //     context, index);
+                                                await _requestPermissions();
+                                                await _getLocation(
+                                                    context, index);
                                               },
                                               child: Stack(
                                                 children: [
@@ -689,7 +1041,7 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                                 top: -5.h,
                                 child: GestureDetector(
                                   onTap: () => setState(() {
-                                    // _removeCard(index);
+                                    _removeCard(index);
                                   }),
                                   child: Container(
                                     decoration: BoxDecoration(
@@ -713,6 +1065,7 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                               ),
                           ],
                         );
+                        // }
                       },
                     ),
                   ),

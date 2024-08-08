@@ -74,8 +74,12 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
   }
 
   Future<void> createEmployee(BuildContext context, WidgetRef ref) async {
-    final empName = ref.read(employeeNameProvider).text;
     final dob = ref.read(dobControllerProvider).text;
+    final formattedDob = DateFormat('dd-MM-yyyy').parse(dob);
+    final String dobForApi = DateFormat('dd-MM-yyyy').format(formattedDob);
+    print(dobForApi);
+    final empName = ref.read(employeeNameProvider).text;
+    // final dob = ref.read(dobControllerProvider).text;
     final address = ref.read(addressControllerProvider).text;
     final phone1 = ref.read(phone1ControllerProvider).text;
     final phone2 = ref.read(phone2ControllerProvider).text;
@@ -380,8 +384,11 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
                   );
 
                   if (selectedDate != null) {
-                    final DateFormat formatter = DateFormat('dd/MM/yyyy');
+                    final DateFormat formatter = DateFormat('yyyy-MM-dd');
                     final String formattedDate = formatter.format(selectedDate);
+                    print("+++++++++++++++++++++++++++++");
+                    print(selectedDate);
+                    print("+++++++++++++++++++++++++++++");
                     setState(() {
                       ref.read(dobControllerProvider).text = formattedDate;
                     });

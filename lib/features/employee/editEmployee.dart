@@ -315,22 +315,30 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
         );
       } else if (imageUrl != null && imageUrl.isNotEmpty) {
         return ClipRRect(
-          borderRadius: BorderRadius.circular(5.r),
-          child: Image.network(
-            imageUrl,
-            height: 80.h,
-            width: 120.w,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Image.asset(
-                'assets/images/aadhar.png',
-                height: 45.w,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              );
-            },
-          ),
-        );
+            borderRadius: BorderRadius.circular(5.r),
+            child: Image.network(
+              imageUrl,
+              height: 80.h,
+              width: 120.w,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Image.asset(
+                  'assets/images/aadhar.png',
+                  height: 45.w,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                );
+              },
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) {
+                  return child;
+                } else {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+              },
+            ));
       } else {
         return Image.asset(
           'assets/images/aadhar.png',
@@ -388,7 +396,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                         controller: ref.read(dobControllerProvider),
                         readOnly: true,
                         decoration: InputDecoration(
-                          labelText: responseBody["dob"],
+                          labelText: 'Date of Birth',
                           labelStyle: GoogleFonts.inter(
                               fontSize: 12.sp,
                               color: const Color(0xFF929292),
