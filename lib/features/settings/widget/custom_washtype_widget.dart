@@ -53,24 +53,24 @@ class _CustomWashtypeWidgetState extends ConsumerState<CustomWashtypeWidget> {
     }
   }
 
-  // void _showErrorSnackBar(String message) {
-  //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-  //     backgroundColor: AppTemplate.bgClr,
-  //     content: Text(
-  //       message,
-  //       style: GoogleFonts.inter(
-  //           color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-  //     ),
-  //   ));
-  // }
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      backgroundColor: AppTemplate.bgClr,
+      content: Text(
+        message,
+        style: GoogleFonts.inter(
+            color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+      ),
+    ));
+  }
 
   Future<void> updatePrices(
       String priceId, TextEditingController incentives) async {
     final admin = ref.read(authProvider);
-    // if (incentives.text.isEmpty) {
-    //   _showErrorSnackBar('incentive cannot be empty');
-    //   return;
-    // }
+    if (incentives.text.isEmpty) {
+      _showErrorSnackBar('Incentive cannot be empty');
+      return;
+    }
     var request = http.MultipartRequest('POST',
         Uri.parse('https://wash.sortbe.com/API/Admin/Settings/Update-Pricing'));
     request.fields.addAll({
@@ -83,11 +83,10 @@ class _CustomWashtypeWidgetState extends ConsumerState<CustomWashtypeWidget> {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      // print(await response.stream.bytesToString());
-      print("price updated Successfully");
-      // _showErrorSnackBar("incentives are updated Successfully");
+      print("Price updated successfully");
     } else {
       print(response.reasonPhrase);
+      _showErrorSnackBar("Failed to update incentives");
     }
   }
 
@@ -174,7 +173,7 @@ class _CustomWashtypeWidgetState extends ConsumerState<CustomWashtypeWidget> {
                                     padding: EdgeInsets.only(right: 10.w),
                                     child: Textfieldwidget(
                                       controller: _priceControllers[index],
-                                      labelTxt: "",
+                                      labelTxt: "incentives",
                                       labelTxtClr: const Color(0xFF929292),
                                       enabledBorderClr: const Color(0xFFD4D4D4),
                                       focusedBorderClr: const Color(0xFFD4D4D4),
@@ -201,13 +200,19 @@ class _CustomWashtypeWidgetState extends ConsumerState<CustomWashtypeWidget> {
                         try {
                           for (int i = 0; i < widget.prices.length; i++) {
                             final priceId = widget.prices[i].priceId;
-                            await updatePrices(priceId, _priceControllers[i]);
+                            final controller = _priceControllers[i];
+                            if (controller.text.isEmpty) {
+                              _showErrorSnackBar('Incentive cannot be empty');
+                              return;
+                            }
+                            await updatePrices(priceId, controller);
                           }
                           setState(() {
                             _isExpanded = false;
                           });
+                          _showErrorSnackBar("Incentives updated successfully");
                         } catch (e) {
-                          // _showErrorSnackBar(e.toString());
+                          _showErrorSnackBar(e.toString());
                           print('Error updating prices: $e');
                         }
                       },
