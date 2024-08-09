@@ -11,15 +11,14 @@ class Textfieldwidget extends StatefulWidget {
   final bool
       isPassword; // New parameter to indicate if this is a password field
 
-  const Textfieldwidget({
-    super.key,
-    required this.labelTxt,
-    required this.labelTxtClr,
-    required this.enabledBorderClr,
-    required this.focusedBorderClr,
-    required this.controller,
-    this.isPassword = false, // Default to false if not specified
-  });
+  const Textfieldwidget(
+      {super.key,
+      required this.labelTxt,
+      required this.labelTxtClr,
+      required this.enabledBorderClr,
+      required this.focusedBorderClr,
+      required this.controller,
+      this.isPassword = false});
 
   @override
   _TextfieldwidgetState createState() => _TextfieldwidgetState();

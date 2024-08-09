@@ -4,6 +4,7 @@ import 'package:car_wash/features/dashboard.dart';
 import 'package:car_wash/features/planner/pages/planner_employee.dart';
 import 'package:car_wash/features/employee/employee.dart';
 import 'package:car_wash/features/salary/pages/employee_salary.dart';
+import 'package:car_wash/features/settings/pages/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -25,7 +26,7 @@ class Menu {
             child: Material(
               color: Colors.transparent,
               child: Container(
-                height: 370.h,
+                height: 420.h,
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -245,6 +246,43 @@ class Menu {
                                   margin: const EdgeInsets.only(left: 10),
                                   child: Text(
                                     'Attendance',
+                                    style: GoogleFonts.inter(
+                                      color: AppTemplate.textClr,
+                                      fontSize: 18.sp,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 20.h),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SettingsPage(),
+                                ),
+                              );
+                            },
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                    height: 30.0,
+                                    width: 30.0,
+                                    child: Icon(
+                                      Icons.settings,
+                                      size: 30,
+                                      color: const Color(0xFF545454),
+                                    )),
+                                Container(
+                                  margin: const EdgeInsets.only(left: 10),
+                                  child: Text(
+                                    'Settings',
                                     style: GoogleFonts.inter(
                                       color: AppTemplate.textClr,
                                       fontSize: 18.sp,
