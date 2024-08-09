@@ -44,11 +44,7 @@ class MyApp extends ConsumerWidget {
         if (!authState.isLoggedIn) {
           home = const LoginScreen();
         } else {
-          home = DashBoard(
-            name: authState.admin!.empName,
-            image: authState.admin!.profilePic,
-            empid: authState.admin!.id,
-          );
+          home = DashBoard();
         }
 
         return MaterialApp(

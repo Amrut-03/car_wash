@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:car_wash/provider/admin_provider.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -70,19 +71,13 @@ class DashboardNotifier extends StateNotifier<AsyncValue<DashboardData>> {
 }
 
 class DashBoard extends ConsumerWidget {
-  final String name;
-  final String image;
-  final String empid;
-
   DashBoard({
     Key? key,
-    required this.name,
-    required this.image,
-    required this.empid,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final admin = ref.read(authProvider);
     final dashboardState = ref.watch(dashboardProvider);
     final dashboardNotifier = ref.read(dashboardProvider.notifier);
 
@@ -124,7 +119,7 @@ class DashBoard extends ConsumerWidget {
                                 ListTile(
                                   leading: ClipOval(
                                       child: Image.network(
-                                    image!,
+                                    admin.admin!.profilePic,
                                     height: 30,
                                     width: 30,
                                     errorBuilder: (BuildContext context,
@@ -138,7 +133,7 @@ class DashBoard extends ConsumerWidget {
                                     },
                                   )),
                                   title: Text(
-                                    "Hi $name",
+                                    "Hi ${admin.admin!.empName}",
                                     style: GoogleFonts.inter(
                                       color: AppTemplate.primaryClr,
                                       fontWeight: FontWeight.w600,

@@ -53,10 +53,13 @@ class Menu {
                           children: [
                             TextButton(
                               onPressed: () {
-                                // Navigator.pushReplacement(
-                                //     context,
-                                //     MaterialPageRoute(
-                                //         builder: (context) =>));
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DashBoard(),
+                                  ),
+                                  (route) => false,
+                                );
                               },
                               child: Text(
                                 'Menu',

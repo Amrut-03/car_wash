@@ -107,12 +107,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           );
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(
-                builder: (context) => DashBoard(
-                      name: jsonResponse['name'],
-                      image: jsonResponse['employee_pic'],
-                      empid: jsonResponse['emp_id'],
-                    )),
+            MaterialPageRoute(builder: (context) => DashBoard()),
             (Route<dynamic> route) => false,
           );
         } else {
