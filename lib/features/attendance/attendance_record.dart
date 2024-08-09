@@ -14,35 +14,6 @@ class AttendanceRecord extends StatefulWidget {
 }
 
 class _AttendanceRecordState extends State<AttendanceRecord> {
-  // Future<void> attendenceApprove() async {
-  //   var request = http.MultipartRequest(
-  //       'POST',
-  //       Uri.parse(
-  //           'https://wash.sortbe.com/API/Admin/Attendance/Attendance-Status'));
-  //   request.fields.addAll({
-  //     'enc_key': encKey,
-  //     'emp_id': widget.employee_key,
-  //     'attendance_user': '123',
-  //     'attendance_status': 'Approve'
-  //   });
-
-  //   http.StreamedResponse response = await request.send();
-  //   String temp = await response.stream.bytesToString();
-  //   var body = jsonDecode(temp);
-
-  //   if (response.statusCode == 200 && body['status'] == 'Success') {
-  //     // print(await response.stream.bytesToString());
-  //     Navigator.pushReplacement(
-  //         context, MaterialPageRoute(builder: (context) => AttendancePage()));
-  //   }
-  //   else if(body['status'] == 'No record Found'){
-  //     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>AttendanceRecord(employee_key: employee_key)))
-  //   }
-  //   else {
-  //     print(response.reasonPhrase);
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

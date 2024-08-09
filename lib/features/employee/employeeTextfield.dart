@@ -4,8 +4,6 @@ import 'dart:io';
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
-import 'package:car_wash/features/dashboard.dart';
-import 'package:car_wash/features/employee/employee.dart';
 import 'package:car_wash/provider/admin_provider.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +11,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -28,7 +25,6 @@ class EmployeeTextfield extends ConsumerStatefulWidget {
 
 class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
   bool isLoading = false;
-  final EmployeeController controller = Get.put(EmployeeController());
   @override
   void initState() {
     super.initState();
@@ -78,8 +74,12 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
   }
 
   Future<void> createEmployee(BuildContext context, WidgetRef ref) async {
-    final empName = ref.read(employeeNameProvider).text;
     final dob = ref.read(dobControllerProvider).text;
+    final formattedDob = DateFormat('dd-MM-yyyy').parse(dob);
+    final String dobForApi = DateFormat('dd-MM-yyyy').format(formattedDob);
+    print(dobForApi);
+    final empName = ref.read(employeeNameProvider).text;
+    // final dob = ref.read(dobControllerProvider).text;
     final address = ref.read(addressControllerProvider).text;
     final phone1 = ref.read(phone1ControllerProvider).text;
     final phone2 = ref.read(phone2ControllerProvider).text;
@@ -138,7 +138,21 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: AppTemplate.bgClr,
         content: Text(
-          'Please Enter Mobile Number',
+          'Please Enter Mobile Number 1',
+          style: GoogleFonts.inter(
+              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+        ),
+      ));
+      return;
+    }
+    if (phone2.isEmpty) {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: AppTemplate.bgClr,
+        content: Text(
+          'Please Enter Mobile Number 2',
           style: GoogleFonts.inter(
               color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
         ),
@@ -304,8 +318,8 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
     final driveFront = ref.watch(driveFrontProvider);
     final driveBack = ref.watch(driveBackProvider);
     final employeePhoto = ref.watch(employeePhotoProvider);
-    final DashboardController dashboardController =
-        Get.put(DashboardController());
+    final employeeController = ref.read(employeeProvider.notifier);
+    final dashboardNotifier = ref.read(dashboardProvider.notifier);
 
     Widget imagePreview(File? image) {
       return image != null
@@ -384,8 +398,11 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
                   );
 
                   if (selectedDate != null) {
-                    final DateFormat formatter = DateFormat('dd/MM/yyyy');
+                    final DateFormat formatter = DateFormat('yyyy-MM-dd');
                     final String formattedDate = formatter.format(selectedDate);
+                    print("+++++++++++++++++++++++++++++");
+                    print(selectedDate);
+                    print("+++++++++++++++++++++++++++++");
                     setState(() {
                       ref.read(dobControllerProvider).text = formattedDate;
                     });
@@ -779,8 +796,8 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
                     textSz: 18.sp,
                     onClick: () async {
                       await createEmployee(context, ref);
-                      controller.fetchEmployeeList();
-                      dashboardController.fetchDashboardData();
+                      employeeController.fetchEmployeeList();
+                      dashboardNotifier.fetchDashboardData();
                     },
                   ),
           ],

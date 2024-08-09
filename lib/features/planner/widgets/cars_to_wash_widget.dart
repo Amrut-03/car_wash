@@ -4,14 +4,12 @@ import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/features/planner/model/all_car.dart';
 import 'package:car_wash/features/planner/model/wash_type.dart';
-import 'package:car_wash/features/planner/pages/planner_employee.dart';
 import 'package:car_wash/provider/admin_provider.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
@@ -120,7 +118,7 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final PlannerController controller = Get.put(PlannerController());
+    final plannerNotifier = ref.read(plannerProvider.notifier);
     return Column(
       children: [
         GestureDetector(
@@ -251,7 +249,7 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
                                             onClick: () async {
                                               if (currentOption != null) {
                                                 await assign(currentOption!);
-                                                controller
+                                                plannerNotifier
                                                     .plannerEmployeeList();
                                               } else {
                                                 Fluttertoast.showToast(

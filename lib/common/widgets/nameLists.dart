@@ -1,20 +1,23 @@
 import 'dart:convert';
 
 import 'package:car_wash/common/utils/constants.dart';
+import 'package:car_wash/provider/admin_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class Namelists extends StatefulWidget {
+class Namelists extends ConsumerStatefulWidget {
   const Namelists({super.key});
 
   @override
-  State<Namelists> createState() => _NamelistsState();
+  ConsumerState<Namelists> createState() => _NamelistsState();
 }
 
-class _NamelistsState extends State<Namelists> {
+class _NamelistsState extends ConsumerState<Namelists> {
   List<dynamic> body = [];
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -23,10 +26,14 @@ class _NamelistsState extends State<Namelists> {
   }
 
   Future<void> customerList() async {
+    final admin = ref.read(authProvider);
     var request = http.MultipartRequest('POST',
         Uri.parse('https://wash.sortbe.com/API/Admin/Client/Client-List'));
-    request.fields
-        .addAll({'enc_key': encKey, 'emp_id': '123', 'search_name': ''});
+    request.fields.addAll({
+      'enc_key': encKey,
+      'emp_id': admin.admin!.id,
+      'search_name': '',
+    });
 
     http.StreamedResponse response = await request.send();
     String temp = await response.stream.bytesToString();
@@ -35,29 +42,26 @@ class _NamelistsState extends State<Namelists> {
     if (response.statusCode == 200) {
       setState(() {
         body = responseBody['data'];
+        isLoading = false;
       });
     } else {
+      setState(() {
+        isLoading = false;
+      });
       print(response.reasonPhrase);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return body.isEmpty
-        ? Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                height: 200.h,
+    return Scaffold(
+      body: isLoading
+          ? Center(
+              child: CircularProgressIndicator(
+                color: const Color.fromARGB(255, 0, 52, 182),
               ),
-              const CircularProgressIndicator(
-                color: Color.fromARGB(255, 0, 52, 182),
-              ),
-            ],
-          )
-        : Expanded(
-            child: ListView.builder(
+            )
+          : ListView.builder(
               itemCount: body.length,
               itemBuilder: (context, index) {
                 var employee = body[index];
@@ -66,24 +70,23 @@ class _NamelistsState extends State<Namelists> {
                   child: Column(
                     children: [
                       GestureDetector(
-                        // onTap: () => Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => CustomerProfile(customerName: employee['client_name'], customerPhone: employee['mobile'],),
-                        //   ),
-                        // ),
+                        onTap: () {
+                          // Handle tap action if needed
+                        },
                         child: Container(
                           decoration: BoxDecoration(
-                              color: AppTemplate.primaryClr,
-                              boxShadow: [
-                                BoxShadow(
-                                    color: AppTemplate.shadowClr,
-                                    blurRadius: 4.r,
-                                    spreadRadius: 0.r,
-                                    offset: Offset(0.w, 4.h))
-                              ],
-                              borderRadius: BorderRadius.circular(10.r),
-                              border: Border.all(color: AppTemplate.shadowClr)),
+                            color: AppTemplate.primaryClr,
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppTemplate.shadowClr,
+                                blurRadius: 4.r,
+                                spreadRadius: 0.r,
+                                offset: Offset(0.w, 4.h),
+                              ),
+                            ],
+                            borderRadius: BorderRadius.circular(10.r),
+                            border: Border.all(color: AppTemplate.shadowClr),
+                          ),
                           child: SizedBox(
                             height: 56.h,
                             width: 310.w,
@@ -96,16 +99,15 @@ class _NamelistsState extends State<Namelists> {
                                   Text(
                                     employee['client_name'],
                                     style: GoogleFonts.inter(
-                                        color: AppTemplate.textClr,
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: 15.sp),
-                                  ),
-                                  Image(
-                                    image: const AssetImage(
-                                      'assets/images/forward.png',
+                                      color: AppTemplate.textClr,
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 15.sp,
                                     ),
+                                  ),
+                                  Image.asset(
+                                    'assets/images/forward.png',
                                     height: 40.h,
-                                  )
+                                  ),
                                 ],
                               ),
                             ),
@@ -114,12 +116,12 @@ class _NamelistsState extends State<Namelists> {
                       ),
                       SizedBox(
                         height: 25.h,
-                      )
+                      ),
                     ],
                   ),
                 );
               },
             ),
-          );
+    );
   }
 }
