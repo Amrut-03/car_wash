@@ -2,13 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:car_wash/features/customer/customer.dart';
+import 'package:car_wash/provider/admin_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
@@ -36,6 +36,8 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
   TextEditingController mobileController = TextEditingController();
   List<TextEditingController>? carModelNameControllers;
   List<TextEditingController>? carNoControllers;
+  List<TextEditingController>? addressControllers;
+  List<TextEditingController>? carTypeControllers;
   List<TextEditingController>? carLatControllers;
   List<TextEditingController>? carLongControllers;
   List<TextEditingController>? carPhotosController;
@@ -53,10 +55,12 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
     mobileController = TextEditingController();
     carModelNameControllers = [];
     carNoControllers = [];
+    addressControllers = [];
+    carTypeControllers = [];
     _loadCustomerData();
   }
 
-  // List<String> carImageUrls = [];
+  List<String> carImageUrls = [];
   List<File?> imageFiles = [];
   Future<void> _pickImage(BuildContext context, int index) async {
     print('_pickImage called for index $index');
@@ -65,16 +69,15 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
 
     if (pickedFile != null) {
       final File file = File(pickedFile.path);
-      print('Picked image path: ${pickedFile.path}'); // Debugging line
+      print('Picked image path: ${pickedFile.path}');
 
       setState(() {
         if (index < imageFiles.length) {
           imageFiles[index] = file;
         } else {
-          // In case index is out of bounds, add a new entry
           imageFiles.add(file);
         }
-        // Optionally update the corresponding text controller
+
         carPhotosController![index].text = pickedFile.path;
         print(
             'Updated carPhotosController[$index] with path: ${carPhotosController![index].text}'); // Debugging line
@@ -109,6 +112,14 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
       if (carPhotosController![i].text.isEmpty &&
           (imageFiles[i] == null || !imageFiles[i]!.existsSync())) {
         showValidationError("Car image for car ${i + 1} is required");
+        return false;
+      }
+      if (carTypeControllers![i].text.isEmpty) {
+        showValidationError("Car Type for car ${i + 1} is required");
+        return false;
+      }
+      if (addressControllers![i].text.isEmpty) {
+        showValidationError("Address for car ${i + 1} is required");
         return false;
       }
       if (carLatControllers![i].text.isEmpty ||
@@ -173,6 +184,14 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
             (index) => TextEditingController(
                 text: data['customer_cars'][index]['latitude'] ?? ''),
           );
+          addressControllers = List.generate(
+            data['customer_cars'].length,
+            (index) => TextEditingController(),
+          );
+          carTypeControllers = List.generate(
+            data['customer_cars'].length,
+            (index) => TextEditingController(),
+          );
           carLongControllers = List.generate(
             data['customer_cars'].length,
             (index) => TextEditingController(
@@ -188,9 +207,11 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
           carPhotosController = [];
           carLatControllers = [];
           carLongControllers = [];
+          addressControllers = [];
+          carTypeControllers = [];
           imageFiles = [];
         }
-
+        print(carModelNameControllers);
         isLoading = false; // Data is loaded, so set loading to false
       });
     } catch (e) {
@@ -202,13 +223,14 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
   }
 
   Future<Map<String, dynamic>> fetchCustomerData(String customerId) async {
+    final admin = ref.read(authProvider);
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('https://wash.sortbe.com/API/Admin/Client/Client-View'),
     );
     request.fields.addAll({
-      'enc_key': 'C0oRAe1QNtn3zYNvJ8rv',
-      'emp_id': '123',
+      'enc_key': encKey,
+      'emp_id': admin.admin!.id,
       'customer_id': customerId,
     });
 
@@ -243,9 +265,10 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
       var carData = {
         'model_name': carModelNameControllers![i].text,
         'vehicle_no': carNoControllers![i].text,
-        'car_image': imageFiles[i] != null && await imageFiles[i]!.exists()
-            ? 'car_pic$i'
-            : carPhotosController![i].text,
+        'car_image':
+            imageFiles[i] != null ? 'car_pic$i' : carPhotosController![i].text,
+        'address': addressControllers![i].text,
+        'car_type': carTypeControllers![i].text,
         'latitude': carLatControllers != null && i < carLatControllers!.length
             ? carLatControllers![i].text
             : '',
@@ -263,25 +286,11 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
       }
     }
 
-    // Debugging prints
-    print('Available car data list: $availableCarDataList');
-    print('New car data list: $newCarDataList');
-
-    // Add car image files
-    for (int i = 0; i < imageFiles.length; i++) {
-      final imageFile = imageFiles[i];
-      if (imageFile != null && await imageFile.exists()) {
-        print('Adding file for car_pic$i: ${imageFile.path}');
-        request.files.add(
-          await http.MultipartFile.fromPath('car_pic$i', imageFile.path),
-        );
-      }
-    }
-
-    // Add fields to the request
+    // Add fields to request
+    final admin = ref.read(authProvider);
     request.fields.addAll({
-      'enc_key': 'C0oRAe1QNtn3zYNvJ8rv',
-      'emp_id': '123',
+      'enc_key': encKey,
+      'emp_id': admin.admin!.id,
       'customer_id': widget.customer_id,
       'client_name': customerController.text,
       'mobile': mobileController.text,
@@ -291,10 +300,23 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
       }),
     });
 
+    // Add files to request
+    for (int i = 0; i < imageFiles.length; i++) {
+      final imageFile = imageFiles[i];
+      if (imageFile != null && await imageFile.exists()) {
+        request.files.add(
+            await http.MultipartFile.fromPath('car_pic$i', imageFile.path));
+      }
+    }
+    // Debugging prints
     print('Request fields: ${request.fields}');
+    print(
+        'Request files: ${request.files.map((file) => file.filename).toList()}');
 
     try {
       http.StreamedResponse response = await request.send();
+      String responseBody = await response.stream.bytesToString();
+      print(responseBody);
 
       if (response.statusCode == 200) {
         print('Customer data updated successfully');
@@ -323,36 +345,44 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
     carLatControllers!.add(TextEditingController());
     carLongControllers!.add(TextEditingController());
     carPhotosController!.add(TextEditingController());
+    addressControllers!.add(TextEditingController());
+    carTypeControllers!.add(TextEditingController());
 
-    // Add a placeholder for imageFiles to maintain consistency
     imageFiles.add(null);
 
-    // Update the state management or any provider that tracks the cards
     ref.read(customerCardProvider.notifier).addCard();
 
-    // Scroll to the bottom of the list to show the newly added card
     _scrollToBottom();
   }
 
   void _removeCard(int index) {
     if (carModelNameControllers!.length > 1) {
-      carModelNameControllers![index].dispose();
-      carNoControllers![index].dispose();
-      carModelNameControllers!.removeAt(index);
-      carNoControllers!.removeAt(index);
+      setState(() {
+        carModelNameControllers![index].dispose();
+        carNoControllers![index].dispose();
+        addressControllers![index].dispose();
+        carTypeControllers![index].dispose();
+
+        carModelNameControllers!.removeAt(index);
+        carNoControllers!.removeAt(index);
+        addressControllers!.removeAt(index);
+        carTypeControllers!.removeAt(index);
+
+        imageFiles.removeAt(index);
+      });
       ref.read(customerCardProvider.notifier).removeCard(index);
       _scrollUp();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: AppTemplate.bgClr,
-          content: Text(
-            "At least one car must be present",
-            style: GoogleFonts.inter(
-                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: AppTemplate.bgClr,
+        content: Text(
+          "At least one car must be present",
+          style: GoogleFonts.inter(
+            color: AppTemplate.primaryClr,
+            fontWeight: FontWeight.w400,
           ),
         ),
-      );
+      ));
     }
   }
 
@@ -522,8 +552,8 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
 
   @override
   Widget build(BuildContext context) {
-    final CustomerController _CustomerController =
-        Get.put(CustomerController());
+    final customerNotifier = ref.read(customerProvider.notifier);
+    final dashboardNotifier = ref.read(dashboardProvider.notifier);
     Widget imagePreview(File? imageFile, String? imageUrl) {
       if (imageFile != null) {
         return ClipRRect(
@@ -631,7 +661,8 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                       onClick: () async {
                         await fetchCustomerData(widget.customer_id);
                         await _updateCustomerData();
-                        await _CustomerController.customerList();
+                        await customerNotifier.CustomerList();
+                        await dashboardNotifier.fetchDashboardData();
                       },
                     ),
             ],
@@ -701,9 +732,6 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                 ),
               ),
             ),
-            // SizedBox(
-            //   height: 20.h,
-            // ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 25.w),
               child: Text(
@@ -741,8 +769,13 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                       controller: _scrollController,
                       itemCount: carModelNameControllers!.length,
                       itemBuilder: (context, index) {
-                        print(
-                            'Building CreateCustomerCard widget at index $index');
+                        final carModelController =
+                            carModelNameControllers![index];
+                        final carNoController = carNoControllers![index];
+                        final addressController =
+                            addressControllers![index]; // Add this
+                        final carTypeController = carTypeControllers![index];
+                        final imageFile = imageFiles[index];
                         return Stack(
                           children: [
                             Center(
@@ -773,8 +806,7 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                                           CrossAxisAlignment.center,
                                       children: [
                                         Textfieldwidget(
-                                          controller:
-                                              carModelNameControllers![index],
+                                          controller: carModelController,
                                           labelTxt: 'Car Model',
                                           labelTxtClr: const Color(0xFF929292),
                                           enabledBorderClr:
@@ -784,8 +816,46 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                                         ),
                                         SizedBox(height: 25.h),
                                         Textfieldwidget(
-                                          controller: carNoControllers![index],
+                                          controller: carNoController,
                                           labelTxt: 'Vehicle No',
+                                          labelTxtClr: const Color(0xFF929292),
+                                          enabledBorderClr:
+                                              const Color(0xFFD4D4D4),
+                                          focusedBorderClr:
+                                              const Color(0xFFD4D4D4),
+                                        ),
+                                        SizedBox(height: 25.h),
+                                        TextField(
+                                          controller: addressController,
+                                          maxLines: 3,
+                                          cursorColor:
+                                              AppTemplate.enabledBorderClr,
+                                          decoration: InputDecoration(
+                                            labelText: 'Address',
+                                            labelStyle: GoogleFonts.inter(
+                                                fontSize: 12.sp,
+                                                color: const Color(0xFF929292),
+                                                fontWeight: FontWeight.w400),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(5.r),
+                                              borderSide: BorderSide(
+                                                  color: AppTemplate.shadowClr,
+                                                  width: 1.5.w),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(5.r),
+                                              borderSide: BorderSide(
+                                                  color: AppTemplate.shadowClr,
+                                                  width: 1.5.w),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(height: 25.h),
+                                        Textfieldwidget(
+                                          controller: carTypeController,
+                                          labelTxt: 'Car Type',
                                           labelTxtClr: const Color(0xFF929292),
                                           enabledBorderClr:
                                               const Color(0xFFD4D4D4),
@@ -996,6 +1066,7 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                               ),
                           ],
                         );
+                        // }
                       },
                     ),
                   ),

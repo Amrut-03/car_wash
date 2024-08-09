@@ -1,7 +1,8 @@
 import 'package:car_wash/features/attendance/attendance_page.dart';
 import 'package:car_wash/features/customer/customer.dart';
+import 'package:car_wash/features/dashboard.dart';
 import 'package:car_wash/features/planner/pages/planner_employee.dart';
-import 'package:car_wash/features/employee/employee.dart' as emp;
+import 'package:car_wash/features/employee/employee.dart';
 import 'package:car_wash/features/salary/pages/employee_salary.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -24,7 +25,7 @@ class Menu {
             child: Material(
               color: Colors.transparent,
               child: Container(
-                height: 365.h,
+                height: 370.h,
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -50,12 +51,23 @@ class Menu {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              'Menu',
-                              style: GoogleFonts.inter(
-                                color: const Color(0xFF003EDC),
-                                fontSize: 20.sp,
-                                fontWeight: FontWeight.w600,
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DashBoard(),
+                                  ),
+                                  (route) => false,
+                                );
+                              },
+                              child: Text(
+                                'Menu',
+                                style: GoogleFonts.inter(
+                                  color: const Color(0xFF003EDC),
+                                  fontSize: 20.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                             GestureDetector(
@@ -105,8 +117,7 @@ class Menu {
                             onTap: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        const emp.Employee())),
+                                    builder: (context) => EmployeePage())),
                             child: Row(
                               children: [
                                 SizedBox(

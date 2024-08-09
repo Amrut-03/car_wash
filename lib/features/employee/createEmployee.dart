@@ -1,4 +1,3 @@
-
 import 'package:car_wash/common/widgets/employeedropdownMenu.dart';
 import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/features/employee/adminTextfield.dart';
@@ -24,7 +23,7 @@ class _CreateEmployeeState extends ConsumerState<CreateEmployee> {
     final dropdownValue = ref.watch(dropdownProvider);
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       backgroundColor: AppTemplate.primaryClr,
       body: SingleChildScrollView(
         child: Column(

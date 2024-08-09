@@ -10,13 +10,14 @@ import 'package:car_wash/features/customer/model/customer_profile_model.dart';
 import 'package:car_wash/features/customer/widgets/customer_recent_washes.dart';
 import 'package:car_wash/provider/admin_provider.dart';
 import 'package:car_wash/features/customer/editCustomer.dart';
+import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CustomerProfile extends ConsumerStatefulWidget {
   final String customerName;
@@ -28,11 +29,10 @@ class CustomerProfile extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<CustomerProfile> createState() => _CustomerProfileState();
+  _CustomerProfileState createState() => _CustomerProfileState();
 }
 
 class _CustomerProfileState extends ConsumerState<CustomerProfile> {
-  final CustomerController customerController = Get.put(CustomerController());
   bool isCarWashed = true;
   CustomerData? customerData;
   bool isLoading = false;
@@ -44,6 +44,7 @@ class _CustomerProfileState extends ConsumerState<CustomerProfile> {
   }
 
   void showCustomerOptions(BuildContext context) {
+    final dashboardNotifier = ref.read(dashboardProvider.notifier);
     showModalBottomSheet(
       backgroundColor: AppTemplate.primaryClr,
       context: context,
@@ -95,8 +96,11 @@ class _CustomerProfileState extends ConsumerState<CustomerProfile> {
                       style: GoogleFonts.inter(
                           fontWeight: FontWeight.w800, fontSize: 18.sp)),
                   onTap: () async {
-                    await customerController.confirmRemoveCustomer(
+                    final customerNotifier =
+                        ref.read(customerProvider.notifier);
+                    await customerNotifier.confirmRemoveCustomer(
                         context, widget.customerId);
+                    await dashboardNotifier.fetchDashboardData();
                     await Navigator.push(context,
                         MaterialPageRoute(builder: (context) => Customer()));
                   },

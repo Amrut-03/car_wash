@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
+import 'package:car_wash/provider/admin_provider.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,6 +30,8 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
   TextEditingController mobileController = TextEditingController();
   final List<TextEditingController> carModelNameControllers = [];
   final List<TextEditingController> carNoControllers = [];
+  final List<TextEditingController> carAddressControllers = [];
+  final List<TextEditingController> carTypeControllers = [];
   final ScrollController _scrollController = ScrollController();
   final List<File?> imageFiles = [null];
   File? imageFile;
@@ -39,14 +43,22 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
     super.initState();
     _initializeControllers();
     isLoading = false;
+    if (carModelNameControllers.isEmpty) {
+      _addNewCard(); // Ensures that one card is always present
+    }
   }
 
   void _initializeControllers() {
     carModelNameControllers.clear();
     carNoControllers.clear();
+    carAddressControllers.clear();
+    carTypeControllers.clear();
     imageFiles.clear();
+
     carModelNameControllers.add(TextEditingController());
     carNoControllers.add(TextEditingController());
+    carAddressControllers.add(TextEditingController());
+    carTypeControllers.add(TextEditingController());
     imageFiles.add(null);
   }
 
@@ -54,10 +66,10 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
     setState(() {
       carModelNameControllers.add(TextEditingController());
       carNoControllers.add(TextEditingController());
-      imageFiles.add(null);
+      carAddressControllers.add(TextEditingController());
+      carTypeControllers.add(TextEditingController());
+      imageFiles.add(null); // Or any initial value
     });
-    ref.read(customerCardProvider.notifier).addCard();
-    _scrollToBottom();
   }
 
   void _removeCard(int index) {
@@ -65,8 +77,14 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
       setState(() {
         carModelNameControllers[index].dispose();
         carNoControllers[index].dispose();
+        carAddressControllers[index].dispose();
+        carTypeControllers[index].dispose();
+
         carModelNameControllers.removeAt(index);
         carNoControllers.removeAt(index);
+        carAddressControllers.removeAt(index);
+        carTypeControllers.removeAt(index);
+
         imageFiles.removeAt(index);
       });
       ref.read(customerCardProvider.notifier).removeCard(index);
@@ -94,13 +112,16 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
     for (var controller in carNoControllers) {
       controller.dispose();
     }
+
     carModelNameControllers.clear();
     carNoControllers.clear();
+
     imageFiles.clear();
     super.dispose();
   }
 
   Future<void> createCustomer() async {
+    final admin = ref.read(authProvider);
     setState(() {
       isLoading = true;
     });
@@ -152,16 +173,12 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
         return;
       }
 
-      print("++++++++++++++++++++++++++++++++++++++");
-      print(lat);
-      print(long);
       if (lat == null ||
           long == null ||
           lat! < -90 ||
           lat! > 90 ||
           long! < -180 ||
           long! > 180) {
-        print("-----------------------------------------");
         setState(() {
           isLoading = false;
         });
@@ -178,14 +195,17 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
         final imageFile = imageFiles[i];
         if (imageFile != null && await imageFile.exists()) {
           request.files.add(
-            await http.MultipartFile.fromPath('car_pic$i', imageFile.path),
+            await http.MultipartFile.fromPath(
+                'car_pic${i + 1}', imageFile.path),
           );
+          print(imageFile.path);
         } else {
           setState(() {
             isLoading = false;
           });
           _showErrorSnackBar(
               "No image file to upload or file doesn't exist at index $i");
+          return;
         }
       }
 
@@ -194,49 +214,65 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
         carInfoList.add({
           'model_name': carModelNameControllers[i].text,
           'vehicle_no': carNoControllers[i].text,
+          'address': carAddressControllers[i].text,
+          'car_type': carTypeControllers[i].text,
           'lat': lat.toString(),
           'long': long.toString(),
         });
       }
 
-      // Add other fields to the request
       request.fields.addAll({
         'enc_key': encKey,
-        'emp_id': '123',
+        'emp_id': admin.admin!.id,
         'client_name': customerController.text,
         'mobile': mobileController.text,
-        'car_info': carInfoList.toString(),
+        'car_info': jsonEncode(carInfoList),
       });
 
-      // Send the request
       http.StreamedResponse response = await request.send();
+      String temp = await response.stream.bytesToString();
+      // var body = jsonDecode(temp);
 
-      if (response.statusCode == 200) {
-        _showErrorSnackBar("Employee Account Created Successfully");
-        Navigator.pop(context);
-      } else {
+      try {
+        var body = jsonDecode(temp);
+        if (response.statusCode == 200 && body['status'] == "Success") {
+          _showErrorSnackBar("Employee Account Created Successfully");
+          Navigator.pop(context);
+          print(carInfoList);
+          print(body);
+          print(imageFile!.path);
+        } else {
+          setState(() {
+            isLoading = false;
+          });
+        }
+      } catch (e) {
         setState(() {
           isLoading = false;
         });
-        _showErrorSnackBar(response.reasonPhrase.toString());
+        // _showErrorSnackBar("Unexpected response format: $temp");
+        print("Unexpected response format: $temp");
       }
     } catch (e) {
       setState(() {
         isLoading = false;
       });
       _showErrorSnackBar('Error creating customer: $e');
+      print(e.toString());
     }
   }
 
   void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      backgroundColor: AppTemplate.bgClr,
-      content: Text(
-        message,
-        style: GoogleFonts.inter(
-            color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: AppTemplate.bgClr,
+        content: Text(
+          message,
+          style: GoogleFonts.inter(
+              color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+        ),
       ),
-    ));
+    );
   }
 
   void _scrollToBottom() {
@@ -397,9 +433,11 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
         await ImagePicker().pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
       final file = File(pickedFile.path);
-      setState(() {
-        imageFiles[index] = file;
-      });
+      setState(
+        () {
+          imageFiles[index] = file;
+        },
+      );
     } else {
       print('No image picked');
     }
@@ -409,6 +447,8 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
 
   @override
   Widget build(BuildContext context) {
+    final customerNotifier = ref.read(customerProvider.notifier);
+    final dashboardNotifier = ref.read(dashboardProvider.notifier);
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: AppTemplate.primaryClr,
@@ -457,7 +497,8 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                       textSz: 18.sp,
                       onClick: () async {
                         await createCustomer();
-                        //Navigator.pop(context);
+                        await customerNotifier.CustomerList();
+                        await dashboardNotifier.fetchDashboardData();
                       },
                     ),
             ],
@@ -552,8 +593,10 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                   itemBuilder: (context, index) {
                     final carModelController = carModelNameControllers[index];
                     final carNoController = carNoControllers[index];
+                    final carAddressController =
+                        carAddressControllers[index]; // Add this
+                    final carTypeController = carTypeControllers[index];
                     final imageFile = imageFiles[index];
-
                     return Stack(
                       children: [
                         Center(
@@ -592,6 +635,41 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                                     Textfieldwidget(
                                       controller: carNoController,
                                       labelTxt: 'Vehicle No',
+                                      labelTxtClr: const Color(0xFF929292),
+                                      enabledBorderClr: const Color(0xFFD4D4D4),
+                                      focusedBorderClr: const Color(0xFFD4D4D4),
+                                    ),
+                                    SizedBox(height: 25.h),
+                                    TextField(
+                                      controller: carAddressController,
+                                      maxLines: 3,
+                                      cursorColor: AppTemplate.enabledBorderClr,
+                                      decoration: InputDecoration(
+                                        labelText: 'Address',
+                                        labelStyle: GoogleFonts.inter(
+                                            fontSize: 12.sp,
+                                            color: const Color(0xFF929292),
+                                            fontWeight: FontWeight.w400),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5.r),
+                                          borderSide: BorderSide(
+                                              color: AppTemplate.shadowClr,
+                                              width: 1.5.w),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5.r),
+                                          borderSide: BorderSide(
+                                              color: AppTemplate.shadowClr,
+                                              width: 1.5.w),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 25.h),
+                                    Textfieldwidget(
+                                      controller: carTypeController,
+                                      labelTxt: 'Car Type',
                                       labelTxtClr: const Color(0xFF929292),
                                       enabledBorderClr: const Color(0xFFD4D4D4),
                                       focusedBorderClr: const Color(0xFFD4D4D4),
@@ -778,55 +856,6 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                   },
                 ),
               ),
-              // Padding(
-              //   padding: EdgeInsets.symmetric(horizontal: 25.w, vertical: 10.h),
-              //   child: Row(
-              //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //     children: [
-              //       Container(
-              //         width: 69.w,
-              //         height: 50.h,
-              //         decoration: BoxDecoration(
-              //           borderRadius: BorderRadius.circular(5.r),
-              //           border: Border.all(
-              //             color: const Color(0xFf1E3763),
-              //             width: 1.5.w,
-              //           ),
-              //         ),
-              //         child: IconButton(
-              //           icon: Icon(
-              //             Icons.add,
-              //             color: const Color(0xFf1E3763),
-              //             size: 40.w,
-              //           ),
-              //           onPressed: _addNewCard,
-              //         ),
-              //       ),
-              //       isLoading
-              //           ? SizedBox(
-              //               width: 227.w,
-              //               height: 50.h,
-              //               child: const Center(
-              //                 child: CircularProgressIndicator(
-              //                   color: Color.fromARGB(255, 0, 52, 182),
-              //                 ),
-              //               ),
-              //             )
-              //           : Buttonwidget(
-              //               width: 227.w,
-              //               height: 50.h,
-              //               buttonClr: const Color(0xFf1E3763),
-              //               txt: 'Create',
-              //               textClr: AppTemplate.primaryClr,
-              //               textSz: 18.sp,
-              //               onClick: () async {
-              //                 await createCustomer();
-              //                 //Navigator.pop(context);
-              //               },
-              //             ),
-              //     ],
-              //   ),
-              // ),
             ],
           ),
         ),

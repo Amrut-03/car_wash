@@ -1,13 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:car_wash/features/employee/employee.dart';
+import 'package:car_wash/provider/admin_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
@@ -34,7 +33,6 @@ class EditEmployee extends ConsumerStatefulWidget {
 }
 
 class _EditEmployeeState extends ConsumerState<EditEmployee> {
-  final EmployeeController controller = Get.put(EmployeeController());
   bool isLoading = false;
   Future<void> _pickImage(BuildContext context, WidgetRef ref,
       StateProvider<File?> imageProvider) async {
@@ -108,12 +106,13 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
   }
 
   Future<Map<String, dynamic>?> EmployeeInfo() async {
+    final admin = ref.read(authProvider);
     try {
       var request = http.MultipartRequest('POST',
           Uri.parse('https://wash.sortbe.com/API/Admin/User/Employee-View'));
       request.fields.addAll({
-        'enc_key': 'C0oRAe1QNtn3zYNvJ8rv',
-        'emp_id': '123',
+        'enc_key': encKey,
+        'emp_id': admin.admin!.id,
         'user_id': widget.empid,
       });
 
@@ -134,18 +133,24 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
   }
 
   Future<void> employeeEdit(BuildContext context, WidgetRef ref) async {
+    final admin = ref.read(authProvider);
     // Helper function to show snack bar
     void showValidationError(String message) {
-      setState(() {
-        isLoading = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      setState(
+        () {
+          isLoading = false;
+        },
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
           backgroundColor: AppTemplate.bgClr,
           content: Text(
             message,
             style: GoogleFonts.inter(
                 color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-          )));
+          ),
+        ),
+      );
     }
 
     setState(() {
@@ -171,7 +176,11 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
       return;
     }
     if (phone1.isEmpty) {
-      showValidationError("Primary phone number is required");
+      showValidationError("phone number 1 is required");
+      return;
+    }
+    if (phone2.isEmpty) {
+      showValidationError("phone number 2 is required");
       return;
     }
 
@@ -179,13 +188,12 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
         Uri.parse('https://wash.sortbe.com/API/Admin/User/Employee-Edit'));
     request.fields.addAll({
       'enc_key': encKey,
-      'emp_id': '123',
+      'emp_id': admin.admin!.id,
       'emp_name': empName,
       'dob': dob,
       'address': address,
       'phone_1': phone1,
       'phone_2': phone2,
-      'password': 'password',
       'role': 'Employee',
       'user_id': widget.empid
     });
@@ -297,64 +305,45 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
 
   @override
   Widget build(BuildContext context) {
+    final dashboardNotifier = ref.read(dashboardProvider.notifier);
     Widget imagePreview(File? imageFile, String? imageUrl) {
       if (imageFile != null) {
         return ClipRRect(
           borderRadius: BorderRadius.circular(5.r),
           child: Image.file(
             imageFile,
-            // height: 70.h,
-            // width: 80.w,
+            height: 77.h,
+            width: 120.w,
             fit: BoxFit.cover,
           ),
         );
       } else if (imageUrl != null && imageUrl.isNotEmpty) {
         return ClipRRect(
-          borderRadius: BorderRadius.circular(5.r),
-          child: Image.network(
-            imageUrl,
-            height: 80.h,
-            width: 120.w,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Image.asset(
-                'assets/images/aadhar.png',
-                height: 45.w,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              );
-            },
-          ),
-        );
+            borderRadius: BorderRadius.circular(5.r),
+            child: Image.network(
+              imageUrl,
+              height: 77.h,
+              width: 120.w,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return SvgPicture.asset('assets/svg/Camera.svg');
+              },
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) {
+                  return child;
+                } else {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+              },
+            ));
       } else {
-        return Image.asset(
-          'assets/images/aadhar.png',
-          height: 45.w,
-          width: double.infinity,
-          fit: BoxFit.cover,
-        );
+        return SvgPicture.asset('assets/svg/Camera.svg');
       }
-      // }
-      // else if (imageData is String && imageData.isNotEmpty) {
-      //   // Display the image from URL
-      //   return ClipRRect(
-      //     borderRadius: BorderRadius.circular(5.r),
-      //     child: Image.file(
-      //       imageData,
-      //       height: 85.w,
-      //       width: double.infinity,
-      //       fit: BoxFit.cover,
-      //     ),
-      //   );
-      // }
-      // else {
-      //   return Image.asset(
-      //     'assets/images/aadhar.png',
-      //     height: 45.w,
-      //     width: double.infinity,
-      //   );
-      // }
     }
+
+    final employeeController = ref.read(employeeProvider.notifier);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -369,7 +358,16 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                   color: Color.fromARGB(255, 0, 52, 182),
                 ),
               );
-            } else if (snapshot.hasError) {
+            }
+            // if (snapshot == null) {
+            //   return const Center(
+            //     child: CircularProgressIndicator(
+            //       backgroundColor: AppTemplate.primaryClr,
+            //       color: Color.fromARGB(255, 0, 52, 182),
+            //     ),
+            //   );
+            // }
+            if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (snapshot.hasData) {}
             var responseBody = snapshot.data as Map<String, dynamic>;
@@ -401,7 +399,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                         controller: ref.read(dobControllerProvider),
                         readOnly: true,
                         decoration: InputDecoration(
-                          labelText: responseBody["dob"],
+                          labelText: 'Date of Birth',
                           labelStyle: GoogleFonts.inter(
                               fontSize: 12.sp,
                               color: const Color(0xFF929292),
@@ -586,14 +584,37 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                     if (url != null) {
                                       await downloadAndSaveImage(url);
                                       ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                            content:
-                                                Text('Image saved to gallery')),
-                                      );
+                                          .showSnackBar(SnackBar(
+                                              backgroundColor:
+                                                  AppTemplate.bgClr,
+                                              content: Text(
+                                                "Aaddhar front image saved to gallery",
+                                                style: GoogleFonts.inter(
+                                                    color:
+                                                        AppTemplate.primaryClr,
+                                                    fontWeight:
+                                                        FontWeight.w400),
+                                              )));
                                     } else {
+                                      // final url = ref.read(aadharFrontProvider);
+                                      // if (url != null) {
+                                      //   await saveExistingFile(url);
+                                      //   ScaffoldMessenger.of(context)
+                                      //       .showSnackBar(SnackBar(
+                                      //           backgroundColor:
+                                      //               AppTemplate.bgClr,
+                                      //           content: Text(
+                                      //             "Aaddhar front image saved to gallery",
+                                      //             style: GoogleFonts.inter(
+                                      //                 color: AppTemplate
+                                      //                     .primaryClr,
+                                      //                 fontWeight:
+                                      //                     FontWeight.w400),
+                                      //           )));
+                                      // } else {
                                       _pickImage(
                                           context, ref, aadharFrontProvider);
+                                      // }
                                     }
                                   },
                                   child: SizedBox(
@@ -618,15 +639,38 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                             ),
                                           ],
                                         ),
-                                        child: imagePreview(
-                                          ref.read(aadharFrontProvider),
-                                          ref.read(aadharFrontUrlProvider),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            imagePreview(
+                                              ref.read(aadharFrontProvider),
+                                              ref.read(aadharFrontUrlProvider),
+                                            ),
+                                            ref.read(aadharFrontProvider) ==
+                                                        null &&
+                                                    ref.read(
+                                                            aadharFrontUrlProvider) ==
+                                                        null
+                                                ? Text(
+                                                    'Front Side',
+                                                    style: GoogleFonts.inter(
+                                                      fontSize: 12.sp,
+                                                      color: const Color(
+                                                          0xFF6750A4),
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  )
+                                                : Container()
+                                          ],
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                                ref.read(aadharFrontUrlProvider) != null
+                                ref.read(aadharFrontUrlProvider) != null ||
+                                        ref.read(aadharFrontProvider) != null
                                     ? Positioned(
                                         right: 0,
                                         top: 0,
@@ -635,6 +679,10 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                             setState(() {
                                               ref
                                                   .read(aadharFrontUrlProvider
+                                                      .notifier)
+                                                  .state = null;
+                                              ref
+                                                  .read(aadharFrontProvider
                                                       .notifier)
                                                   .state = null;
                                             });
@@ -682,14 +730,37 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                     if (url != null) {
                                       await downloadAndSaveImage(url);
                                       ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                            content:
-                                                Text('Image saved to gallery')),
-                                      );
+                                          .showSnackBar(SnackBar(
+                                              backgroundColor:
+                                                  AppTemplate.bgClr,
+                                              content: Text(
+                                                "Aaddhar back image saved to gallery",
+                                                style: GoogleFonts.inter(
+                                                    color:
+                                                        AppTemplate.primaryClr,
+                                                    fontWeight:
+                                                        FontWeight.w400),
+                                              )));
                                     } else {
+                                      // final url = ref.read(aadharBackProvider);
+                                      // if (url != null) {
+                                      //   await saveExistingFile(url);
+                                      //   ScaffoldMessenger.of(context)
+                                      //       .showSnackBar(SnackBar(
+                                      //           backgroundColor:
+                                      //               AppTemplate.bgClr,
+                                      //           content: Text(
+                                      //             "Aaddhar back image saved to gallery",
+                                      //             style: GoogleFonts.inter(
+                                      //                 color: AppTemplate
+                                      //                     .primaryClr,
+                                      //                 fontWeight:
+                                      //                     FontWeight.w400),
+                                      //           )));
+                                      // } else {
                                       _pickImage(
                                           context, ref, aadharBackProvider);
+                                      // }
                                     }
                                   },
                                   child: SizedBox(
@@ -714,15 +785,38 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                             ),
                                           ],
                                         ),
-                                        child: imagePreview(
-                                          ref.read(aadharBackProvider),
-                                          ref.read(aadharBackUrlProvider),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            imagePreview(
+                                              ref.read(aadharBackProvider),
+                                              ref.read(aadharBackUrlProvider),
+                                            ),
+                                            ref.read(aadharBackProvider) ==
+                                                        null &&
+                                                    ref.read(
+                                                            aadharBackUrlProvider) ==
+                                                        null
+                                                ? Text(
+                                                    'Back Side',
+                                                    style: GoogleFonts.inter(
+                                                      fontSize: 12.sp,
+                                                      color: const Color(
+                                                          0xFF6750A4),
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  )
+                                                : Container()
+                                          ],
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                                ref.read(aadharBackUrlProvider) != null
+                                ref.read(aadharBackUrlProvider) != null ||
+                                        ref.read(aadharBackProvider) != null
                                     ? Positioned(
                                         right: 0,
                                         top: 0,
@@ -731,6 +825,10 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                             setState(() {
                                               ref
                                                   .read(aadharBackUrlProvider
+                                                      .notifier)
+                                                  .state = null;
+                                              ref
+                                                  .read(aadharBackProvider
                                                       .notifier)
                                                   .state = null;
                                             });
@@ -799,14 +897,37 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                     if (url != null) {
                                       await downloadAndSaveImage(url);
                                       ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                            content:
-                                                Text('Image saved to gallery')),
-                                      );
+                                          .showSnackBar(SnackBar(
+                                              backgroundColor:
+                                                  AppTemplate.bgClr,
+                                              content: Text(
+                                                "Driving License front image saved to gallery",
+                                                style: GoogleFonts.inter(
+                                                    color:
+                                                        AppTemplate.primaryClr,
+                                                    fontWeight:
+                                                        FontWeight.w400),
+                                              )));
                                     } else {
+                                      // final url = ref.read(driveFrontProvider);
+                                      // if (url != null) {
+                                      //   await saveExistingFile(url);
+                                      //   ScaffoldMessenger.of(context)
+                                      //       .showSnackBar(SnackBar(
+                                      //           backgroundColor:
+                                      //               AppTemplate.bgClr,
+                                      //           content: Text(
+                                      //             "Driving License front image saved to gallery",
+                                      //             style: GoogleFonts.inter(
+                                      //                 color: AppTemplate
+                                      //                     .primaryClr,
+                                      //                 fontWeight:
+                                      //                     FontWeight.w400),
+                                      //           )));
+                                      // } else {
                                       _pickImage(
                                           context, ref, driveFrontProvider);
+                                      // }
                                     }
                                   },
                                   child: SizedBox(
@@ -831,15 +952,38 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                             ),
                                           ],
                                         ),
-                                        child: imagePreview(
-                                          ref.read(driveFrontProvider),
-                                          ref.read(driveFrontUrlProvider),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            imagePreview(
+                                              ref.read(driveFrontProvider),
+                                              ref.read(driveFrontUrlProvider),
+                                            ),
+                                            ref.read(driveFrontProvider) ==
+                                                        null &&
+                                                    ref.read(
+                                                            driveFrontUrlProvider) ==
+                                                        null
+                                                ? Text(
+                                                    'Front Side',
+                                                    style: GoogleFonts.inter(
+                                                      fontSize: 12.sp,
+                                                      color: const Color(
+                                                          0xFF6750A4),
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  )
+                                                : Container()
+                                          ],
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                                ref.read(driveFrontUrlProvider) != null
+                                ref.read(driveFrontUrlProvider) != null ||
+                                        ref.read(driveFrontProvider) != null
                                     ? Positioned(
                                         right: 0,
                                         top: 0,
@@ -848,6 +992,10 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                             setState(() {
                                               ref
                                                   .read(driveFrontUrlProvider
+                                                      .notifier)
+                                                  .state = null;
+                                              ref
+                                                  .read(driveFrontProvider
                                                       .notifier)
                                                   .state = null;
                                             });
@@ -895,14 +1043,37 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                     if (url != null) {
                                       await downloadAndSaveImage(url);
                                       ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                            content:
-                                                Text('Image saved to gallery')),
-                                      );
+                                          .showSnackBar(SnackBar(
+                                              backgroundColor:
+                                                  AppTemplate.bgClr,
+                                              content: Text(
+                                                "Driving License Back image saved to gallery",
+                                                style: GoogleFonts.inter(
+                                                    color:
+                                                        AppTemplate.primaryClr,
+                                                    fontWeight:
+                                                        FontWeight.w400),
+                                              )));
                                     } else {
+                                      // final url = ref.read(driveBackProvider);
+                                      // if (url != null) {
+                                      //   saveExistingFile(url);
+                                      //   ScaffoldMessenger.of(context)
+                                      //       .showSnackBar(SnackBar(
+                                      //           backgroundColor:
+                                      //               AppTemplate.bgClr,
+                                      //           content: Text(
+                                      //             "Driving License Back image saved to gallery",
+                                      //             style: GoogleFonts.inter(
+                                      //                 color: AppTemplate
+                                      //                     .primaryClr,
+                                      //                 fontWeight:
+                                      //                     FontWeight.w400),
+                                      //           )));
+                                      // } else {
                                       _pickImage(
                                           context, ref, driveBackProvider);
+                                      // }
                                     }
                                   },
                                   child: SizedBox(
@@ -927,15 +1098,38 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                             ),
                                           ],
                                         ),
-                                        child: imagePreview(
-                                          ref.read(driveBackProvider),
-                                          ref.read(driveBackUrlProvider),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            imagePreview(
+                                              ref.read(driveBackProvider),
+                                              ref.read(driveBackUrlProvider),
+                                            ),
+                                            ref.read(driveBackProvider) ==
+                                                        null &&
+                                                    ref.read(
+                                                            driveBackUrlProvider) ==
+                                                        null
+                                                ? Text(
+                                                    'Back Side',
+                                                    style: GoogleFonts.inter(
+                                                      fontSize: 12.sp,
+                                                      color: const Color(
+                                                          0xFF6750A4),
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  )
+                                                : Container()
+                                          ],
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                                ref.read(driveBackUrlProvider) != null
+                                ref.read(driveBackUrlProvider) != null ||
+                                        ref.read(driveBackProvider) != null
                                     ? Positioned(
                                         right: 0,
                                         top: 0,
@@ -944,6 +1138,10 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                             setState(() {
                                               ref
                                                   .read(driveBackUrlProvider
+                                                      .notifier)
+                                                  .state = null;
+                                              ref
+                                                  .read(driveBackProvider
                                                       .notifier)
                                                   .state = null;
                                             });
@@ -1013,14 +1211,39 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                     if (url != null) {
                                       await downloadAndSaveImage(url);
                                       ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                            content:
-                                                Text('Image saved to gallery')),
-                                      );
+                                          .showSnackBar(SnackBar(
+                                              backgroundColor:
+                                                  AppTemplate.bgClr,
+                                              content: Text(
+                                                "Employee image saved to gallery",
+                                                style: GoogleFonts.inter(
+                                                    color:
+                                                        AppTemplate.primaryClr,
+                                                    fontWeight:
+                                                        FontWeight.w400),
+                                              )));
                                     } else {
+                                      // final url =
+                                      //     ref.read(employeePhotoProvider);
+
+                                      // if (url != null) {
+                                      //   await saveExistingFile(url);
+                                      //   ScaffoldMessenger.of(context)
+                                      //       .showSnackBar(SnackBar(
+                                      //           backgroundColor:
+                                      //               AppTemplate.bgClr,
+                                      //           content: Text(
+                                      //             "Employee image saved to gallery",
+                                      //             style: GoogleFonts.inter(
+                                      //                 color: AppTemplate
+                                      //                     .primaryClr,
+                                      //                 fontWeight:
+                                      //                     FontWeight.w400),
+                                      //           )));
+                                      // } else {
                                       _pickImage(
                                           context, ref, employeePhotoProvider);
+                                      // }
                                     }
                                   },
                                   child: SizedBox(
@@ -1045,15 +1268,39 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                             ),
                                           ],
                                         ),
-                                        child: imagePreview(
-                                          ref.read(employeePhotoProvider),
-                                          ref.read(employeePhotoUrlProvider),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            imagePreview(
+                                              ref.read(employeePhotoProvider),
+                                              ref.read(
+                                                  employeePhotoUrlProvider),
+                                            ),
+                                            ref.read(employeePhotoProvider) ==
+                                                        null &&
+                                                    ref.read(
+                                                            employeePhotoUrlProvider) ==
+                                                        null
+                                                ? Text(
+                                                    'Employee Photo',
+                                                    style: GoogleFonts.inter(
+                                                      fontSize: 12.sp,
+                                                      color: const Color(
+                                                          0xFF6750A4),
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  )
+                                                : Container()
+                                          ],
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                                ref.read(employeePhotoUrlProvider) != null
+                                ref.read(employeePhotoUrlProvider) != null ||
+                                        ref.read(employeePhotoProvider) != null
                                     ? Positioned(
                                         right: 0,
                                         top: 0,
@@ -1062,6 +1309,10 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                             setState(() {
                                               ref
                                                   .read(employeePhotoUrlProvider
+                                                      .notifier)
+                                                  .state = null;
+                                              ref
+                                                  .read(employeePhotoProvider
                                                       .notifier)
                                                   .state = null;
                                             });
@@ -1124,7 +1375,8 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                 textSz: 18.sp,
                                 onClick: () async {
                                   await employeeEdit(context, ref);
-                                  controller.fetchEmployeeList();
+                                  employeeController.fetchEmployeeList();
+                                  dashboardNotifier.fetchDashboardData();
                                   print(
                                       "+++++++++++++++++++++++++++++++++++++++++++++");
                                   print(widget.empid);
