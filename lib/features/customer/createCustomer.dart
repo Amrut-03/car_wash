@@ -5,6 +5,7 @@ import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
+import 'package:car_wash/features/customer/widgets/car_type_dropdownMenu.dart';
 import 'package:car_wash/provider/admin_provider.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +39,11 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
   double? lat;
   double? long;
   bool isLoading = false;
+  final Map<String, String> carTypes = {
+    'Hack Back': '1',
+    'Sedan': '2',
+    'SUV': '3',
+  };
   @override
   void initState() {
     super.initState();
@@ -586,7 +592,7 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                 ),
               ),
               SizedBox(
-                height: 300.h,
+                height: 320.h,
                 child: ListView.builder(
                   controller: _scrollController,
                   itemCount: carModelNameControllers.length,
@@ -667,12 +673,78 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                                       ),
                                     ),
                                     SizedBox(height: 25.h),
-                                    Textfieldwidget(
-                                      controller: carTypeController,
-                                      labelTxt: 'Car Type',
-                                      labelTxtClr: const Color(0xFF929292),
-                                      enabledBorderClr: const Color(0xFFD4D4D4),
-                                      focusedBorderClr: const Color(0xFFD4D4D4),
+                                    Stack(
+                                      children: [
+                                        Container(
+                                          height: 45.h,
+                                          width: 390.w,
+                                          decoration: BoxDecoration(
+                                            color: Colors.transparent,
+                                            borderRadius:
+                                                BorderRadius.circular(5.r),
+                                            border: Border.all(
+                                              color: const Color(0xFFD4D4D4),
+                                              width: 1.w,
+                                            ),
+                                          ),
+                                          child:
+                                              DropdownButtonFormField<String>(
+                                            borderRadius:
+                                                BorderRadius.circular(10.r),
+                                            dropdownColor:
+                                                AppTemplate.primaryClr,
+                                            decoration: InputDecoration(
+                                              border: InputBorder.none,
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                      horizontal: 10.w),
+                                            ),
+                                            value: carTypes.keys.contains(
+                                                    carTypeController.text)
+                                                ? carTypeController.text
+                                                : carTypes.keys.isNotEmpty
+                                                    ? carTypes.keys.first
+                                                    : null, // Set to null if no car types are available
+                                            icon: const Icon(
+                                                Icons.arrow_drop_down),
+                                            iconSize: 30,
+                                            elevation: 16,
+                                            style: const TextStyle(
+                                              color: AppTemplate.textClr,
+                                              fontSize: 15,
+                                            ),
+                                            onChanged: (String? newValue) {
+                                              if (newValue != null) {
+                                                setState(() {
+                                                  // Update the TextEditingController with the value associated with the selected key
+                                                  carTypeController.text =
+                                                      carTypes[newValue] ?? '';
+                                                  // Print the new value for debugging
+                                                  print(
+                                                      'Selected car type value: ${carTypes[newValue]}');
+                                                });
+                                              }
+                                            },
+                                            items: carTypes.keys.isNotEmpty
+                                                ? carTypes.keys.map<
+                                                    DropdownMenuItem<
+                                                        String>>((carType) {
+                                                    return DropdownMenuItem<
+                                                        String>(
+                                                      value: carType,
+                                                      child: Text(carType),
+                                                    );
+                                                  }).toList()
+                                                : [
+                                                    DropdownMenuItem<String>(
+                                                      value: '',
+                                                      child: Text(
+                                                          'No car type found'), // Placeholder item
+                                                    ),
+                                                  ],
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                     SizedBox(height: 25.h),
                                     Row(
@@ -803,16 +875,11 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                                                   ),
                                                 ),
                                                 Positioned(
-                                                    top: 20.h,
-                                                    left: 37.w,
-                                                    child: SvgPicture.asset(
-                                                        'assets/svg/Map pin.svg')
-                                                    // Image(
-                                                    //   image: const AssetImage(
-                                                    //       'assets/images/Map pin.png'),
-                                                    //   height: 45.w,
-                                                    // ),
-                                                    ),
+                                                  top: 20.h,
+                                                  left: 37.w,
+                                                  child: SvgPicture.asset(
+                                                      'assets/svg/Map pin.svg'),
+                                                ),
                                               ],
                                             ),
                                           ),

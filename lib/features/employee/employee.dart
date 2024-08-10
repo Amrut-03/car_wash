@@ -21,13 +21,11 @@ class EmployeeState {
   final bool isLoading;
   final bool noRecordsFound;
   final List<dynamic> employeeList;
-  TextEditingController? searchController;
 
   EmployeeState({
     this.isLoading = false,
     this.noRecordsFound = false,
     this.employeeList = const [],
-    required this.searchController,
   });
 
   EmployeeState copyWith({
@@ -39,7 +37,6 @@ class EmployeeState {
       isLoading: isLoading ?? this.isLoading,
       noRecordsFound: noRecordsFound ?? this.noRecordsFound,
       employeeList: employeeList ?? this.employeeList,
-      searchController: searchController ?? this.searchController,
     );
   }
 
@@ -47,21 +44,16 @@ class EmployeeState {
 }
 
 class EmployeeNotifier extends StateNotifier<EmployeeState> {
-  final TextEditingController searchController =
-      TextEditingController(); // Replace with your actual enc_key
   final String adminId;
   final Ref ref;
+  final TextEditingController searchController;
 
-  EmployeeNotifier(this.ref, this.adminId)
-      : super(EmployeeState(
-          isLoading: true,
-          noRecordsFound: false,
-          searchController: TextEditingController(),
-        )) {
+  List<dynamic> _fullEmployeeList = []; // To store the full employee list
+
+  EmployeeNotifier(this.ref, this.adminId, this.searchController)
+      : super(EmployeeState(isLoading: true, noRecordsFound: false)) {
     fetchEmployeeList();
-    searchController.addListener(() {
-      fetchEmployeeList();
-    });
+    searchController.addListener(_onSearchTextChanged);
   }
 
   Future<void> fetchEmployeeList() async {
@@ -72,7 +64,7 @@ class EmployeeNotifier extends StateNotifier<EmployeeState> {
     request.fields.addAll({
       'enc_key': encKey,
       'emp_id': adminId,
-      'search_name': searchController.text,
+      'search_name': '',
     });
 
     final response = await request.send();
@@ -83,11 +75,13 @@ class EmployeeNotifier extends StateNotifier<EmployeeState> {
 
       if (response.statusCode == 200 && responseBody['status'] == 'Success') {
         final employeeList = responseBody['data'] ?? [];
+        _fullEmployeeList = employeeList; // Store the full list
         state = state.copyWith(
           employeeList: employeeList,
           noRecordsFound: employeeList.isEmpty,
           isLoading: false,
         );
+        searchEmployee(searchController.text); // Apply search after fetching
       } else {
         print('Error: ${responseBody['remarks']}');
         state = state.copyWith(
@@ -104,6 +98,44 @@ class EmployeeNotifier extends StateNotifier<EmployeeState> {
         isLoading: false,
       );
     }
+  }
+
+  void searchEmployee(String query) {
+    if (query.trim().isEmpty) {
+      // When the query is empty, reset to the full employee list
+      state = state.copyWith(
+        employeeList: _fullEmployeeList,
+        noRecordsFound: _fullEmployeeList.isEmpty,
+      );
+    } else {
+      final normalizedQuery = query.trim().toLowerCase();
+      print('Search Query: $normalizedQuery');
+
+      final filteredList = _fullEmployeeList.where((employee) {
+        final name =
+            (employee['employee_name'] ?? '').toString().trim().toLowerCase();
+        print('Employee Name: $name');
+        return name.contains(normalizedQuery);
+      }).toList();
+
+      print('Filtered List Length: ${filteredList.length}');
+
+      state = state.copyWith(
+        employeeList: filteredList,
+        noRecordsFound: filteredList.isEmpty,
+      );
+    }
+  }
+
+  void _onSearchTextChanged() {
+    searchEmployee(searchController.text);
+  }
+
+  @override
+  void dispose() {
+    searchController.removeListener(_onSearchTextChanged);
+    searchController.dispose();
+    super.dispose();
   }
 
   Future<void> removeEmployee(BuildContext context, String empId) async {
@@ -190,14 +222,12 @@ class EmployeeNotifier extends StateNotifier<EmployeeState> {
 
     if (shouldRemove == true) {
       await removeEmployee(context, empId);
-      await fetchEmployeeList(); // Re-fetch employee list after removal
+      await fetchEmployeeList();
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => EmployeePage()),
+        (route) => false,
+      ); // Re-fetch employee list after removal
     }
-  }
-
-  @override
-  void dispose() {
-    searchController.dispose();
-    super.dispose();
   }
 }
 
@@ -208,7 +238,14 @@ class EmployeePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final employeeController = ref.watch(employeeProvider.notifier);
+    final searchController = TextEditingController();
+    // final employeeState = ref.watch(employeeProvider);
+    final employeeNotifier = ref.read(employeeProvider.notifier);
+
+    // Bind the search controller with the notifier
+    searchController.addListener(() {
+      employeeNotifier.searchEmployee(searchController.text);
+    });
 
     void changePassword(String empId) async {
       // Validate Password and ReTypePassword fields
@@ -366,7 +403,7 @@ class EmployeePage extends ConsumerWidget {
                         textSz: 18.sp,
                         onClick: () {
                           changePassword(emp_id);
-                          employeeController.fetchEmployeeList();
+                          employeeNotifier.fetchEmployeeList();
                         },
                       ),
                     ],
@@ -498,7 +535,8 @@ class EmployeePage extends ConsumerWidget {
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const CreateEmployee()),
+                        builder: (context) => const CreateEmployee(),
+                      ),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -530,85 +568,80 @@ class EmployeePage extends ConsumerWidget {
             SizedBox(height: 20.h),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
-              child: Consumer(
-                builder: (context, ref, child) {
-                  final employeeController = ref.watch(employeeProvider);
-
-                  return TextField(
-                    controller: employeeController.searchController,
-                    cursorColor: AppTemplate.textClr,
-                    cursorHeight: 20.h,
-                    decoration: InputDecoration(
-                      hintText: 'Search by Employee Name',
-                      hintStyle: GoogleFonts.inter(
-                        fontSize: 12.sp,
-                        color: const Color(0xFF929292),
-                        fontWeight: FontWeight.w400,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5.r),
-                        borderSide: BorderSide(
-                          color: const Color(0xFFD4D4D4),
-                          width: 1.5.w,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5.r),
-                        borderSide: BorderSide(
-                          color: const Color(0xFFD4D4D4),
-                          width: 1.5.w,
-                        ),
-                      ),
-                    ),
-                  );
+              child: TextField(
+                controller: searchController,
+                onChanged: (value) {
+                  employeeNotifier.searchEmployee(value);
                 },
+                cursorColor: AppTemplate.textClr,
+                cursorHeight: 20.h,
+                decoration: InputDecoration(
+                  hintText: 'Search by Employee Name',
+                  hintStyle: GoogleFonts.inter(
+                    fontSize: 12.sp,
+                    color: const Color(0xFF929292),
+                    fontWeight: FontWeight.w400,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(5.r),
+                    borderSide: BorderSide(
+                      color: const Color(0xFFD4D4D4),
+                      width: 1.5.w,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(5.r),
+                    borderSide: BorderSide(
+                      color: const Color(0xFFD4D4D4),
+                      width: 1.5.w,
+                    ),
+                  ),
+                ),
               ),
             ),
             SizedBox(height: 20.h),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.h),
-              child: Consumer(
-                builder: (context, ref, child) {
-                  final employeeController = ref.watch(employeeProvider);
-
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Search Result',
-                        style: GoogleFonts.inter(
-                          color: AppTemplate.textClr,
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      if (employeeController.isLoading)
-                        Center(
-                          child: SizedBox(
-                            height: 10.h,
-                            width: 10.w,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 1.w,
-                              color: const Color.fromARGB(255, 0, 52, 182),
-                            ),
-                          ),
-                        )
-                      else
-                        Text(
-                          employeeController.noRecordsFound
-                              ? 'Showing 0 of 250'
-                              : 'Showing ${employeeController.employeeList.length} of 250',
-                          style: GoogleFonts.inter(
-                            color: AppTemplate.textClr,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                    ],
-                  );
-                },
-              ),
-            ),
+            // Padding(
+            //   padding: EdgeInsets.symmetric(horizontal: 20.h),
+            //   child: Consumer(
+            //     builder: (context, ref, child) {
+            //       return Row(
+            //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //         children: [
+            //           Text(
+            //             'Search Result',
+            //             style: GoogleFonts.inter(
+            //               color: AppTemplate.textClr,
+            //               fontSize: 12.sp,
+            //               fontWeight: FontWeight.w400,
+            //             ),
+            //           ),
+            //           if (employeeController.isLoading)
+            //             Center(
+            //               child: SizedBox(
+            //                 height: 10.h,
+            //                 width: 10.w,
+            //                 child: CircularProgressIndicator(
+            //                   strokeWidth: 1.w,
+            //                   color: const Color.fromARGB(255, 0, 52, 182),
+            //                 ),
+            //               ),
+            //             )
+            //           else
+            // Text(
+            //   employeeController.noRecordsFound
+            //       ? 'Showing 0 of 250'
+            //       : 'Showing ${employeeController.employeeList.length} of 250',
+            //   style: GoogleFonts.inter(
+            //     color: AppTemplate.textClr,
+            //     fontSize: 12.sp,
+            //     fontWeight: FontWeight.w400,
+            //   ),
+            // ),
+            //         ],
+            //       );
+            //     },
+            //   ),
+            // ),
             Expanded(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20.w),

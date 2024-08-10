@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/common/widgets/listedCarsList.dart';
-import 'package:car_wash/common/widgets/recentWashesList.dart';
 import 'package:car_wash/features/customer/customer.dart';
 import 'package:car_wash/features/customer/model/customer_profile_model.dart';
 import 'package:car_wash/features/customer/widgets/customer_recent_washes.dart';
@@ -17,7 +16,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CustomerProfile extends ConsumerStatefulWidget {
   final String customerName;
