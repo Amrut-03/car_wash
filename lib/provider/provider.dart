@@ -102,7 +102,12 @@ final customerProvider = StateNotifierProvider<CustomerNotifier, CustomerState>(
 );
 
 final employeeProvider = StateNotifierProvider<EmployeeNotifier, EmployeeState>(
-  (ref) => EmployeeNotifier(ref, ref.read(authProvider).admin!.id),
+  (ref) {
+    final adminId = ref.read(authProvider).admin!.id;
+    final searchController =
+        TextEditingController(); // Create the searchController here
+    return EmployeeNotifier(ref, adminId, searchController);
+  },
 );
 
 final dashboardProvider =

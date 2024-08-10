@@ -37,7 +37,7 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
   List<TextEditingController>? carModelNameControllers;
   List<TextEditingController>? carNoControllers;
   List<TextEditingController>? addressControllers;
-  List<TextEditingController>? carTypeControllers;
+  List<TextEditingController> carTypeControllers = [];
   List<TextEditingController>? carLatControllers;
   List<TextEditingController>? carLongControllers;
   List<TextEditingController>? carPhotosController;
@@ -48,6 +48,11 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
   double lat = 0.0;
   double long = 0.0;
   bool isLoading = false;
+  final Map<String, String> carTypes = {
+    'Hack Back': '1',
+    'Sedan': '2',
+    'SUV': '3',
+  };
   @override
   void initState() {
     super.initState();
@@ -58,6 +63,7 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
     addressControllers = [];
     carTypeControllers = [];
     _loadCustomerData();
+    print(carTypeControllers);
   }
 
   List<String> carImageUrls = [];
@@ -114,7 +120,7 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
         showValidationError("Car image for car ${i + 1} is required");
         return false;
       }
-      if (carTypeControllers![i].text.isEmpty) {
+      if (carTypeControllers[i].text.isEmpty) {
         showValidationError("Car Type for car ${i + 1} is required");
         return false;
       }
@@ -145,81 +151,50 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
     );
   }
 
-  Future<void> _loadCustomerData() async {
-    setState(() {
-      isLoading = true; // Start loading
-    });
-    try {
-      final data = await fetchCustomerData(widget.customer_id);
-      setState(() {
-        customerController = TextEditingController(
-            text: data['customer_data']['client_name'] ?? '');
-        mobileController = TextEditingController(
-            text: data['customer_data']['mobile_no'] ?? '');
+  List<Map<String, dynamic>> carTypeList = [];
 
-        if (data['customer_cars'] != null) {
-          existingCarIds = data['customer_cars']
-              .map<String>((car) => car['car_id']?.toString() ?? '')
-              .toList();
+  Future<void> carType() async {
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('https://wash.sortbe.com/API/Car-Type'),
+    );
+    request.fields.addAll({'enc_key': encKey});
 
-          carModelNameControllers = List.generate(
-            data['customer_cars'].length,
-            (index) => TextEditingController(
-              text: data['customer_cars'][index]['model_name'] ?? '',
-            ),
-          );
-          carNoControllers = List.generate(
-            data['customer_cars'].length,
-            (index) => TextEditingController(
-              text: data['customer_cars'][index]['vehicle_no'] ?? '',
-            ),
-          );
-          carPhotosController = List.generate(
-            data['customer_cars'].length,
-            (index) => TextEditingController(
-                text: data['customer_cars'][index]['car_photo'] ?? ''),
-          );
-          carLatControllers = List.generate(
-            data['customer_cars'].length,
-            (index) => TextEditingController(
-                text: data['customer_cars'][index]['latitude'] ?? ''),
-          );
-          addressControllers = List.generate(
-            data['customer_cars'].length,
-            (index) => TextEditingController(),
-          );
-          carTypeControllers = List.generate(
-            data['customer_cars'].length,
-            (index) => TextEditingController(),
-          );
-          carLongControllers = List.generate(
-            data['customer_cars'].length,
-            (index) => TextEditingController(
-                text: data['customer_cars'][index]['longitude'] ?? ''),
-          );
-          imageFiles.addAll(
-              List.generate(data['customer_cars'].length, (index) => null));
-        } else {
-          // Handle case where there are no cars
-          existingCarIds = [];
-          carModelNameControllers = [];
-          carNoControllers = [];
-          carPhotosController = [];
-          carLatControllers = [];
-          carLongControllers = [];
-          addressControllers = [];
-          carTypeControllers = [];
-          imageFiles = [];
-        }
-        print(carModelNameControllers);
-        isLoading = false; // Data is loaded, so set loading to false
-      });
-    } catch (e) {
-      print('Error loading customer data: $e');
-      setState(() {
-        isLoading = false; // Stop loading in case of an error
-      });
+    http.StreamedResponse response = await request.send();
+    String temp = await response.stream.bytesToString();
+    var jsonResponse = jsonDecode(temp);
+
+    if (response.statusCode == 200) {
+      carTypeList = List<Map<String, dynamic>>.from(jsonResponse['data']);
+      print('Car Types: $carTypeList');
+    } else {
+      print('Error: ${response.reasonPhrase}');
     }
+  }
+
+  void initializeCarTypeControllers(List<dynamic> customerCars) {
+    carTypeControllers = List.generate(
+      customerCars.length,
+      (index) {
+        String typeId = customerCars[index]['car_type'] ?? '';
+        String carType = carTypeList.firstWhere(
+          (element) => element['type_id'].toString() == typeId,
+          orElse: () => {'car_type': ''},
+        )['car_type'] as String;
+        return TextEditingController(text: carType);
+      },
+    );
+  }
+
+  void _onCarTypeChanged(int index, String? newValue) {
+    setState(() {
+      if (newValue != null) {
+        carTypeControllers[index].text =
+            carTypes.entries.firstWhere((entry) => entry.value == newValue).key;
+      } else {
+        carTypeControllers[index].text = '';
+      }
+    });
   }
 
   Future<Map<String, dynamic>> fetchCustomerData(String customerId) async {
@@ -244,6 +219,108 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
     }
   }
 
+  Future<void> _loadCustomerData() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final data = await fetchCustomerData(widget.customer_id);
+
+      if (data['customer_cars'] != null && data['customer_cars'].isNotEmpty) {
+        // Initialize controllers and data
+        await carType(); // Ensure carType() completes before proceeding
+
+        // Initialize text controllers
+        customerController = TextEditingController(
+          text: data['customer_data']['client_name'] ?? '',
+        );
+        mobileController = TextEditingController(
+          text: data['customer_data']['mobile_no'] ?? '',
+        );
+
+        existingCarIds = data['customer_cars']
+            .map<String>((car) => car['car_id']?.toString() ?? '')
+            .toList();
+
+        carModelNameControllers = List.generate(
+          data['customer_cars'].length,
+          (index) => TextEditingController(
+            text: data['customer_cars'][index]['model_name'] ?? '',
+          ),
+        );
+        carNoControllers = List.generate(
+          data['customer_cars'].length,
+          (index) => TextEditingController(
+            text: data['customer_cars'][index]['vehicle_no'] ?? '',
+          ),
+        );
+        carPhotosController = List.generate(
+          data['customer_cars'].length,
+          (index) => TextEditingController(
+            text: data['customer_cars'][index]['car_photo'] ?? '',
+          ),
+        );
+        carLatControllers = List.generate(
+          data['customer_cars'].length,
+          (index) => TextEditingController(
+            text: data['customer_cars'][index]['latitude'] ?? '',
+          ),
+        );
+        addressControllers = List.generate(
+          data['customer_cars'].length,
+          (index) => TextEditingController(
+            text: data['customer_cars'][index]['address'] ?? '',
+          ),
+        );
+
+        initializeCarTypeControllers(data['customer_cars']);
+
+        carLongControllers = List.generate(
+          data['customer_cars'].length,
+          (index) => TextEditingController(
+            text: data['customer_cars'][index]['longitude'] ?? '',
+          ),
+        );
+
+        imageFiles =
+            List.generate(data['customer_cars'].length, (index) => null);
+
+        // Update state with the new data
+        setState(() {
+          isLoading = false;
+        });
+      } else {
+        // Handle case where there are no cars
+        setState(() {
+          customerController = TextEditingController(
+            text: data['customer_data']['client_name'] ?? '',
+          );
+          mobileController = TextEditingController(
+            text: data['customer_data']['mobile_no'] ?? '',
+          );
+
+          existingCarIds = [];
+          carModelNameControllers = [];
+          carNoControllers = [];
+          carPhotosController = [];
+          carLatControllers = [];
+          carLongControllers = [];
+          addressControllers = [];
+          carTypeControllers = [];
+          imageFiles = [];
+
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading customer data: $e');
+      setState(() {
+        isLoading = false; // Stop loading in case of an error
+      });
+    }
+  }
+
   Future<void> _updateCustomerData() async {
     if (!validateFields()) {
       return;
@@ -265,10 +342,11 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
       var carData = {
         'model_name': carModelNameControllers![i].text,
         'vehicle_no': carNoControllers![i].text,
-        'car_image':
-            imageFiles[i] != null ? 'car_pic$i' : carPhotosController![i].text,
+        'car_image': imageFiles[i] != null
+            ? 'car_pic${i}'
+            : carPhotosController![i].text,
         'address': addressControllers![i].text,
-        'car_type': carTypeControllers![i].text,
+        'car_type': carTypeControllers[i].text,
         'latitude': carLatControllers != null && i < carLatControllers!.length
             ? carLatControllers![i].text
             : '',
@@ -286,7 +364,6 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
       }
     }
 
-    // Add fields to request
     final admin = ref.read(authProvider);
     request.fields.addAll({
       'enc_key': encKey,
@@ -300,15 +377,13 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
       }),
     });
 
-    // Add files to request
     for (int i = 0; i < imageFiles.length; i++) {
       final imageFile = imageFiles[i];
       if (imageFile != null && await imageFile.exists()) {
         request.files.add(
-            await http.MultipartFile.fromPath('car_pic$i', imageFile.path));
+            await http.MultipartFile.fromPath('car_pic${i}', imageFile.path));
       }
     }
-    // Debugging prints
     print('Request fields: ${request.fields}');
     print(
         'Request files: ${request.files.map((file) => file.filename).toList()}');
@@ -346,7 +421,7 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
     carLongControllers!.add(TextEditingController());
     carPhotosController!.add(TextEditingController());
     addressControllers!.add(TextEditingController());
-    carTypeControllers!.add(TextEditingController());
+    carTypeControllers.add(TextEditingController());
 
     imageFiles.add(null);
 
@@ -361,12 +436,12 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
         carModelNameControllers![index].dispose();
         carNoControllers![index].dispose();
         addressControllers![index].dispose();
-        carTypeControllers![index].dispose();
+        carTypeControllers[index].dispose();
 
         carModelNameControllers!.removeAt(index);
         carNoControllers!.removeAt(index);
         addressControllers!.removeAt(index);
-        carTypeControllers!.removeAt(index);
+        carTypeControllers.removeAt(index);
 
         imageFiles.removeAt(index);
       });
@@ -774,8 +849,9 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                         final carNoController = carNoControllers![index];
                         final addressController =
                             addressControllers![index]; // Add this
-                        final carTypeController = carTypeControllers![index];
-                        final imageFile = imageFiles[index];
+                        final carTypeController = carTypeControllers[index];
+                        print(carTypeController.text);
+                        // final imageFile = imageFiles[index];
                         return Stack(
                           children: [
                             Center(
@@ -853,15 +929,92 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                                           ),
                                         ),
                                         SizedBox(height: 25.h),
-                                        Textfieldwidget(
-                                          controller: carTypeController,
-                                          labelTxt: 'Car Type',
-                                          labelTxtClr: const Color(0xFF929292),
-                                          enabledBorderClr:
-                                              const Color(0xFFD4D4D4),
-                                          focusedBorderClr:
-                                              const Color(0xFFD4D4D4),
+                                        // Textfieldwidget(
+                                        //   controller: carTypeController,
+                                        //   labelTxt: 'Car Type',
+                                        //   labelTxtClr: const Color(0xFF929292),
+                                        //   enabledBorderClr:
+                                        //       const Color(0xFFD4D4D4),
+                                        //   focusedBorderClr:
+                                        //       const Color(0xFFD4D4D4),
+                                        // ),
+                                        Stack(
+                                          children: [
+                                            Container(
+                                              height: 45.h,
+                                              width: 390.w,
+                                              decoration: BoxDecoration(
+                                                color: Colors.transparent,
+                                                borderRadius:
+                                                    BorderRadius.circular(5.r),
+                                                border: Border.all(
+                                                  color:
+                                                      const Color(0xFFD4D4D4),
+                                                  width: 1.w,
+                                                ),
+                                              ),
+                                              child: DropdownButtonFormField<
+                                                  String>(
+                                                borderRadius:
+                                                    BorderRadius.circular(10.r),
+                                                dropdownColor:
+                                                    AppTemplate.primaryClr,
+                                                decoration: InputDecoration(
+                                                  border: InputBorder.none,
+                                                  contentPadding:
+                                                      EdgeInsets.symmetric(
+                                                          horizontal: 10.w),
+                                                ),
+                                                value: carTypes.keys.contains(
+                                                        carTypeController.text)
+                                                    ? carTypeController.text
+                                                    : carTypes.keys.isNotEmpty
+                                                        ? carTypes.keys.first
+                                                        : null, // Set to null if no car types are available
+                                                icon: const Icon(
+                                                    Icons.arrow_drop_down),
+                                                iconSize: 30,
+                                                elevation: 16,
+                                                style: const TextStyle(
+                                                  color: AppTemplate.textClr,
+                                                  fontSize: 15,
+                                                ),
+                                                onChanged: (String? newValue) {
+                                                  if (newValue != null) {
+                                                    setState(() {
+                                                      // Update the TextEditingController with the value associated with the selected key
+                                                      carTypeController.text =
+                                                          carTypes[newValue] ??
+                                                              '';
+                                                      // Print the new value for debugging
+                                                      print(
+                                                          'Selected car type value: ${carTypes[newValue]}');
+                                                    });
+                                                  }
+                                                },
+                                                items: carTypes.keys.isNotEmpty
+                                                    ? carTypes.keys.map<
+                                                        DropdownMenuItem<
+                                                            String>>((carType) {
+                                                        return DropdownMenuItem<
+                                                            String>(
+                                                          value: carType,
+                                                          child: Text(carType),
+                                                        );
+                                                      }).toList()
+                                                    : [
+                                                        DropdownMenuItem<
+                                                            String>(
+                                                          value: '',
+                                                          child: Text(
+                                                              'No car type found'), // Placeholder item
+                                                        ),
+                                                      ],
+                                              ),
+                                            ),
+                                          ],
                                         ),
+
                                         SizedBox(height: 25.h),
                                         Row(
                                           mainAxisAlignment:

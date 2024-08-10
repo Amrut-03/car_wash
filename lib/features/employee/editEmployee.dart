@@ -370,7 +370,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
             if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (snapshot.hasData) {}
-            var responseBody = snapshot.data as Map<String, dynamic>;
+            // var responseBody = snapshot.data as Map<String, dynamic>;
             return Center(
               child: SingleChildScrollView(
                 child: Column(

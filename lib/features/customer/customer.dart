@@ -189,6 +189,10 @@ class CustomerNotifier extends StateNotifier<CustomerState> {
     if (shouldRemove == true) {
       await removeCustomer(context, customerId);
       await CustomerList();
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => Customer()),
+        (route) => false,
+      );
     }
   }
 }
