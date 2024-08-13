@@ -29,7 +29,7 @@ class Menu {
             child: Material(
               color: Colors.transparent,
               child: Container(
-                height: 460.h,
+                height: 420.h,
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -297,46 +297,46 @@ class Menu {
                             ),
                           ),
                         ),
-                        Padding(
-                          padding: EdgeInsets.only(top: 20.h),
-                          child: GestureDetector(
-                            onTap: () async {
-                              await ref.read(authProvider.notifier).logout();
+                        // Padding(
+                        //   padding: EdgeInsets.only(top: 20.h),
+                        //   child: GestureDetector(
+                        //     onTap: () async {
+                        //       await ref.read(authProvider.notifier).logout();
 
-                              // Navigate to the LoginScreen
-                              Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => LoginScreen(),
-                                ),
-                                (Route<dynamic> route) => false,
-                              );
-                            },
-                            child: Row(
-                              children: [
-                                SizedBox(
-                                    height: 30.0,
-                                    width: 30.0,
-                                    child: Icon(
-                                      Icons.logout,
-                                      size: 30,
-                                      color: const Color(0xFF545454),
-                                    )),
-                                Container(
-                                  margin: const EdgeInsets.only(left: 10),
-                                  child: Text(
-                                    'Log out',
-                                    style: GoogleFonts.inter(
-                                      color: AppTemplate.textClr,
-                                      fontSize: 18.sp,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
+                        //       // Navigate to the LoginScreen
+                        //       Navigator.pushAndRemoveUntil(
+                        //         context,
+                        //         MaterialPageRoute(
+                        //           builder: (context) => LoginScreen(),
+                        //         ),
+                        //         (Route<dynamic> route) => false,
+                        //       );
+                        //     },
+                        //     child: Row(
+                        //       children: [
+                        //         SizedBox(
+                        //             height: 30.0,
+                        //             width: 30.0,
+                        //             child: Icon(
+                        //               Icons.logout,
+                        //               size: 30,
+                        //               color: const Color(0xFF545454),
+                        //             )),
+                        //         Container(
+                        //           margin: const EdgeInsets.only(left: 10),
+                        //           child: Text(
+                        //             'Log out',
+                        //             style: GoogleFonts.inter(
+                        //               color: AppTemplate.textClr,
+                        //               fontSize: 18.sp,
+                        //               fontWeight: FontWeight.w500,
+                        //             ),
+                        //           ),
+                        //         )
+                        //       ],
+                        //     ),
+                        //   ),
+                        // ),
                         Center(
                           child: GestureDetector(
                             onVerticalDragUpdate: (details) {
