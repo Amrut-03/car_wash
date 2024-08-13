@@ -42,17 +42,19 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
   List<TextEditingController>? carLongControllers;
   List<TextEditingController>? carPhotosController;
   List<String> existingCarIds = [];
+  List<Map<String, dynamic>> carTypeList = [];
+  int carModelNameLength = 0;
+  final Map<String, String> carTypes = {
+    'Hack Back': '1',
+    'Sedan': '2',
+    'SUV': '3',
+  };
 
   final ScrollController _scrollController = ScrollController();
   File? imageFile;
   double lat = 0.0;
   double long = 0.0;
   bool isLoading = false;
-  final Map<String, String> carTypes = {
-    'Hack Back': '1',
-    'Sedan': '2',
-    'SUV': '3',
-  };
   @override
   void initState() {
     super.initState();
@@ -62,6 +64,9 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
     carNoControllers = [];
     addressControllers = [];
     carTypeControllers = [];
+    originalCarType.clear();
+    carModelNameLength;
+    print(originalCarType);
     _loadCustomerData();
     print(carTypeControllers);
   }
@@ -151,8 +156,6 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
     );
   }
 
-  List<Map<String, dynamic>> carTypeList = [];
-
   Future<void> carType() async {
     var request = http.MultipartRequest(
       'POST',
@@ -219,6 +222,8 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
     }
   }
 
+  List<String> originalCarType = [];
+
   Future<void> _loadCustomerData() async {
     setState(() {
       isLoading = true;
@@ -228,10 +233,8 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
       final data = await fetchCustomerData(widget.customer_id);
 
       if (data['customer_cars'] != null && data['customer_cars'].isNotEmpty) {
-        // Initialize controllers and data
-        await carType(); // Ensure carType() completes before proceeding
+        await carType();
 
-        // Initialize text controllers
         customerController = TextEditingController(
           text: data['customer_data']['client_name'] ?? '',
         );
@@ -249,6 +252,9 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
             text: data['customer_cars'][index]['model_name'] ?? '',
           ),
         );
+        for (int i = 0; i < carModelNameControllers!.length; i++) {
+          print("CarModelNames at $i: ${carModelNameControllers![i]}");
+        }
         carNoControllers = List.generate(
           data['customer_cars'].length,
           (index) => TextEditingController(
@@ -273,8 +279,12 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
             text: data['customer_cars'][index]['address'] ?? '',
           ),
         );
+        print('+++++++++++++++++++++');
+        print('existing car length : $existingCarIds');
+        print('+++++++++++++++++++++');
 
         initializeCarTypeControllers(data['customer_cars']);
+        carModelNameLength = carModelNameControllers!.length;
 
         carLongControllers = List.generate(
           data['customer_cars'].length,
@@ -283,10 +293,17 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
           ),
         );
 
+        originalCarType = List.generate(
+          carTypeControllers.length,
+          (index) => data['customer_cars'][index]['car_type'],
+        );
+
+        print("OriginalCartype length: ${carTypeControllers.length}");
+        print("Original: ${originalCarType}");
+
         imageFiles =
             List.generate(data['customer_cars'].length, (index) => null);
 
-        // Update state with the new data
         setState(() {
           isLoading = false;
         });
@@ -321,14 +338,23 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
     }
   }
 
-  Future<void> _updateCustomerData() async {
+  void _updateCustomerData() async {
     if (!validateFields()) {
       return;
     }
 
     setState(() {
-      isLoading = true; // Start loading
+      isLoading = true;
     });
+
+    print(
+        'Length of carModelNameControllers: ${carModelNameControllers!.length}');
+    print('Length of carNoControllers: ${carNoControllers!.length}');
+    print('Length of imageFiles: ${imageFiles.length}');
+    print('Length of carPhotosController: ${carPhotosController!.length}');
+    print('Length of addressControllers: ${addressControllers!.length}');
+    print('Length of originalCarType: ${originalCarType.length}');
+    print('Length of existingCarIds: ${existingCarIds.length}');
 
     var request = http.MultipartRequest(
       'POST',
@@ -338,31 +364,107 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
     List<Map<String, dynamic>> availableCarDataList = [];
     List<Map<String, dynamic>> newCarDataList = [];
 
-    for (int i = 0; i < carModelNameControllers!.length; i++) {
-      var carData = {
-        'model_name': carModelNameControllers![i].text,
-        'vehicle_no': carNoControllers![i].text,
-        'car_image': imageFiles[i] != null
-            ? 'car_pic${i}'
-            : carPhotosController![i].text,
-        'address': addressControllers![i].text,
-        'car_type': carTypeControllers[i].text,
-        'latitude': carLatControllers != null && i < carLatControllers!.length
-            ? carLatControllers![i].text
-            : '',
-        'longitude':
-            carLongControllers != null && i < carLongControllers!.length
-                ? carLongControllers![i].text
-                : '',
-      };
+    // for (int i = 0; i < carModelNameControllers!.length; i++) {
+    //   print("Processing index $i");
 
-      if (i < existingCarIds.length) {
-        carData['car_id'] = existingCarIds[i];
-        availableCarDataList.add(carData);
+    //   // Ensure all lists have enough elements
+    //   bool isValidIndex = i < carNoControllers!.length &&
+    //       i < imageFiles.length &&
+    //       i < carPhotosController!.length &&
+    //       i < addressControllers!.length &&
+    //       i < originalCarType.length;
+
+    //   // If existingCarIds is empty, treat it as if all elements are new
+    //   if (isValidIndex) {
+    //     var carData = {
+    //       'model_name': carModelNameControllers![i].text,
+    //       'vehicle_no': carNoControllers![i].text,
+    //       'car_image': imageFiles[i] != null
+    //           ? 'car_pic${i + 1}'
+    //           : carPhotosController![i].text,
+    //       'address': addressControllers![i].text,
+    //       'car_type': originalCarType[i],
+    //       'latitude': carLatControllers![i].text,
+    //       'longitude': carLongControllers![i].text,
+    //     };
+
+    //     if (i < existingCarIds.length) {
+    //       // Check if existingCarIds[i] is not null and not 'Removed'
+    //       if (existingCarIds[i] != 'Removed' && existingCarIds[i].isNotEmpty) {
+    //         print("Adding to available car data list");
+    //         carData['car_id'] = existingCarIds[i];
+    //         availableCarDataList.add(carData);
+    //       } else if (existingCarIds[i] == 'Removed') {
+    //         print("Adding to available car data list with status Removed");
+    //         carData['status'] = 'Removed';
+    //         availableCarDataList.add(carData);
+    //       } else {
+    //         print("Adding to new car data list");
+    //         newCarDataList.add(carData);
+    //       }
+    //     } else {
+    //       print("Index $i exceeds existingCarIds length. Treating as new car.");
+    //       newCarDataList.add(carData);
+    //     }
+    //   } else {
+    //     print(
+    //         "Index $i is out of bounds. Index is invalid for one or more lists.");
+    //   }
+    // }
+
+    for (int i = 0; i < carModelNameControllers!.length; i++) {
+      print("Processing index $i");
+
+      // Ensure all lists have enough elements
+      bool isValidIndex = i < carNoControllers!.length &&
+          i < imageFiles.length &&
+          i < carPhotosController!.length &&
+          i < addressControllers!.length &&
+          i < originalCarType.length;
+
+      if (isValidIndex) {
+        var carData = {
+          'model_name': carModelNameControllers![i].text,
+          'vehicle_no': carNoControllers![i].text,
+          'car_image': imageFiles[i] != null
+              ? 'car_pic${i + 1}'
+              : carPhotosController![i].text,
+          'address': addressControllers![i].text,
+          'car_type': originalCarType[i],
+          'latitude': carLatControllers![i].text,
+          'longitude': carLongControllers![i].text,
+        };
+
+        if (i < existingCarIds.length) {
+          // Check if existingCarIds[i] is valid
+          if (existingCarIds[i] != 'Removed' && existingCarIds[i].isNotEmpty) {
+            print("Adding to available car data list");
+            carData['car_id'] = existingCarIds[i];
+            availableCarDataList.add(carData);
+          } else if (existingCarIds[i] == 'Removed') {
+            print("Adding to available car data list with status Removed");
+            carData['status'] = 'Removed';
+            availableCarDataList.add(carData);
+          } else {
+            // This should ideally not occur if the list lengths are correct
+            print(
+                "Adding to new car data list due to invalid existingCarIds entry");
+            newCarDataList.add(carData);
+          }
+        } else {
+          // When index exceeds the length of existingCarIds, treat as new car
+          print("Index $i exceeds existingCarIds length. Treating as new car.");
+          newCarDataList.add(carData);
+        }
       } else {
-        newCarDataList.add(carData);
+        print(
+            "Index $i is out of bounds. Index is invalid for one or more lists.");
       }
     }
+
+// Print final lists for debugging
+    print("Available car data list: $availableCarDataList");
+    print("New car data list: $newCarDataList");
 
     final admin = ref.read(authProvider);
     request.fields.addAll({
@@ -380,41 +482,31 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
     for (int i = 0; i < imageFiles.length; i++) {
       final imageFile = imageFiles[i];
       if (imageFile != null && await imageFile.exists()) {
-        request.files.add(
-            await http.MultipartFile.fromPath('car_pic${i}', imageFile.path));
+        request.files.add(await http.MultipartFile.fromPath(
+            'car_pic${i + 1}', imageFile.path));
       }
     }
-    print('Request fields: ${request.fields}');
-    print(
-        'Request files: ${request.files.map((file) => file.filename).toList()}');
 
     try {
       http.StreamedResponse response = await request.send();
-      String responseBody = await response.stream.bytesToString();
-      print(responseBody);
-
       if (response.statusCode == 200) {
-        print('Customer data updated successfully');
         showValidationError("Customer data updated successfully");
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => Customer()));
       } else {
-        print(
-            'Error updating customer data: ${response.statusCode} ${response.reasonPhrase}');
         showValidationError('Error updating customer data');
       }
     } catch (e) {
-      print('Exception: $e');
       showValidationError('An error occurred. Please try again.');
     } finally {
       setState(() {
-        isLoading = false; // Stop loading
+        isLoading = false;
       });
     }
   }
 
   void _addNewCard() {
-    // Add a new controller for each property
+    // Add new controllers to all lists
     carModelNameControllers!.add(TextEditingController());
     carNoControllers!.add(TextEditingController());
     carLatControllers!.add(TextEditingController());
@@ -423,31 +515,71 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
     addressControllers!.add(TextEditingController());
     carTypeControllers.add(TextEditingController());
 
-    imageFiles.add(null);
+    // Ensure that you add a new placeholder to `imageFiles`
+    imageFiles.add(null); // This should match the length of other lists
+    originalCarType.add('');
 
+    // Update the length based on one of the lists
+    carModelNameLength = carModelNameControllers!.length;
+
+    // Debug prints to check lengths
+    print(
+        'Number of car model name controllers: ${carModelNameControllers!.length}');
+    print('Number of car number controllers: ${carNoControllers!.length}');
+    print('Number of car latitude controllers: ${carLatControllers!.length}');
+    print('Number of car longitude controllers: ${carLongControllers!.length}');
+    print('Number of car photo controllers: ${carPhotosController!.length}');
+    print('Number of address controllers: ${addressControllers!.length}');
+    print('Number of car type controllers: ${carTypeControllers.length}');
+    print('Number of image files: ${imageFiles.length}');
+    print('Number of original car types: ${originalCarType.length}');
+
+    // Notify Riverpod or any other state management
     ref.read(customerCardProvider.notifier).addCard();
 
+    // Scroll to the bottom to show the new card
     _scrollToBottom();
   }
 
   void _removeCard(int index) {
     if (carModelNameControllers!.length > 1) {
       setState(() {
+        // Dispose the controllers at the specified index
         carModelNameControllers![index].dispose();
         carNoControllers![index].dispose();
         addressControllers![index].dispose();
         carTypeControllers[index].dispose();
+        carLatControllers![index].dispose();
+        carLongControllers![index].dispose();
 
+        // Remove the controllers from the lists
         carModelNameControllers!.removeAt(index);
         carNoControllers!.removeAt(index);
         addressControllers!.removeAt(index);
         carTypeControllers.removeAt(index);
+        carLatControllers!.removeAt(index);
+        carLongControllers!.removeAt(index);
 
+        // Remove the image file and other related data
         imageFiles.removeAt(index);
+        originalCarType.removeAt(index);
+
+        // Remove the corresponding car ID if it exists
+        if (index < existingCarIds.length) {
+          existingCarIds.removeAt(index);
+        }
+
+        // Update the length of carModelNameControllers
+        carModelNameLength = carModelNameControllers!.length;
+
+        // Notify the state management provider (if applicable)
+        ref.read(customerCardProvider.notifier).removeCard(index);
+
+        // Scroll up if needed
+        _scrollUp();
       });
-      ref.read(customerCardProvider.notifier).removeCard(index);
-      _scrollUp();
     } else {
+      // Show a warning if there's only one card left
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: AppTemplate.bgClr,
         content: Text(
@@ -735,7 +867,7 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                       textSz: 18.sp,
                       onClick: () async {
                         await fetchCustomerData(widget.customer_id);
-                        await _updateCustomerData();
+                        _updateCustomerData();
                         await customerNotifier.CustomerList();
                         await dashboardNotifier.fetchDashboardData();
                       },
@@ -851,7 +983,10 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                             addressControllers![index]; // Add this
                         final carTypeController = carTypeControllers[index];
                         print(carTypeController.text);
+                        bool showCloseIcon =
+                            carModelNameControllers!.length > 1;
                         // final imageFile = imageFiles[index];
+                        // if(carStatuses[index] == 'Active'){
                         return Stack(
                           children: [
                             Center(
@@ -982,13 +1117,20 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                                                 onChanged: (String? newValue) {
                                                   if (newValue != null) {
                                                     setState(() {
-                                                      // Update the TextEditingController with the value associated with the selected key
+                                                      // Ensure that you update the correct index
+                                                      // Make sure `currentIndex` is set correctly
+                                                      if (index <
+                                                          originalCarType
+                                                              .length) {
+                                                        originalCarType[index] =
+                                                            carTypes[
+                                                                    newValue] ??
+                                                                '';
+                                                      }
+                                                      // Update the TextEditingController with the selected value
                                                       carTypeController.text =
                                                           carTypes[newValue] ??
                                                               '';
-                                                      // Print the new value for debugging
-                                                      print(
-                                                          'Selected car type value: ${carTypes[newValue]}');
                                                     });
                                                   }
                                                 },
@@ -1189,12 +1331,13 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                                 ),
                               ),
                             ),
-                            if (index != 0)
+                            if (showCloseIcon)
                               Positioned(
                                 right: 10.w,
                                 top: -5.h,
                                 child: GestureDetector(
                                   onTap: () => setState(() {
+                                    print(index);
                                     _removeCard(index);
                                   }),
                                   child: Container(
@@ -1219,6 +1362,9 @@ class _EditCustomerState extends ConsumerState<EditCustomer> {
                               ),
                           ],
                         );
+                        // }
+                        //                   else {
+                        //   return SizedBox.shrink(); // Don't display anything for 'Removed' cards
                         // }
                       },
                     ),

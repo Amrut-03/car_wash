@@ -144,25 +144,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       setState(() {
         isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              backgroundColor: AppTemplate.bgClr,
-              content: Text(
-                'This is a Network Error',
-                style: GoogleFonts.inter(
-                    color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-              ))
-          // SnackBar(backgroundColor: AppTemplate.bgClr,content: Text('Network error: ${e.message}')),
-          );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: AppTemplate.bgClr,
+          content: Text(
+            'This is a Network Error',
+            style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+          ),
+        ),
+      );
     } catch (e) {
       if (mounted) {
         setState(() {
           isLoading = false;
         });
+        print("+++++++++++++++++++++++++++++++++++++++++++");
+        print('Unexpected error: ${e.toString()}');
+        print("+++++++++++++++++++++++++++++++++++++++++++");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               backgroundColor: AppTemplate.bgClr,
               content: Text(
-                'Unexpected error: ${e.toString()}',
+                'Credentials are wrong',
                 style: GoogleFonts.inter(
                     color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
               )),

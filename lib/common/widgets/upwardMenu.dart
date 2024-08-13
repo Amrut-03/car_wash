@@ -1,18 +1,21 @@
 import 'package:car_wash/features/attendance/attendance_page.dart';
 import 'package:car_wash/features/customer/customer.dart';
 import 'package:car_wash/features/dashboard.dart';
+import 'package:car_wash/features/login.dart';
 import 'package:car_wash/features/planner/pages/planner_employee.dart';
 import 'package:car_wash/features/employee/employee.dart';
 import 'package:car_wash/features/salary/pages/employee_salary.dart';
 import 'package:car_wash/features/settings/pages/settings_page.dart';
+import 'package:car_wash/provider/admin_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:car_wash/common/utils/constants.dart';
 
 class Menu {
-  static void showMenu(BuildContext context) {
+  static void showMenu(BuildContext context, WidgetRef ref) {
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
@@ -26,7 +29,7 @@ class Menu {
             child: Material(
               color: Colors.transparent,
               child: Container(
-                height: 420.h,
+                height: 460.h,
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -283,6 +286,46 @@ class Menu {
                                   margin: const EdgeInsets.only(left: 10),
                                   child: Text(
                                     'Settings',
+                                    style: GoogleFonts.inter(
+                                      color: AppTemplate.textClr,
+                                      fontSize: 18.sp,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 20.h),
+                          child: GestureDetector(
+                            onTap: () async {
+                              await ref.read(authProvider.notifier).logout();
+
+                              // Navigate to the LoginScreen
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => LoginScreen(),
+                                ),
+                                (Route<dynamic> route) => false,
+                              );
+                            },
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                    height: 30.0,
+                                    width: 30.0,
+                                    child: Icon(
+                                      Icons.logout,
+                                      size: 30,
+                                      color: const Color(0xFF545454),
+                                    )),
+                                Container(
+                                  margin: const EdgeInsets.only(left: 10),
+                                  child: Text(
+                                    'Log out',
                                     style: GoogleFonts.inter(
                                       color: AppTemplate.textClr,
                                       fontSize: 18.sp,

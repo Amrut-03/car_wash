@@ -247,7 +247,7 @@ class EmployeePage extends ConsumerWidget {
       employeeNotifier.searchEmployee(searchController.text);
     });
 
-    void changePassword(String empId) async {
+    Future<void> changePassword(String empId) async {
       // Validate Password and ReTypePassword fields
       if (passwordController.text.isEmpty) {
         awesomeTopSnackbar(
@@ -301,6 +301,8 @@ class EmployeePage extends ConsumerWidget {
         var body = jsonDecode(temp);
 
         if (response.statusCode == 200) {
+          print(passwordController.text);
+          print(reTypePasswordController.text);
           awesomeTopSnackbar(
             context,
             "Password Changed Successfully",
@@ -308,7 +310,7 @@ class EmployeePage extends ConsumerWidget {
                 color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
             backgroundColor: AppTemplate.bgClr,
           );
-          // Navigator.pop(context);
+          Navigator.pop(context);
         } else {
           awesomeTopSnackbar(
             context,
@@ -401,9 +403,13 @@ class EmployeePage extends ConsumerWidget {
                         txt: 'Update Password',
                         textClr: AppTemplate.primaryClr,
                         textSz: 18.sp,
-                        onClick: () {
-                          changePassword(emp_id);
+                        onClick: () async {
+                          await changePassword(emp_id);
                           employeeNotifier.fetchEmployeeList();
+
+                          // Clear the controllers after the delay
+                          passwordController.clear();
+                          reTypePasswordController.clear();
                         },
                       ),
                     ],
