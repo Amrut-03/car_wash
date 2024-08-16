@@ -184,11 +184,15 @@ class Menu {
                         Padding(
                           padding: EdgeInsets.only(top: 20.h),
                           child: GestureDetector(
-                            onTap: () => Navigator.push(
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        const EmployeeSalary())),
+                                  builder: (context) => const EmployeeSalary(),
+                                ),
+                              );
+                            },
                             child: Row(
                               children: [
                                 SizedBox(

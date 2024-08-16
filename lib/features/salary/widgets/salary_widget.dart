@@ -1,89 +1,106 @@
+// import 'package:car_wash/features/Salary/pages/individual_salary.dart';
+// import 'package:car_wash/features/Salary/pages/individual_salary_final.dart';
+// import 'package:car_wash/common/utils/constants.dart';
+// import 'package:car_wash/features/salary/model/employee_salary_model.dart';
+// import 'package:flutter/material.dart';
+// import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'package:car_wash/features/Salary/pages/individual_salary.dart';
-import 'package:car_wash/features/Salary/pages/individual_salary_final.dart';
-import 'package:car_wash/common/utils/constants.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+// class SalaryWidget extends StatelessWidget {
+//   const SalaryWidget({
+//     super.key,
+//     required this.salaryData,
+//   });
+//   final List<SalaryData> salaryData;
 
-class SalaryWidget extends StatelessWidget {
-  const SalaryWidget({
-    super.key,
-    required this.text,
-    this.show = true,
-  });
-  final String text;
-  final bool show;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        if (!show) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const IndividualSalary(),
-            ),
-          );
-        } else {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const IndividualSalaryFinal(),
-            ),
-          );
-        }
-      },
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 25.w),
-        child: Container(
-          height: 80,
-          padding: EdgeInsets.only(left: 15.w, right: 10.w, top: 5.w),
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: const Color.fromARGB(13, 48, 48, 48),
-            ),
-            color: AppTemplate.primaryClr,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x40000000),
-                offset: Offset(0, 4),
-                blurRadius: 4,
-                spreadRadius: 0,
-              ),
-            ],
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                text,
-                style: TextStyle(
-                  fontSize: 15.sp,
-                ),
-              ),
-              const Spacer(),
-              show
-                  ? Container(
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color(0xFF447B00),
-                      ),
-                      child: const Icon(
-                        Icons.done,
-                        color: AppTemplate.primaryClr,
-                      ),
-                    )
-                  : const SizedBox(),
-              SizedBox(width: 15.w),
-              const Icon(Icons.chevron_right)
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-
+//   @override
+//   Widget build(BuildContext context) {
+//     return salaryData.isEmpty
+//         ? Expanded(
+//             child: Padding(
+//               padding: const EdgeInsets.only(top: 70.0),
+//               child: Align(
+//                 alignment: Alignment.topCenter,
+//                 child: Text(
+//                   'No data available',
+//                   style: TextStyle(
+//                     fontSize: 20,
+//                   ),
+//                 ),
+//               ),
+//             ),
+//           )
+//         : Expanded(
+//             child: ListView.builder(
+//               itemCount: salaryData.length,
+//               itemBuilder: (context, index) {
+//                 return Padding(
+//                   padding: EdgeInsets.symmetric(horizontal: 20.w),
+//                   child: Column(
+//                     children: [
+//                       GestureDetector(
+//                         onTap: () => Navigator.push(
+//                           context,
+//                           MaterialPageRoute(
+//                             builder: (context) => IndividualSalary(employeeName: employeeName, employeePic: employeePic, address: address, phone1: phone1),
+//                           ),
+//                         ),
+//                         child: Container(
+//                           decoration: BoxDecoration(
+//                             color: AppTemplate.primaryClr,
+//                             boxShadow: [
+//                               BoxShadow(
+//                                 color: AppTemplate.shadowClr,
+//                                 blurRadius: 4.r,
+//                                 spreadRadius: 0.r,
+//                                 offset: Offset(0.w, 4.h),
+//                               ),
+//                             ],
+//                             borderRadius: BorderRadius.circular(10.r),
+//                             border: Border.all(color: AppTemplate.shadowClr),
+//                           ),
+//                           child: SizedBox(
+//                             height: 56.h,
+//                             width: double.infinity,
+//                             child: Padding(
+//                               padding: EdgeInsets.all(19.w),
+//                               child: Row(
+//                                 crossAxisAlignment: CrossAxisAlignment.center,
+//                                 children: [
+//                                   Text(
+//                                     'Month',
+//                                     style: TextStyle(
+//                                       fontSize: 15.sp,
+//                                     ),
+//                                   ),
+//                                   const Spacer(),
+//                                   salaryData[index].salary == 'No'
+//                                       ? SizedBox()
+//                                       : Container(
+//                                           decoration: const BoxDecoration(
+//                                             shape: BoxShape.circle,
+//                                             color: Color(0xFF447B00),
+//                                           ),
+//                                           child: const Icon(
+//                                             Icons.done,
+//                                             color: AppTemplate.primaryClr,
+//                                           ),
+//                                         ),
+//                                   SizedBox(width: 15.w),
+//                                   const Icon(Icons.chevron_right)
+//                                 ],
+//                               ),
+//                             ),
+//                           ),
+//                         ),
+//                       ),
+//                       SizedBox(
+//                         height: 25.h,
+//                       )
+//                     ],
+//                   ),
+//                 );
+//               },
+//             ),
+//           );
+//   }
+// }
