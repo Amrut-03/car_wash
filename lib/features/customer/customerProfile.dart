@@ -84,8 +84,10 @@ class _CustomerProfileState extends ConsumerState<CustomerProfile> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            Editcustomer(customerId: widget.customerId),
+                        builder: (context) => Editcustomer(
+                          customerId: widget.customerId,
+                          customerName: widget.customerName,
+                        ),
                       ),
                     );
                   },

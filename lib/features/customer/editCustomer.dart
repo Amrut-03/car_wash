@@ -6,6 +6,7 @@ import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
 import 'package:car_wash/features/customer/customer.dart';
+import 'package:car_wash/features/customer/customerProfile.dart';
 import 'package:car_wash/features/customer/model/car_type_model.dart';
 import 'package:car_wash/features/customer/model/edit_customer_data_model.dart';
 import 'package:car_wash/features/customer/widgets/car_listing_edit.dart';
@@ -20,8 +21,13 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
 class Editcustomer extends ConsumerStatefulWidget {
-  const Editcustomer({super.key, required this.customerId});
+  const Editcustomer({
+    super.key,
+    required this.customerId,
+    required this.customerName,
+  });
   final String customerId;
+  final String customerName;
 
   @override
   ConsumerState<Editcustomer> createState() => _EditcustomerState();
@@ -34,7 +40,6 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
   Map<String, File> imagesMap = {};
   List<dynamic> allCars = [];
   List<int> updatedCarIndexes = [];
-  List<int> removedCarIndexes = [];
   ClientData? clientData;
   ResponseModel? responseModel;
   bool isDisabled = false;
@@ -92,6 +97,57 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
     });
   }
 
+  bool validateFields(
+      List<dynamic> availableCarDataList, List<dynamic> newCarDataList) {
+    // Check if customer name or mobile number is missing
+    if (customerNameController.text.isEmpty || mobileController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Customer name or mobile number is missing'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return false;
+    }
+
+    bool hasEmptyOrNullValue(Map<String, dynamic> carData) {
+      return carData.entries.any(
+        (entry) {
+          print('entry = $entry');
+          var value = entry.value;
+          return (value == null || value.toString().isEmpty) &&
+              entry.key != 'address';
+        },
+      );
+    }
+
+    for (var car in availableCarDataList) {
+      if (hasEmptyOrNullValue(car.toJson())) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('One or more fields are missing in available cars'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return false;
+      }
+    }
+
+    for (var car in newCarDataList) {
+      if (hasEmptyOrNullValue(car.toJson())) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('One or more fields are missing in new cars'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return false;
+      }
+    }
+    
+    return true;
+  }
+
   Future<void> updateCustomerData() async {
     setState(() {
       isLoading = true;
@@ -113,7 +169,7 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
         var tempCar = allCars[i];
 
         if (tempCar.type == 'Available' && updatedCarIndexes.contains(i)) {
-          if (removedCarIndexes.contains(i)) {
+          if (tempCar.status == 'Removed') {
             availableCarDataList.add(
               RemovedCar(carId: tempCar.carId, status: 'Removed'),
             );
@@ -135,7 +191,19 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
             availableCarDataList.add(tempCar);
           }
         } else if (tempCar.type == 'New') {
-          newCarDataList.add(tempCar);
+          newCarDataList.add(
+            NewCar(
+              carId: tempCar.carId,
+              modelName: tempCar.modelName,
+              vehicleNo: tempCar.vehicleNo,
+              address: tempCar.address,
+              carImage: tempCar.carImage,
+              carType: tempCar.carType,
+              latitude: tempCar.latitude,
+              longitude: tempCar.longitude,
+              type: tempCar.type,
+            ),
+          );
         }
       }
       List<dynamic> jsonList = allCars.map((car) => car.toJson()).toList();
@@ -163,6 +231,10 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
           'new_car': newCarDataList,
         }),
       });
+      bool isValid = validateFields(availableCarDataList, newCarDataList);
+      if (!isValid) {
+        return;
+      }
       //adding images in payload
       for (var entry in imagesMap.entries) {
         print('Key: ${entry.key}');
@@ -184,7 +256,10 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => Customer(),
+              builder: (context) => CustomerProfile(
+                customerName: widget.customerName,
+                customerId: widget.customerId,
+              ),
             ),
           );
         } else {
@@ -296,7 +371,8 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
 
   void _addNewCar() {
     List<dynamic> updatedCarList = [...allCars];
-    updatedCarList.add(NewCar(
+    updatedCarList.add(
+      NewCarWithStatus(
         carId: "",
         modelName: "",
         vehicleNo: "",
@@ -305,24 +381,27 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
         carImage: "",
         latitude: "",
         longitude: "",
-        type: "New"));
+        type: "New",
+        status: 'Available',
+      ),
+    );
 
     setState(() {
       allCars = updatedCarList;
     });
   }
 
-  void _removeCar(int index) {
-    // if removed car index is not present, add it
-    setState(() {
-      List<int> carIndexes = [...removedCarIndexes];
-      if (!carIndexes.contains(index)) {
-        carIndexes.add(index);
-      }
-      removedCarIndexes = carIndexes;
-    });
-    addToUpdatedList(index);
-  }
+  // void _removeCar(int index) {
+  //   // if removed car index is not present, add it
+  //   setState(() {
+  //     List<int> carIndexes = [...removedCarIndexes];
+  //     if (!carIndexes.contains(index)) {
+  //       carIndexes.add(index);
+  //     }
+  //     removedCarIndexes = carIndexes;
+  //   });
+  //   addToUpdatedList(index);
+  // }
 
   void toggleDisable() {
     setState(() {
@@ -336,6 +415,9 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
 
   @override
   Widget build(BuildContext context) {
+    int carLength =
+        allCars.where((element) => !(element.status == 'Removed')).length;
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: AppTemplate.primaryClr,
@@ -425,7 +507,6 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
                       labelTxtClr: const Color(0xFF929292),
                       enabledBorderClr: const Color(0xFFD4D4D4),
                       focusedBorderClr: const Color(0xFFD4D4D4),
-                      
                     ),
                   ),
                   SizedBox(
@@ -488,7 +569,7 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
                           child: ListView.builder(
                             itemCount: allCars.length,
                             itemBuilder: (context, index) {
-                              if (removedCarIndexes.contains(index)) {
+                              if (allCars[index].status == 'Removed') {
                                 return Container();
                               }
                               return CarListingEdit(
@@ -498,10 +579,10 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
                                 onUpdate: _updateCar,
                                 onImgRemove: _removeUploadedImage,
                                 onImgUpload: _updateImageList,
-                                onCarRemove: _removeCar,
+                                // onCarRemove: _removeCar,
                                 carTypeList: responseModel!.data,
                                 onToggle: toggleDisable,
-                                showCancelBtn: allCars.length != 1,
+                                showCancelBtn: carLength != 1,
                               );
                             },
                           ),

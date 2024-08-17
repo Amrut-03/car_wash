@@ -126,6 +126,88 @@ class NewCar {
   }
 }
 
+
+class NewCarWithStatus {
+  final String carId;
+  final String modelName;
+  final String vehicleNo;
+  final String address;
+  final String carType;
+  final String carImage;
+  final String latitude;
+  final String longitude;
+  final String type;
+  final String status;
+
+  NewCarWithStatus({
+    required this.carId,
+    required this.modelName,
+    required this.vehicleNo,
+    required this.address,
+    required this.carType,
+    required this.carImage,
+    required this.latitude,
+    required this.longitude,
+    required this.type,
+    required this.status,
+  });
+
+  factory NewCarWithStatus.fromJson(Map<String, dynamic> json) {
+    return NewCarWithStatus(
+      carId: json['car_id'],
+      modelName: json['model_name'],
+      vehicleNo: json['vehicle_no'],
+      address: json['address'],
+      carType: json['car_type'],
+      carImage: json['car_image'],
+      latitude: json['latitude'],
+      longitude: json['longitude'],
+      type: 'New',
+      status: 'Available',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'car_id': carId,
+      'model_name': modelName,
+      'vehicle_no': vehicleNo,
+      'address': address,
+      'car_type': carType,
+      'car_image': carImage,
+      'latitude': latitude,
+      'longitude': longitude,
+      'type': type,
+      'status': status,
+    };
+  }
+  NewCarWithStatus copyWith({
+    String? carId,
+    String? modelName,
+    String? vehicleNo,
+    String? address,
+    String? carType,
+    String? carImage,
+    String? latitude,
+    String? longitude,
+    String? type,
+    String? status,
+  }) {
+    return NewCarWithStatus(
+      carId: carId ?? this.carId,
+      modelName: modelName ?? this.modelName,
+      vehicleNo: vehicleNo ?? this.vehicleNo,
+      address: address ?? this.address,
+      carType: carType ?? this.carType,
+      carImage: carImage ?? this.carImage,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      type: type ?? this.type,
+      status: status ?? this.status,
+    );
+  }
+}
+
 class AvailableCar {
   final String carId;
   final String modelName;

@@ -23,7 +23,7 @@ class CarListingEdit extends StatefulWidget {
     required this.onImgRemove,
     required this.onToggle,
     required this.onImgUpload,
-    required this.onCarRemove,
+    // required this.onCarRemove,
     required this.carTypeList,
     required this.showCancelBtn,
   });
@@ -32,7 +32,7 @@ class CarListingEdit extends StatefulWidget {
   final Map<String, File> images;
   final void Function(int index, dynamic updatedCar) onUpdate;
   final void Function(int index) onImgRemove;
-  final void Function(int index) onCarRemove;
+  // final void Function(int index) onCarRemove;
   final void Function() onToggle;
   final void Function(int index, File image) onImgUpload;
   final List<CarType> carTypeList;
@@ -74,10 +74,20 @@ class _CarListingEditState extends State<CarListingEdit> {
     widget.onUpdate(widget.index, updatedCar);
   }
 
+  
+  void _removeCar() {
+    final updatedCar = widget.customerCar.copyWith(
+      status: "Removed",
+    );
+    widget.onUpdate(widget.index, updatedCar);
+    widget.onImgRemove(widget.index);
+  }
+
   void _removeImage() {
     final updatedCar = widget.customerCar.copyWith(
       carImage: "",
     );
+    print('Updated car = ${updatedCar.toJson()}');
     widget.onUpdate(widget.index, updatedCar);
     widget.onImgRemove(widget.index);
   }
@@ -482,7 +492,7 @@ class _CarListingEditState extends State<CarListingEdit> {
             top: -5.h,
             child: GestureDetector(
               onTap: () {
-                widget.onCarRemove(widget.index);
+                _removeCar();
               },
               child: Container(
                 decoration: BoxDecoration(
