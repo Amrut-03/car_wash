@@ -11,8 +11,9 @@ class Textfieldwidget extends StatefulWidget {
   final bool isPassword;
   final String? Function(String?)? validator;
   final Function(String)? onChanged;
+  final FocusNode? focusNode;
 
-   Textfieldwidget({
+  const Textfieldwidget({
     super.key,
     required this.labelTxt,
     required this.labelTxtClr,
@@ -22,7 +23,7 @@ class Textfieldwidget extends StatefulWidget {
     this.isPassword = false,
     this.validator,
     this.onChanged,
-    
+    this.focusNode,
   });
 
   @override
@@ -40,6 +41,7 @@ class _TextfieldwidgetState extends State<Textfieldwidget> {
       onChanged: widget.onChanged,
       obscureText: widget.isPassword ? _obscureText : false,
       cursorColor: widget.enabledBorderClr,
+      focusNode: widget.focusNode,
       decoration: InputDecoration(
         labelText: widget.labelTxt,
         labelStyle: GoogleFonts.inter(

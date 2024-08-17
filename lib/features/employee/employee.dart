@@ -403,13 +403,9 @@ class EmployeePage extends ConsumerWidget {
                         txt: 'Update Password',
                         textClr: AppTemplate.primaryClr,
                         textSz: 18.sp,
-                        onClick: () async {
-                          await changePassword(emp_id);
+                        onClick: () {
+                          changePassword(emp_id);
                           employeeNotifier.fetchEmployeeList();
-
-                          // Clear the controllers after the delay
-                          passwordController.clear();
-                          reTypePasswordController.clear();
                         },
                       ),
                     ],
