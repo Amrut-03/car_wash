@@ -8,17 +8,22 @@ class Textfieldwidget extends StatefulWidget {
   final Color enabledBorderClr;
   final Color focusedBorderClr;
   final TextEditingController controller;
-  final bool
-      isPassword; // New parameter to indicate if this is a password field
+  final bool isPassword;
+  final String? Function(String?)? validator;
+  final Function(String)? onChanged;
 
-  const Textfieldwidget(
-      {super.key,
-      required this.labelTxt,
-      required this.labelTxtClr,
-      required this.enabledBorderClr,
-      required this.focusedBorderClr,
-      required this.controller,
-      this.isPassword = false});
+   Textfieldwidget({
+    super.key,
+    required this.labelTxt,
+    required this.labelTxtClr,
+    required this.enabledBorderClr,
+    required this.focusedBorderClr,
+    required this.controller,
+    this.isPassword = false,
+    this.validator,
+    this.onChanged,
+    
+  });
 
   @override
   _TextfieldwidgetState createState() => _TextfieldwidgetState();
@@ -29,8 +34,10 @@ class _TextfieldwidgetState extends State<Textfieldwidget> {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       controller: widget.controller,
+      validator: widget.validator,
+      onChanged: widget.onChanged,
       obscureText: widget.isPassword ? _obscureText : false,
       cursorColor: widget.enabledBorderClr,
       decoration: InputDecoration(
