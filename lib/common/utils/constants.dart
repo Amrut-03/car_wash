@@ -1,4 +1,12 @@
+import 'dart:io';
+
+import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 class AppTemplate {
@@ -36,3 +44,18 @@ Map<String, Color> statusColor = {
   'Completed': const Color.fromRGBO(86, 156, 0, 10),
   'Cancelled': Color.fromARGB(246, 236, 50, 72),
 };
+
+void showValidationError(String message, BuildContext context) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      backgroundColor: AppTemplate.bgClr,
+      content: Text(
+        message,
+        style: GoogleFonts.inter(
+            color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+      ),
+    ),
+  );
+}
+
+

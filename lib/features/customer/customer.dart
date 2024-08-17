@@ -108,7 +108,6 @@ class CustomerNotifier extends StateNotifier<CustomerState> {
       'enc_key': encKey,
       'emp_id': admin.admin!.id,
       'customer_id': customerId,
-      'password': '12345665',
     });
 
     try {

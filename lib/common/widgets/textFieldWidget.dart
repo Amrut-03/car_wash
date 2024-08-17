@@ -9,6 +9,8 @@ class Textfieldwidget extends StatefulWidget {
   final Color focusedBorderClr;
   final TextEditingController controller;
   final bool isPassword;
+  final String? Function(String?)? validator;
+  final Function(String)? onChanged;
   final FocusNode? focusNode;
 
   const Textfieldwidget({
@@ -19,6 +21,8 @@ class Textfieldwidget extends StatefulWidget {
     required this.focusedBorderClr,
     required this.controller,
     this.isPassword = false,
+    this.validator,
+    this.onChanged,
     this.focusNode,
   });
 
@@ -31,8 +35,10 @@ class _TextfieldwidgetState extends State<Textfieldwidget> {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       controller: widget.controller,
+      validator: widget.validator,
+      onChanged: widget.onChanged,
       obscureText: widget.isPassword ? _obscureText : false,
       cursorColor: widget.enabledBorderClr,
       focusNode: widget.focusNode,

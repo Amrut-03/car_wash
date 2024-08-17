@@ -143,7 +143,7 @@ class DashBoard extends ConsumerWidget {
                                 Positioned(
                                   right: 5.w,
                                   child: GestureDetector(
-                                    onTap: () => Menu.showMenu(context),
+                                    onTap: () => Menu.showMenu(context, ref),
                                     child: SizedBox(
                                       height: 50.h,
                                       width: 60.w,

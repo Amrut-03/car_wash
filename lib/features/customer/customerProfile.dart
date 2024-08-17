@@ -5,10 +5,10 @@ import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/common/widgets/listedCarsList.dart';
 import 'package:car_wash/features/customer/customer.dart';
+import 'package:car_wash/features/customer/editCustomer.dart';
 import 'package:car_wash/features/customer/model/customer_profile_model.dart';
 import 'package:car_wash/features/customer/widgets/customer_recent_washes.dart';
 import 'package:car_wash/provider/admin_provider.dart';
-import 'package:car_wash/features/customer/editCustomer.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -82,10 +82,12 @@ class _CustomerProfileState extends ConsumerState<CustomerProfile> {
                           fontWeight: FontWeight.w800, fontSize: 18.sp)),
                   onTap: () {
                     Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                EditCustomer(customer_id: widget.customerId)));
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            Editcustomer(customerId: widget.customerId),
+                      ),
+                    );
                   },
                 ),
                 ListTile(
