@@ -51,7 +51,6 @@ class CustomerDetails {
 }
 
 class NewCar {
-  final String carId;
   final String modelName;
   final String vehicleNo;
   final String address;
@@ -62,7 +61,6 @@ class NewCar {
   final String type;
 
   NewCar({
-    required this.carId,
     required this.modelName,
     required this.vehicleNo,
     required this.address,
@@ -75,7 +73,6 @@ class NewCar {
 
   factory NewCar.fromJson(Map<String, dynamic> json) {
     return NewCar(
-      carId: json['car_id'],
       modelName: json['model_name'],
       vehicleNo: json['vehicle_no'],
       address: json['address'],
@@ -89,7 +86,6 @@ class NewCar {
 
   Map<String, dynamic> toJson() {
     return {
-      'car_id': carId,
       'model_name': modelName,
       'vehicle_no': vehicleNo,
       'address': address,
@@ -102,7 +98,6 @@ class NewCar {
   }
 
   NewCar copyWith({
-    String? carId,
     String? modelName,
     String? vehicleNo,
     String? address,
@@ -113,7 +108,6 @@ class NewCar {
     String? type,
   }) {
     return NewCar(
-      carId: carId ?? this.carId,
       modelName: modelName ?? this.modelName,
       vehicleNo: vehicleNo ?? this.vehicleNo,
       address: address ?? this.address,
@@ -128,7 +122,6 @@ class NewCar {
 
 
 class NewCarWithStatus {
-  final String carId;
   final String modelName;
   final String vehicleNo;
   final String address;
@@ -140,7 +133,6 @@ class NewCarWithStatus {
   final String status;
 
   NewCarWithStatus({
-    required this.carId,
     required this.modelName,
     required this.vehicleNo,
     required this.address,
@@ -154,7 +146,6 @@ class NewCarWithStatus {
 
   factory NewCarWithStatus.fromJson(Map<String, dynamic> json) {
     return NewCarWithStatus(
-      carId: json['car_id'],
       modelName: json['model_name'],
       vehicleNo: json['vehicle_no'],
       address: json['address'],
@@ -169,7 +160,6 @@ class NewCarWithStatus {
 
   Map<String, dynamic> toJson() {
     return {
-      'car_id': carId,
       'model_name': modelName,
       'vehicle_no': vehicleNo,
       'address': address,
@@ -182,7 +172,6 @@ class NewCarWithStatus {
     };
   }
   NewCarWithStatus copyWith({
-    String? carId,
     String? modelName,
     String? vehicleNo,
     String? address,
@@ -194,7 +183,6 @@ class NewCarWithStatus {
     String? status,
   }) {
     return NewCarWithStatus(
-      carId: carId ?? this.carId,
       modelName: modelName ?? this.modelName,
       vehicleNo: vehicleNo ?? this.vehicleNo,
       address: address ?? this.address,

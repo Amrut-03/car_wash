@@ -43,12 +43,21 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
   ClientData? clientData;
   ResponseModel? responseModel;
   bool isDisabled = false;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     fetchCustomerDetails();
     carType();
+  }
+
+  @override
+  void dispose() {
+    mobileController.dispose();
+    customerNameController.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   void _updateCar(int index, dynamic updatedCar) {
@@ -113,7 +122,8 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
     bool hasEmptyOrNullValue(Map<String, dynamic> carData) {
       return carData.entries.any(
         (entry) {
-          print('entry = $entry');
+          print('key = ${entry.key}');
+          print('value = ${entry.value}');
           var value = entry.value;
           return (value == null || value.toString().isEmpty) &&
               entry.key != 'address';
@@ -144,7 +154,7 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
         return false;
       }
     }
-    
+
     return true;
   }
 
@@ -173,7 +183,7 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
             availableCarDataList.add(
               RemovedCar(carId: tempCar.carId, status: 'Removed'),
             );
-          } else if (!imagesMap.containsKey('car_pic${i + 1}')) {
+          } else if (tempCar.carImage.contains('https')) {
             availableCarDataList.add(
               AvailableCarWOImg(
                 carId: tempCar.carId,
@@ -191,19 +201,20 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
             availableCarDataList.add(tempCar);
           }
         } else if (tempCar.type == 'New') {
-          newCarDataList.add(
-            NewCar(
-              carId: tempCar.carId,
-              modelName: tempCar.modelName,
-              vehicleNo: tempCar.vehicleNo,
-              address: tempCar.address,
-              carImage: tempCar.carImage,
-              carType: tempCar.carType,
-              latitude: tempCar.latitude,
-              longitude: tempCar.longitude,
-              type: tempCar.type,
-            ),
-          );
+          if (!(tempCar.status == 'Removed')) {
+            newCarDataList.add(
+              NewCar(
+                modelName: tempCar.modelName,
+                vehicleNo: tempCar.vehicleNo,
+                address: tempCar.address,
+                carImage: tempCar.carImage,
+                carType: tempCar.carType,
+                latitude: tempCar.latitude,
+                longitude: tempCar.longitude,
+                type: tempCar.type,
+              ),
+            );
+          }
         }
       }
       List<dynamic> jsonList = allCars.map((car) => car.toJson()).toList();
@@ -231,10 +242,7 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
           'new_car': newCarDataList,
         }),
       });
-      bool isValid = validateFields(availableCarDataList, newCarDataList);
-      if (!isValid) {
-        return;
-      }
+
       //adding images in payload
       for (var entry in imagesMap.entries) {
         print('Key: ${entry.key}');
@@ -244,6 +252,10 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
             entry.value.path,
           ),
         );
+      }
+      bool isValid = validateFields(availableCarDataList, newCarDataList);
+      if (!isValid) {
+        return;
       }
 
       try {
@@ -373,7 +385,6 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
     List<dynamic> updatedCarList = [...allCars];
     updatedCarList.add(
       NewCarWithStatus(
-        carId: "",
         modelName: "",
         vehicleNo: "",
         address: "",
@@ -388,6 +399,15 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
 
     setState(() {
       allCars = updatedCarList;
+    });
+
+    // Scroll to the bottom after the new item is added
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
     });
   }
 
@@ -567,6 +587,7 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
                         )
                       : Expanded(
                           child: ListView.builder(
+                            controller: _scrollController,
                             itemCount: allCars.length,
                             itemBuilder: (context, index) {
                               if (allCars[index].status == 'Removed') {
