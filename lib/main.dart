@@ -40,7 +40,7 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
     return ScreenUtilInit(
-      designSize: const Size(360, 690),
+      designSize: ScreenUtil.defaultSize,
       builder: (_, child) {
         Widget home;
         if (!authState.isLoggedIn) {
