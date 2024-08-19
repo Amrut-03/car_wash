@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:car_wash/common/utils/constants.dart';
-import 'package:car_wash/features/customer/customerProfile.dart';
 import 'package:car_wash/provider/provider.dart';
 
+// ignore: must_be_immutable
 class EmployeeList extends ConsumerWidget {
   VoidCallbackAction onclick;
   EmployeeList({
@@ -17,7 +16,7 @@ class EmployeeList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final employeeController = ref.watch(employeeProvider);
-    final customerController = ref.watch(customerProvider);
+    // final customerController = ref.watch(customerProvider);
     return GridView.builder(
       scrollDirection: Axis.vertical,
       itemCount: employeeController.employeeList.length,
@@ -29,7 +28,7 @@ class EmployeeList extends ConsumerWidget {
       ),
       itemBuilder: (context, index) {
         var employee = employeeController.employeeList[index];
-        String emp_id = employee['employee_id'];
+        // String emp_id = employee['employee_id'];
 
         return Padding(
           padding: const EdgeInsets.all(8.0),
@@ -77,7 +76,7 @@ class EmployeeList extends ConsumerWidget {
                     employee['employee_name'],
                     style: GoogleFonts.inter(
                       color: AppTemplate.textClr,
-                      fontSize: 15.sp,
+                      fontSize: 15.0,
                       fontWeight: FontWeight.w400,
                     ),
                   ),

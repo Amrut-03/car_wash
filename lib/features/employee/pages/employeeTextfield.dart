@@ -357,7 +357,7 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
             decoration: InputDecoration(
               labelText: "Date of Birth",
               labelStyle: GoogleFonts.inter(
-                  fontSize: 12.sp,
+                  fontSize: 12.0,
                   color: const Color(0xFF929292),
                   fontWeight: FontWeight.w400),
               enabledBorder: OutlineInputBorder(
@@ -422,7 +422,7 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
             decoration: InputDecoration(
               labelText: 'Address',
               labelStyle: GoogleFonts.inter(
-                  fontSize: 12.sp,
+                  fontSize: 12.0,
                   color: const Color(0xFF929292),
                   fontWeight: FontWeight.w400),
               enabledBorder: OutlineInputBorder(
@@ -453,7 +453,7 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
             decoration: InputDecoration(
               labelText: "phone 1",
               labelStyle: GoogleFonts.inter(
-                  fontSize: 12.sp,
+                  fontSize: 12.0,
                   color: const Color(0xFF929292),
                   fontWeight: FontWeight.w400),
               enabledBorder: OutlineInputBorder(
@@ -484,7 +484,7 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
             decoration: InputDecoration(
               labelText: "phone 2",
               labelStyle: GoogleFonts.inter(
-                  fontSize: 12.sp,
+                  fontSize: 12.0,
                   color: const Color(0xFF929292),
                   fontWeight: FontWeight.w400),
               enabledBorder: OutlineInputBorder(
@@ -519,7 +519,7 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
             'Aadhaar Card',
             style: GoogleFonts.inter(
               color: AppTemplate.textClr,
-              fontSize: 12.sp,
+              fontSize: 12.0,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -556,7 +556,7 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
                           ? Text(
                               'Front Side',
                               style: GoogleFonts.inter(
-                                fontSize: 12.sp,
+                                fontSize: 12.0,
                                 color: const Color(0xFF6750A4),
                                 fontWeight: FontWeight.w600,
                               ),
@@ -596,7 +596,7 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
                           ? Text(
                               'Back Side',
                               style: GoogleFonts.inter(
-                                fontSize: 12.sp,
+                                fontSize: 12.0,
                                 color: const Color(0xFF6750A4),
                                 fontWeight: FontWeight.w600,
                               ),
@@ -618,7 +618,7 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
             "Driving License",
             style: GoogleFonts.inter(
               color: AppTemplate.textClr,
-              fontSize: 12.sp,
+              fontSize: 12.0,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -658,7 +658,7 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
                           ? Text(
                               'Front Side',
                               style: GoogleFonts.inter(
-                                fontSize: 12.sp,
+                                fontSize: 12.0,
                                 color: const Color(0xFF6750A4),
                                 fontWeight: FontWeight.w600,
                               ),
@@ -698,7 +698,7 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
                           ? Text(
                               'Back Side',
                               style: GoogleFonts.inter(
-                                fontSize: 12.sp,
+                                fontSize: 12.0,
                                 color: const Color(0xFF6750A4),
                                 fontWeight: FontWeight.w600,
                               ),
@@ -720,7 +720,7 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
             'Employee Photo',
             style: GoogleFonts.inter(
               color: AppTemplate.textClr,
-              fontSize: 12.sp,
+              fontSize: 12.0,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -760,7 +760,7 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
                           ? Text(
                               'Upload Photo',
                               style: GoogleFonts.inter(
-                                fontSize: 12.sp,
+                                fontSize: 12.0,
                                 color: const Color(0xFF6750A4),
                                 fontWeight: FontWeight.w600,
                               ),
@@ -793,7 +793,7 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
                     buttonClr: const Color(0xFf1E3763),
                     txt: 'Create',
                     textClr: AppTemplate.primaryClr,
-                    textSz: 18.sp,
+                    textSz: 18.0,
                     onClick: () async {
                       await createEmployee(context, ref);
                       employeeController.fetchEmployeeList();

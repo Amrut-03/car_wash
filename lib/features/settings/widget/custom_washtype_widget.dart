@@ -114,7 +114,7 @@ class _CustomWashtypeWidgetState extends ConsumerState<CustomWashtypeWidget> {
               Text(
                 widget.washType,
                 style: TextStyle(
-                  fontSize: 15.sp,
+                  fontSize: 15.0,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFF447B00),
                 ),
@@ -195,7 +195,7 @@ class _CustomWashtypeWidgetState extends ConsumerState<CustomWashtypeWidget> {
                       buttonClr: const Color(0xFf1E3763),
                       txt: 'Update',
                       textClr: AppTemplate.primaryClr,
-                      textSz: 18.sp,
+                      textSz: 18.0,
                       onClick: () async {
                         try {
                           for (int i = 0; i < widget.prices.length; i++) {

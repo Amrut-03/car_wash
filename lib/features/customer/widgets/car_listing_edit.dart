@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
 import 'package:car_wash/features/customer/model/car_type_model.dart';
-import 'package:car_wash/features/customer/model/edit_customer_data_model.dart';
 import 'package:car_wash/features/customer/widgets/image_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -74,7 +73,6 @@ class _CarListingEditState extends State<CarListingEdit> {
     widget.onUpdate(widget.index, updatedCar);
   }
 
-  
   void _removeCar() {
     final updatedCar = widget.customerCar.copyWith(
       status: "Removed",
@@ -171,13 +169,13 @@ class _CarListingEditState extends State<CarListingEdit> {
             'Location Retrieved',
             style: GoogleFonts.inter(
                 color: AppTemplate.textClr,
-                fontSize: 20.sp,
+                fontSize: 20.0,
                 fontWeight: FontWeight.w600),
           ),
           content: Text(
             'Your Live location is stored.',
             style: GoogleFonts.inter(
-                fontSize: 12.sp,
+                fontSize: 12.0,
                 color: AppTemplate.textClr,
                 fontWeight: FontWeight.w500),
           ),
@@ -211,13 +209,13 @@ class _CarListingEditState extends State<CarListingEdit> {
             'Location Permission Required',
             style: GoogleFonts.inter(
                 color: AppTemplate.textClr,
-                fontSize: 20.sp,
+                fontSize: 20.0,
                 fontWeight: FontWeight.w600),
           ),
           content: Text(
             'Please grant location permission to use this feature.',
             style: GoogleFonts.inter(
-                fontSize: 12.sp,
+                fontSize: 12.0,
                 color: AppTemplate.textClr,
                 fontWeight: FontWeight.w500),
           ),
@@ -291,7 +289,7 @@ class _CarListingEditState extends State<CarListingEdit> {
                       decoration: InputDecoration(
                         labelText: 'Address',
                         labelStyle: GoogleFonts.inter(
-                            fontSize: 12.sp,
+                            fontSize: 12.0,
                             color: const Color(0xFF929292),
                             fontWeight: FontWeight.w400),
                         enabledBorder: OutlineInputBorder(

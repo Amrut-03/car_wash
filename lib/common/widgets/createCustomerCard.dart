@@ -91,13 +91,13 @@ class _CreateCustomerCardState extends ConsumerState<CreateCustomerCard> {
             'Location Retrieved',
             style: GoogleFonts.inter(
                 color: AppTemplate.textClr,
-                fontSize: 20.sp,
+                fontSize: 20.0,
                 fontWeight: FontWeight.w600),
           ),
           content: Text(
             'Your Live location is stored.',
             style: GoogleFonts.inter(
-                fontSize: 12.sp,
+                fontSize: 12.0,
                 color: AppTemplate.textClr,
                 fontWeight: FontWeight.w500),
           ),
@@ -131,13 +131,13 @@ class _CreateCustomerCardState extends ConsumerState<CreateCustomerCard> {
             'Location Permission Required',
             style: GoogleFonts.inter(
                 color: AppTemplate.textClr,
-                fontSize: 20.sp,
+                fontSize: 20.0,
                 fontWeight: FontWeight.w600),
           ),
           content: Text(
             'Please grant location permission to use this feature.',
             style: GoogleFonts.inter(
-                fontSize: 12.sp,
+                fontSize: 12.0,
                 color: AppTemplate.textClr,
                 fontWeight: FontWeight.w500),
           ),
@@ -267,7 +267,7 @@ class _CreateCustomerCardState extends ConsumerState<CreateCustomerCard> {
                                   Text(
                                     'Car Picture',
                                     style: GoogleFonts.inter(
-                                      fontSize: 12.sp,
+                                      fontSize: 12.0,
                                       color: const Color(0xFF6750A4),
                                       fontWeight: FontWeight.w600,
                                     ),

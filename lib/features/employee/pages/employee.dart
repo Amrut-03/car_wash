@@ -5,9 +5,9 @@ import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
-import 'package:car_wash/features/employee/cleanedCars.dart';
-import 'package:car_wash/features/employee/createEmployee.dart';
-import 'package:car_wash/features/employee/editEmployee.dart';
+import 'package:car_wash/features/employee/pages/cleanedCars.dart';
+import 'package:car_wash/features/employee/pages/createEmployee.dart';
+import 'package:car_wash/features/employee/pages/editEmployee.dart';
 import 'package:car_wash/provider/admin_provider.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -402,7 +402,7 @@ class EmployeePage extends ConsumerWidget {
                         buttonClr: const Color(0xFf1E3763),
                         txt: 'Update Password',
                         textClr: AppTemplate.primaryClr,
-                        textSz: 18.sp,
+                        textSz: 18.0,
                         onClick: () {
                           changePassword(emp_id);
                           employeeNotifier.fetchEmployeeList();
@@ -460,7 +460,7 @@ class EmployeePage extends ConsumerWidget {
                     leading: SvgPicture.asset('assets/svg/edit.svg'),
                     title: Text('Edit Employee',
                         style: GoogleFonts.inter(
-                            fontWeight: FontWeight.w800, fontSize: 18.sp)),
+                            fontWeight: FontWeight.w800, fontSize: 18.0)),
                     onTap: () {
                       Navigator.push(
                           context,
@@ -474,7 +474,7 @@ class EmployeePage extends ConsumerWidget {
                     leading: SvgPicture.asset('assets/svg/cleanedCars.svg'),
                     title: Text('Cleaned Cars',
                         style: GoogleFonts.inter(
-                            fontWeight: FontWeight.w800, fontSize: 18.sp)),
+                            fontWeight: FontWeight.w800, fontSize: 18.0)),
                     onTap: () {
                       Navigator.push(
                           context,
@@ -488,7 +488,7 @@ class EmployeePage extends ConsumerWidget {
                     leading: SvgPicture.asset('assets/svg/password.svg'),
                     title: Text('Change Password',
                         style: GoogleFonts.inter(
-                            fontWeight: FontWeight.w800, fontSize: 18.sp)),
+                            fontWeight: FontWeight.w800, fontSize: 18.0)),
                     onTap: () {
                       showPasswordOption(context, employee_id);
                     },
@@ -497,7 +497,7 @@ class EmployeePage extends ConsumerWidget {
                     leading: SvgPicture.asset('assets/svg/removePerson.svg'),
                     title: Text('Remove Employee',
                         style: GoogleFonts.inter(
-                            fontWeight: FontWeight.w800, fontSize: 18.sp)),
+                            fontWeight: FontWeight.w800, fontSize: 18.0)),
                     onTap: () async {
                       await employeeNotifier.confirmRemoveEmployee(
                           context, employee_id);
@@ -529,7 +529,7 @@ class EmployeePage extends ConsumerWidget {
                     'Available Employee',
                     style: GoogleFonts.inter(
                       color: AppTemplate.textClr,
-                      fontSize: 20.sp,
+                      fontSize: 20.0,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -580,7 +580,7 @@ class EmployeePage extends ConsumerWidget {
                 decoration: InputDecoration(
                   hintText: 'Search by Employee Name',
                   hintStyle: GoogleFonts.inter(
-                    fontSize: 12.sp,
+                    fontSize: 12.0,
                     color: const Color(0xFF929292),
                     fontWeight: FontWeight.w400,
                   ),
@@ -613,7 +613,7 @@ class EmployeePage extends ConsumerWidget {
             //             'Search Result',
             //             style: GoogleFonts.inter(
             //               color: AppTemplate.textClr,
-            //               fontSize: 12.sp,
+            //               fontSize: 12.0,
             //               fontWeight: FontWeight.w400,
             //             ),
             //           ),
@@ -635,7 +635,7 @@ class EmployeePage extends ConsumerWidget {
             //       : 'Showing ${employeeController.employeeList.length} of 250',
             //   style: GoogleFonts.inter(
             //     color: AppTemplate.textClr,
-            //     fontSize: 12.sp,
+            //     fontSize: 12.0,
             //     fontWeight: FontWeight.w400,
             //   ),
             // ),
@@ -665,7 +665,7 @@ class EmployeePage extends ConsumerWidget {
                           'No employees found',
                           style: GoogleFonts.inter(
                             color: AppTemplate.textClr,
-                            fontSize: 18.sp,
+                            fontSize: 18.0,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
@@ -743,7 +743,7 @@ class EmployeePage extends ConsumerWidget {
                                             employee['employee_name'],
                                             style: GoogleFonts.inter(
                                               color: AppTemplate.textClr,
-                                              fontSize: 15.sp,
+                                              fontSize: 15.0,
                                               fontWeight: FontWeight.w400,
                                             ),
                                           ),

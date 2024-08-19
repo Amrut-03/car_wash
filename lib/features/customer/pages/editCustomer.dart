@@ -5,8 +5,7 @@ import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
-import 'package:car_wash/features/customer/customer.dart';
-import 'package:car_wash/features/customer/customerProfile.dart';
+import 'package:car_wash/features/customer/pages/customerProfile.dart';
 import 'package:car_wash/features/customer/model/car_type_model.dart';
 import 'package:car_wash/features/customer/model/edit_customer_data_model.dart';
 import 'package:car_wash/features/customer/widgets/car_listing_edit.dart';
@@ -15,10 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart';
 
 class Editcustomer extends ConsumerStatefulWidget {
   const Editcustomer({
@@ -485,7 +482,7 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
                           isDisabled ? Colors.grey : const Color(0xFf1E3763),
                       txt: 'Update',
                       textClr: AppTemplate.primaryClr,
-                      textSz: 18.sp,
+                      textSz: 18.0,
                       onClick: () async {
                         if (isDisabled) {
                           return;
@@ -513,7 +510,7 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
                       'Customer Edit',
                       style: GoogleFonts.inter(
                         color: AppTemplate.textClr,
-                        fontSize: 20.sp,
+                        fontSize: 20.0,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -546,7 +543,7 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
                       decoration: InputDecoration(
                         labelText: "Mobile Number",
                         labelStyle: GoogleFonts.inter(
-                            fontSize: 12.sp,
+                            fontSize: 12.0,
                             color: const Color(0xFF929292),
                             fontWeight: FontWeight.w400),
                         enabledBorder: OutlineInputBorder(
@@ -568,7 +565,7 @@ class _EditcustomerState extends ConsumerState<Editcustomer> {
                       'Car Listing',
                       style: GoogleFonts.inter(
                         color: AppTemplate.textClr,
-                        fontSize: 15.sp,
+                        fontSize: 15.0,
                         fontWeight: FontWeight.w400,
                       ),
                     ),

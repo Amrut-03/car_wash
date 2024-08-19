@@ -210,14 +210,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       'Welcome Back',
                       style: GoogleFonts.inter(
                           color: Colors.black,
-                          fontSize: 30.sp,
+                          fontSize: 30.0,
                           fontWeight: FontWeight.w600),
                     ),
                     SizedBox(height: 10.h),
                     Text(
                       "Please Login to continue with your account",
                       style: GoogleFonts.inter(
-                          fontSize: 12.sp,
+                          fontSize: 12.0,
                           color: Colors.black,
                           fontWeight: FontWeight.w500),
                     ),
@@ -234,7 +234,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       decoration: InputDecoration(
                         labelText: "Mobile Number",
                         labelStyle: GoogleFonts.inter(
-                            fontSize: 12.sp,
+                            fontSize: 12.0,
                             color: const Color(0xFF929292),
                             fontWeight: FontWeight.w400),
                         enabledBorder: OutlineInputBorder(
@@ -271,7 +271,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             buttonClr: const Color(0xFF1E3763),
                             txt: 'Log in',
                             textClr: AppTemplate.primaryClr,
-                            textSz: 18.sp,
+                            textSz: 18.0,
                             onClick: () {
                               FocusScope.of(context).unfocus();
                               _login(context);
@@ -282,7 +282,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       child: Text(
                         "Authorized Access Only",
                         style: GoogleFonts.inter(
-                            fontSize: 12.sp,
+                            fontSize: 12.0,
                             color: AppTemplate.textClr,
                             fontWeight: FontWeight.w500),
                       ),

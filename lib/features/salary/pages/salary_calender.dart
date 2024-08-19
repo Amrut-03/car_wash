@@ -3,7 +3,6 @@ import 'dart:developer';
 
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/header.dart';
-import 'package:car_wash/features/Salary/widgets/salary_widget.dart';
 import 'package:car_wash/features/salary/model/employee_salary_model.dart';
 import 'package:car_wash/features/salary/pages/individual_salary.dart';
 import 'package:car_wash/features/salary/pages/individual_salary_final.dart';
@@ -219,7 +218,7 @@ class _SalaryCalenderState extends ConsumerState<SalaryCalender> {
                             Text(
                               employeeSalaryMonthData!.employeeName,
                               style: GoogleFonts.inter(
-                                  fontSize: 15.sp,
+                                  fontSize: 15.0,
                                   color: AppTemplate.textClr,
                                   fontWeight: FontWeight.w400),
                             ),
@@ -228,7 +227,7 @@ class _SalaryCalenderState extends ConsumerState<SalaryCalender> {
                               child: Text(
                                 employeeSalaryMonthData!.address,
                                 style: GoogleFonts.inter(
-                                    fontSize: 11.sp,
+                                    fontSize: 11.0,
                                     color: const Color(0xFF001C63),
                                     fontWeight: FontWeight.w400),
                               ),
@@ -240,7 +239,7 @@ class _SalaryCalenderState extends ConsumerState<SalaryCalender> {
                               employeeSalaryMonthData!.phone1,
                               style: GoogleFonts.inter(
                                 decorationThickness: 1.5.w,
-                                fontSize: 11.sp,
+                                fontSize: 11.0,
                                 color: AppTemplate.textClr,
                                 fontWeight: FontWeight.w800,
                               ),
@@ -259,7 +258,7 @@ class _SalaryCalenderState extends ConsumerState<SalaryCalender> {
                   child: Text(
                     'Salary History',
                     style: GoogleFonts.inter(
-                      fontSize: 13.sp,
+                      fontSize: 13.0,
                       color: AppTemplate.textClr,
                       fontWeight: FontWeight.bold,
                     ),
@@ -321,7 +320,7 @@ class _SalaryCalenderState extends ConsumerState<SalaryCalender> {
                                 child: Text(
                                   'No data available',
                                   style: TextStyle(
-                                    fontSize: 20,
+                                    fontSize: 20.0,
                                   ),
                                 ),
                               ),
@@ -414,7 +413,7 @@ class _SalaryCalenderState extends ConsumerState<SalaryCalender> {
                                                   Text(
                                                     '${getMonthName(employeeSalaryMonthData!.data[index].month)} ${employeeSalaryMonthData!.data[index].year}',
                                                     style: TextStyle(
-                                                      fontSize: 15.sp,
+                                                      fontSize: 15.0,
                                                       fontWeight:
                                                           FontWeight.w500,
                                                     ),

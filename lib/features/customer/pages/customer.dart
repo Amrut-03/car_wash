@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:car_wash/features/customer/pages/createCustomer.dart';
 import 'package:car_wash/features/customer/widgets/customerList.dart';
 import 'package:car_wash/provider/admin_provider.dart';
 import 'package:car_wash/provider/provider.dart';
@@ -10,7 +11,6 @@ import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/header.dart';
-import 'package:car_wash/features/Customer/createCustomer.dart';
 
 class CustomerState {
   final bool isLoading;
@@ -218,14 +218,14 @@ class Customer extends ConsumerWidget {
                     'Available Customers',
                     style: GoogleFonts.inter(
                         color: AppTemplate.textClr,
-                        fontSize: 20.sp,
+                        fontSize: 18.0,
                         fontWeight: FontWeight.w600),
                   ),
                   GestureDetector(
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const CreateCustomer(),
+                        builder: (context) => CreateCustomer(),
                       ),
                     ),
                     child: Padding(
@@ -265,7 +265,7 @@ class Customer extends ConsumerWidget {
                 decoration: InputDecoration(
                   hintText: 'Search by Name or Vehicle Number',
                   hintStyle: GoogleFonts.inter(
-                      fontSize: 12.sp,
+                      fontSize: 12.0,
                       color: const Color(0xFF929292),
                       fontWeight: FontWeight.w400),
                   enabledBorder: OutlineInputBorder(
@@ -291,7 +291,7 @@ class Customer extends ConsumerWidget {
                     'Search Result',
                     style: GoogleFonts.inter(
                         color: AppTemplate.textClr,
-                        fontSize: 12.sp,
+                        fontSize: 10,
                         fontWeight: FontWeight.w400),
                   ),
                   customerController.isLoading
@@ -316,7 +316,7 @@ class Customer extends ConsumerWidget {
                               : 'Showing ${customerController.body.length} of 250',
                           style: GoogleFonts.inter(
                               color: AppTemplate.textClr,
-                              fontSize: 12.sp,
+                              fontSize: 10,
                               fontWeight: FontWeight.w400),
                         ),
                 ],
@@ -344,7 +344,7 @@ class Customer extends ConsumerWidget {
                               'No records found',
                               style: GoogleFonts.inter(
                                   color: AppTemplate.textClr,
-                                  fontSize: 15.sp,
+                                  fontSize: 15.0,
                                   fontWeight: FontWeight.w400),
                             ),
                           ),

@@ -30,7 +30,7 @@ class _AttendanceRecordState extends State<AttendanceRecord> {
             Text(
               'No Records Found',
               style: GoogleFonts.inter(
-                  color: const Color(0xFFB6A8DB), fontSize: 30.sp),
+                  color: const Color(0xFFB6A8DB), fontSize: 30.0),
             )
           ],
         ),

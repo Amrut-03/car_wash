@@ -170,7 +170,7 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
                                         title: Text(
                                           widget.washTypes[index].washName,
                                           style: const TextStyle(
-                                            fontSize: 15,
+                                            fontSize: 15.0,
                                           ),
                                         ),
                                         value: widget.washTypes[index],
@@ -195,7 +195,7 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
                                       decoration: InputDecoration(
                                         hintText: 'Remarks',
                                         hintStyle: GoogleFonts.inter(
-                                            fontSize: 15.sp,
+                                            fontSize: 15.0,
                                             color: const Color(0xFF929292),
                                             fontWeight: FontWeight.w400),
                                         border: InputBorder.none,
@@ -230,7 +230,7 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
                                             buttonClr: const Color(0xFF929292),
                                             txt: 'Cancel',
                                             textClr: AppTemplate.primaryClr,
-                                            textSz: 18.sp,
+                                            textSz: 16.0,
                                             onClick: () {
                                               Navigator.pop(context);
                                             },
@@ -245,7 +245,7 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
                                             buttonClr: const Color(0xFF1E3763),
                                             txt: 'Assign',
                                             textClr: AppTemplate.primaryClr,
-                                            textSz: 18.sp,
+                                            textSz: 16.0,
                                             onClick: () async {
                                               if (currentOption != null) {
                                                 await assign(currentOption!);
@@ -259,7 +259,7 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
                                                       Toast.LENGTH_LONG,
                                                   gravity: ToastGravity.TOP,
                                                   backgroundColor: Colors.red,
-                                                  fontSize: 18,
+                                                  fontSize: 18.0,
                                                   textColor: Colors.white,
                                                   timeInSecForIosWeb: 3,
                                                 );

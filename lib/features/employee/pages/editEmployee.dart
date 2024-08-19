@@ -401,7 +401,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                         decoration: InputDecoration(
                           labelText: 'Date of Birth',
                           labelStyle: GoogleFonts.inter(
-                              fontSize: 12.sp,
+                              fontSize: 12.0,
                               color: const Color(0xFF929292),
                               fontWeight: FontWeight.w400),
                           enabledBorder: OutlineInputBorder(
@@ -470,7 +470,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                         decoration: InputDecoration(
                           labelText: 'Address',
                           labelStyle: GoogleFonts.inter(
-                              fontSize: 12.sp,
+                              fontSize: 12.0,
                               color: const Color(0xFF929292),
                               fontWeight: FontWeight.w400),
                           enabledBorder: OutlineInputBorder(
@@ -503,7 +503,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                         decoration: InputDecoration(
                           labelText: "phone 1",
                           labelStyle: GoogleFonts.inter(
-                              fontSize: 12.sp,
+                              fontSize: 12.0,
                               color: const Color(0xFF929292),
                               fontWeight: FontWeight.w400),
                           enabledBorder: OutlineInputBorder(
@@ -536,7 +536,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                         decoration: InputDecoration(
                           labelText: "phone 2",
                           labelStyle: GoogleFonts.inter(
-                              fontSize: 12.sp,
+                              fontSize: 12.0,
                               color: const Color(0xFF929292),
                               fontWeight: FontWeight.w400),
                           enabledBorder: OutlineInputBorder(
@@ -561,7 +561,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                         'Aadhaar Card',
                         style: GoogleFonts.inter(
                           color: AppTemplate.textClr,
-                          fontSize: 12.sp,
+                          fontSize: 12.0,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -655,7 +655,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                                 ? Text(
                                                     'Front Side',
                                                     style: GoogleFonts.inter(
-                                                      fontSize: 12.sp,
+                                                      fontSize: 12.0,
                                                       color: const Color(
                                                           0xFF6750A4),
                                                       fontWeight:
@@ -801,7 +801,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                                 ? Text(
                                                     'Back Side',
                                                     style: GoogleFonts.inter(
-                                                      fontSize: 12.sp,
+                                                      fontSize: 12.0,
                                                       color: const Color(
                                                           0xFF6750A4),
                                                       fontWeight:
@@ -875,7 +875,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                         "Driving License",
                         style: GoogleFonts.inter(
                           color: AppTemplate.textClr,
-                          fontSize: 12.sp,
+                          fontSize: 12.0,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -968,7 +968,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                                 ? Text(
                                                     'Front Side',
                                                     style: GoogleFonts.inter(
-                                                      fontSize: 12.sp,
+                                                      fontSize: 12.0,
                                                       color: const Color(
                                                           0xFF6750A4),
                                                       fontWeight:
@@ -1114,7 +1114,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                                 ? Text(
                                                     'Back Side',
                                                     style: GoogleFonts.inter(
-                                                      fontSize: 12.sp,
+                                                      fontSize: 12.0,
                                                       color: const Color(
                                                           0xFF6750A4),
                                                       fontWeight:
@@ -1188,7 +1188,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                         'Employee Photo',
                         style: GoogleFonts.inter(
                           color: AppTemplate.textClr,
-                          fontSize: 12.sp,
+                          fontSize: 12.0,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -1285,7 +1285,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                                 ? Text(
                                                     'Employee Photo',
                                                     style: GoogleFonts.inter(
-                                                      fontSize: 12.sp,
+                                                      fontSize: 12.0,
                                                       color: const Color(
                                                           0xFF6750A4),
                                                       fontWeight:
@@ -1372,7 +1372,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                 buttonClr: const Color(0xFf1E3763),
                                 txt: 'Update Employee',
                                 textClr: AppTemplate.primaryClr,
-                                textSz: 18.sp,
+                                textSz: 18.0,
                                 onClick: () async {
                                   await employeeEdit(context, ref);
                                   employeeController.fetchEmployeeList();
