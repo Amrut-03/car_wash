@@ -101,7 +101,7 @@ class _NamelistsState extends ConsumerState<Namelists> {
                                     style: GoogleFonts.inter(
                                       color: AppTemplate.textClr,
                                       fontWeight: FontWeight.w400,
-                                      fontSize: 15.sp,
+                                      fontSize: 15.0,
                                     ),
                                   ),
                                   Image.asset(

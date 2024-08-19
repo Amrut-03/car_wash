@@ -45,7 +45,7 @@ class _TextfieldwidgetState extends State<Textfieldwidget> {
       decoration: InputDecoration(
         labelText: widget.labelTxt,
         labelStyle: GoogleFonts.inter(
-            fontSize: 12.sp,
+            fontSize: 12.0,
             color: widget.labelTxtClr,
             fontWeight: FontWeight.w400),
         enabledBorder: OutlineInputBorder(

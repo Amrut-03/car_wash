@@ -1,14 +1,11 @@
-import 'package:car_wash/common/widgets/createCustomerCard.dart';
-import 'package:car_wash/features/Customer/cardetails.dart';
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/features/customer/model/customer_profile_model.dart';
+import 'package:car_wash/features/customer/pages/cardetails.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:maps_launcher/maps_launcher.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class Listedcarslist extends StatefulWidget {
   const Listedcarslist({super.key, required this.carItem, required this.name});
@@ -26,36 +23,6 @@ class _ListedcarslistState extends State<Listedcarslist> {
     MapsLauncher.launchCoordinates(latitude, longitude);
   }
 
-  // Future<void> gotoMap() async {
-  //   try {
-  //     var url = "https://www.google.com/maps/dir/?api=1&destination=$lat,$long";
-  //     final Uri url0 = Uri.parse(url);
-  //     if (!await launchUrl(url0)) {
-  //       throw 'Could not launch $url0';
-  //     }
-  //   } catch (e) {
-  //     print("Error launching map: $e");
-  //   }
-  // }
-
-  // Future<void> openMap() async {
-  //   if (lat!.isFinite && long!.isFinite) {
-  //     Position(
-  //       latitude: lat!,
-  //       longitude: long!,
-  //       timestamp: DateTime.now(),
-  //       accuracy: 1.0,
-  //       altitude: 1.0,
-  //       altitudeAccuracy: 1.0,
-  //       heading: 1.0,
-  //       headingAccuracy: 1.0,
-  //       speed: 1.0,
-  //       speedAccuracy: 1.0,
-  //     );
-  //     gotoMap();
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     return widget.carItem.isEmpty
@@ -67,7 +34,7 @@ class _ListedcarslistState extends State<Listedcarslist> {
                 child: Text(
                   'No cars available',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 20.0,
                   ),
                 ),
               ),
@@ -149,14 +116,14 @@ class _ListedcarslistState extends State<Listedcarslist> {
                                     Text(
                                       car.vehicleNo,
                                       style: GoogleFonts.inter(
-                                          fontSize: 15.sp,
+                                          fontSize: 15.0,
                                           color: AppTemplate.textClr,
                                           fontWeight: FontWeight.w400),
                                     ),
                                     Text(
                                       car.modelName,
                                       style: GoogleFonts.inter(
-                                          fontSize: 11.sp,
+                                          fontSize: 11.0,
                                           color: const Color(0xFF001C63),
                                           fontWeight: FontWeight.w400),
                                     ),
@@ -164,6 +131,8 @@ class _ListedcarslistState extends State<Listedcarslist> {
                                       height: 25.h,
                                     ),
                                     Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         GestureDetector(
                                           onTap: () {
@@ -180,13 +149,13 @@ class _ListedcarslistState extends State<Listedcarslist> {
                                                 decorationStyle:
                                                     TextDecorationStyle.solid,
                                                 decorationThickness: 1.5.w,
-                                                fontSize: 11.sp,
+                                                fontSize: 11.0,
                                                 color: AppTemplate.textClr,
                                                 fontWeight: FontWeight.w800),
                                           ),
                                         ),
                                         SizedBox(
-                                          width: 25.w,
+                                          width: 20.w,
                                         ),
                                         SvgPicture.asset(
                                           'assets/svg/carwash.svg',

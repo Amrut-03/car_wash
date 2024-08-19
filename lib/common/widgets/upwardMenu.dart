@@ -1,12 +1,10 @@
 import 'package:car_wash/features/attendance/attendance_page.dart';
-import 'package:car_wash/features/customer/customer.dart';
+import 'package:car_wash/features/customer/pages/customer.dart';
 import 'package:car_wash/features/dashboard.dart';
-import 'package:car_wash/features/login.dart';
 import 'package:car_wash/features/planner/pages/planner_employee.dart';
-import 'package:car_wash/features/employee/employee.dart';
+import 'package:car_wash/features/employee/pages/employee.dart';
 import 'package:car_wash/features/salary/pages/employee_salary.dart';
 import 'package:car_wash/features/settings/pages/settings_page.dart';
-import 'package:car_wash/provider/admin_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -29,7 +27,7 @@ class Menu {
             child: Material(
               color: Colors.transparent,
               child: Container(
-                height: 420.h,
+                height: 400.h,
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -69,7 +67,7 @@ class Menu {
                                 'Menu',
                                 style: GoogleFonts.inter(
                                   color: const Color(0xFF003EDC),
-                                  fontSize: 20.sp,
+                                  fontSize: 20.0,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -106,7 +104,7 @@ class Menu {
                                     'Customer',
                                     style: GoogleFonts.inter(
                                       color: AppTemplate.textClr,
-                                      fontSize: 18.sp,
+                                      fontSize: 18.0,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -138,7 +136,7 @@ class Menu {
                                     'Employee',
                                     style: GoogleFonts.inter(
                                       color: AppTemplate.textClr,
-                                      fontSize: 18.sp,
+                                      fontSize: 18.0,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -175,7 +173,7 @@ class Menu {
                                     'Planner',
                                     style: GoogleFonts.inter(
                                       color: AppTemplate.textClr,
-                                      fontSize: 18.sp,
+                                      fontSize: 18.0,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -217,7 +215,7 @@ class Menu {
                                     'Salary',
                                     style: GoogleFonts.inter(
                                       color: AppTemplate.textClr,
-                                      fontSize: 18.sp,
+                                      fontSize: 18.0,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -255,7 +253,7 @@ class Menu {
                                     'Attendance',
                                     style: GoogleFonts.inter(
                                       color: AppTemplate.textClr,
-                                      fontSize: 18.sp,
+                                      fontSize: 18.0,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -292,7 +290,7 @@ class Menu {
                                     'Settings',
                                     style: GoogleFonts.inter(
                                       color: AppTemplate.textClr,
-                                      fontSize: 18.sp,
+                                      fontSize: 18.0,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -301,46 +299,6 @@ class Menu {
                             ),
                           ),
                         ),
-                        // Padding(
-                        //   padding: EdgeInsets.only(top: 20.h),
-                        //   child: GestureDetector(
-                        //     onTap: () async {
-                        //       await ref.read(authProvider.notifier).logout();
-
-                        //       // Navigate to the LoginScreen
-                        //       Navigator.pushAndRemoveUntil(
-                        //         context,
-                        //         MaterialPageRoute(
-                        //           builder: (context) => LoginScreen(),
-                        //         ),
-                        //         (Route<dynamic> route) => false,
-                        //       );
-                        //     },
-                        //     child: Row(
-                        //       children: [
-                        //         SizedBox(
-                        //             height: 30.0,
-                        //             width: 30.0,
-                        //             child: Icon(
-                        //               Icons.logout,
-                        //               size: 30,
-                        //               color: const Color(0xFF545454),
-                        //             )),
-                        //         Container(
-                        //           margin: const EdgeInsets.only(left: 10),
-                        //           child: Text(
-                        //             'Log out',
-                        //             style: GoogleFonts.inter(
-                        //               color: AppTemplate.textClr,
-                        //               fontSize: 18.sp,
-                        //               fontWeight: FontWeight.w500,
-                        //             ),
-                        //           ),
-                        //         )
-                        //       ],
-                        //     ),
-                        //   ),
-                        // ),
                         Center(
                           child: GestureDetector(
                             onVerticalDragUpdate: (details) {
@@ -377,16 +335,6 @@ class Menu {
             ));
       },
       transitionBuilder: (context, animation, secondaryAnimation, child) {
-        // if (animation == null) {
-        //   print('Animation is null');
-        //   return SizedBox.shrink();
-        // }
-
-        // if (child == null) {
-        //   print('Child is null');
-        //   return SizedBox.shrink();
-        // }
-
         return SlideTransition(
           position: Tween<Offset>(
             begin: Offset(0.w, -1.h),

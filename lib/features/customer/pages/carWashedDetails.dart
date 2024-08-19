@@ -7,7 +7,6 @@ import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/features/customer/model/wash_info_model.dart';
 import 'package:car_wash/provider/admin_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_launcher_icons/xml_templates.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -220,7 +219,7 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                     child: Text(
                       'Create Ticket',
                       style: GoogleFonts.inter(
-                        fontSize: 16.sp,
+                        fontSize: 16.0,
                         color: Colors.white,
                       ),
                     ),
@@ -273,21 +272,21 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                   style: GoogleFonts.inter(
                                       color: AppTemplate.textClr,
                                       fontWeight: FontWeight.w400,
-                                      fontSize: 15.sp),
+                                      fontSize: 15.0),
                                 ),
                                 Text(
                                   washResponse!.assignedDate,
                                   style: GoogleFonts.inter(
                                       color: AppTemplate.textClr,
                                       fontWeight: FontWeight.w800,
-                                      fontSize: 13.sp),
+                                      fontSize: 13.0),
                                 ),
                               ],
                             ),
                             Text(
                               washResponse!.mobileNo,
                               style: GoogleFonts.inter(
-                                  fontSize: 13.sp,
+                                  fontSize: 13.0,
                                   fontWeight: FontWeight.w800,
                                   color: const Color(0xFF001C63)),
                             ),
@@ -303,7 +302,7 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                     fontWeight: FontWeight.w400,
                                     fontStyle: FontStyle.italic,
                                     color: AppTemplate.textClr,
-                                    fontSize: 12.sp,
+                                    fontSize: 12.0,
                                   ),
                                 ),
                                 Text(
@@ -312,7 +311,7 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                     fontWeight: FontWeight.w400,
                                     color:
                                         statusColor[washResponse!.washStatus],
-                                    fontSize: 13.sp,
+                                    fontSize: 13.0,
                                   ),
                                 )
                               ],
@@ -335,7 +334,7 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                 style: GoogleFonts.inter(
                                   fontWeight: FontWeight.w700,
                                   color: AppTemplate.textClr,
-                                  fontSize: 15.sp,
+                                  fontSize: 15.0,
                                 ),
                               ),
                             ),
@@ -393,7 +392,7 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                     style: GoogleFonts.inter(
                                       fontWeight: FontWeight.w700,
                                       color: AppTemplate.textClr,
-                                      fontSize: 15.sp,
+                                      fontSize: 15.0,
                                     ),
                                   ),
                                 ),
@@ -405,7 +404,7 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                     style: GoogleFonts.inter(
                                       fontWeight: FontWeight.w400,
                                       color: AppTemplate.textClr,
-                                      fontSize: 13.sp,
+                                      fontSize: 13.0,
                                     ),
                                   ),
                                 ),
@@ -425,7 +424,7 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                   style: GoogleFonts.inter(
                                     fontWeight: FontWeight.w700,
                                     color: AppTemplate.textClr,
-                                    fontSize: 15.sp,
+                                    fontSize: 15.0,
                                   ),
                                 ),
                               ),
@@ -441,7 +440,7 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                     'Work not started yet !!',
                                     style: GoogleFonts.inter(
                                       color: AppTemplate.textClr,
-                                      fontSize: 11.sp,
+                                      fontSize: 11.0,
                                     ),
                                   ),
                                 ),
@@ -524,7 +523,7 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                   style: GoogleFonts.inter(
                                     fontWeight: FontWeight.w700,
                                     color: AppTemplate.textClr,
-                                    fontSize: 15.sp,
+                                    fontSize: 15.0,
                                   ),
                                 ),
                               ),
@@ -540,7 +539,7 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                     'Work not started yet !!',
                                     style: GoogleFonts.inter(
                                       color: AppTemplate.textClr,
-                                      fontSize: 11.sp,
+                                      fontSize: 11.0,
                                     ),
                                   ),
                                 ),
@@ -638,7 +637,7 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                         style: GoogleFonts.inter(
                                             color: AppTemplate.textClr,
                                             fontWeight: FontWeight.w700,
-                                            fontSize: 13.sp,
+                                            fontSize: 13.0,
                                             decoration:
                                                 TextDecoration.underline,
                                             decorationColor:
@@ -655,7 +654,7 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                                 style: GoogleFonts.inter(
                                                   color: Colors.green,
                                                   fontWeight: FontWeight.w400,
-                                                  fontSize: 13.sp,
+                                                  fontSize: 13.0,
                                                 ),
                                               ),
                                             )
@@ -672,7 +671,7 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                                             GoogleFonts.inter(
                                                           color: AppTemplate
                                                               .textClr,
-                                                          fontSize: 15.sp,
+                                                          fontSize: 15.0,
                                                           fontWeight:
                                                               FontWeight.w600,
                                                         ),
@@ -743,7 +742,7 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                                   color:
                                                       const Color(0xFFC80000),
                                                   fontWeight: FontWeight.w400,
-                                                  fontSize: 12.sp,
+                                                  fontSize: 12.0,
                                                   decoration:
                                                       TextDecoration.underline,
                                                   decorationColor:
@@ -760,7 +759,7 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                     washResponse!.ticket[index].ticketContent,
                                     style: GoogleFonts.inter(
                                       color: AppTemplate.textClr,
-                                      fontSize: 13.sp,
+                                      fontSize: 13.0,
                                       fontWeight: FontWeight.w400,
                                     ),
                                   )
@@ -779,21 +778,22 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                         GestureDetector(
                           onTap: () => showModalBottomSheetCustom(context),
                           child: Container(
-                              width: 69.w,
-                              height: 50.h,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5.r),
-                                border: Border.all(
-                                  color: const Color(0xFFC80000),
-                                  width: 1.5.w,
-                                ),
+                            width: 69.w,
+                            height: 50.h,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5.r),
+                              border: Border.all(
+                                color: const Color(0xFFC80000),
+                                width: 1.5.w,
                               ),
-                              child: Padding(
-                                padding: EdgeInsets.all(15.w),
-                                child: SvgPicture.asset(
-                                  'assets/svg/puzzle.svg',
-                                ),
-                              )),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(15.w),
+                              child: SvgPicture.asset(
+                                'assets/svg/puzzle.svg',
+                              ),
+                            ),
+                          ),
                         ),
                         Buttonwidget(
                           width: 227.w,
@@ -801,7 +801,7 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                           buttonClr: const Color(0xFf1E3763),
                           txt: 'Send to Whatsapp',
                           textClr: AppTemplate.primaryClr,
-                          textSz: 16.sp,
+                          textSz: 14.0,
                           onClick: () {},
                         ),
                       ],

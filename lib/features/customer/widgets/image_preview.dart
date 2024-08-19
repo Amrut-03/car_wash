@@ -14,7 +14,7 @@ Widget imagePreview(Map<String, File> imagesMap, String? carImage) {
         Text(
           'Car Picture',
           style: GoogleFonts.inter(
-            fontSize: 12.sp,
+            fontSize: 12.0,
             color: const Color(0xFF6750A4),
             fontWeight: FontWeight.w600,
           ),
@@ -37,7 +37,7 @@ Widget imagePreview(Map<String, File> imagesMap, String? carImage) {
               Text(
                 'Car Picture',
                 style: GoogleFonts.inter(
-                  fontSize: 12.sp,
+                  fontSize: 12.0,
                   color: const Color(0xFF6750A4),
                   fontWeight: FontWeight.w600,
                 ),

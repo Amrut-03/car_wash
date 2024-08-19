@@ -224,7 +224,7 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
                                     decoration: InputDecoration(
                                       hintText: 'Remarks',
                                       hintStyle: GoogleFonts.inter(
-                                          fontSize: 15.sp,
+                                          fontSize: 15.0,
                                           color: const Color(0xFF929292),
                                           fontWeight: FontWeight.w400),
                                       enabledBorder: OutlineInputBorder(
@@ -258,7 +258,7 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
                                           buttonClr: const Color(0xFFC80000),
                                           txt: 'Un-Assign',
                                           textClr: AppTemplate.primaryClr,
-                                          textSz: 18.sp,
+                                          textSz: 18.0,
                                           onClick: () async {
                                             await unAssign();
                                             plannerNotifier
@@ -275,7 +275,7 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
                                           buttonClr: const Color(0xFF1E3763),
                                           txt: 'Update',
                                           textClr: AppTemplate.primaryClr,
-                                          textSz: 18.sp,
+                                          textSz: 18.0,
                                           onClick: () async {
                                             await update();
                                           },

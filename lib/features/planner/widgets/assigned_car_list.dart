@@ -162,7 +162,7 @@ class _AssignedCarListState extends ConsumerState<AssignedCarList> {
                 Text(
                   "Assigned Cars",
                   style: TextStyle(
-                    fontSize: 15.sp,
+                    fontSize: 15.0,
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFF447B00),
                   ),
@@ -292,7 +292,7 @@ class _AssignedCarListState extends ConsumerState<AssignedCarList> {
                               buttonClr: const Color(0xFF1E3763),
                               txt: 'Update',
                               textClr: AppTemplate.primaryClr,
-                              textSz: 18.sp,
+                              textSz: 18.0,
                               onClick: () {
                                 sortlist();
                               },

@@ -183,7 +183,7 @@ class _PlannerState extends ConsumerState<Planner> {
                     'Schedule Planner',
                     style: GoogleFonts.inter(
                       color: AppTemplate.textClr,
-                      fontSize: 20.sp,
+                      fontSize: 20.0,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -209,7 +209,7 @@ class _PlannerState extends ConsumerState<Planner> {
                     '${widget.empName} - $formattedDate',
                     style: GoogleFonts.inter(
                       color: AppTemplate.textClr,
-                      fontSize: 15.sp,
+                      fontSize: 15.0,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -233,7 +233,7 @@ class _PlannerState extends ConsumerState<Planner> {
                     'Cars to Wash',
                     style: GoogleFonts.inter(
                       color: AppTemplate.textClr,
-                      fontSize: 15.sp,
+                      fontSize: 15.0,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

@@ -66,7 +66,7 @@ class EmployeeDropdown extends ConsumerWidget {
                 child: Text(
                   'Role',
                   style: GoogleFonts.inter(
-                      fontSize: 12.sp,
+                      fontSize: 12.0,
                       color: const Color(0xFF929292),
                       fontWeight: FontWeight.w400),
                 ),

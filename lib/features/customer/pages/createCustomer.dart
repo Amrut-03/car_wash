@@ -5,7 +5,6 @@ import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
-import 'package:car_wash/features/customer/widgets/car_type_dropdownMenu.dart';
 import 'package:car_wash/provider/admin_provider.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -366,13 +365,13 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
             'Location Retrieved',
             style: GoogleFonts.inter(
                 color: AppTemplate.textClr,
-                fontSize: 20.sp,
+                fontSize: 20.0,
                 fontWeight: FontWeight.w600),
           ),
           content: Text(
             'Your Live location is stored.',
             style: GoogleFonts.inter(
-                fontSize: 12.sp,
+                fontSize: 12.0,
                 color: AppTemplate.textClr,
                 fontWeight: FontWeight.w500),
           ),
@@ -406,13 +405,13 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
             'Location Permission Required',
             style: GoogleFonts.inter(
                 color: AppTemplate.textClr,
-                fontSize: 20.sp,
+                fontSize: 20.0,
                 fontWeight: FontWeight.w600),
           ),
           content: Text(
             'Please grant location permission to use this feature.',
             style: GoogleFonts.inter(
-                fontSize: 12.sp,
+                fontSize: 12.0,
                 color: AppTemplate.textClr,
                 fontWeight: FontWeight.w500),
           ),
@@ -500,7 +499,7 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                       buttonClr: const Color(0xFf1E3763),
                       txt: 'Create',
                       textClr: AppTemplate.primaryClr,
-                      textSz: 18.sp,
+                      textSz: 18.0,
                       onClick: () async {
                         await createCustomer();
                         await customerNotifier.CustomerList();
@@ -526,7 +525,7 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                   'Customer Creation',
                   style: GoogleFonts.inter(
                     color: AppTemplate.textClr,
-                    fontSize: 20.sp,
+                    fontSize: 20.0,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -561,7 +560,7 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                   decoration: InputDecoration(
                     labelText: "Mobile Number",
                     labelStyle: GoogleFonts.inter(
-                        fontSize: 12.sp,
+                        fontSize: 12.0,
                         color: const Color(0xFF929292),
                         fontWeight: FontWeight.w400),
                     enabledBorder: OutlineInputBorder(
@@ -586,7 +585,7 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                   'Car Listing',
                   style: GoogleFonts.inter(
                     color: AppTemplate.textClr,
-                    fontSize: 15.sp,
+                    fontSize: 15.0,
                     fontWeight: FontWeight.w400,
                   ),
                 ),
@@ -653,7 +652,7 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                                       decoration: InputDecoration(
                                         labelText: 'Address',
                                         labelStyle: GoogleFonts.inter(
-                                            fontSize: 12.sp,
+                                            fontSize: 12.0,
                                             color: const Color(0xFF929292),
                                             fontWeight: FontWeight.w400),
                                         enabledBorder: OutlineInputBorder(
@@ -795,7 +794,7 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                                                   Text(
                                                     'Car Picture',
                                                     style: GoogleFonts.inter(
-                                                      fontSize: 12.sp,
+                                                      fontSize: 12.0,
                                                       color: const Color(
                                                           0xFF6750A4),
                                                       fontWeight:

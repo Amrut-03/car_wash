@@ -169,7 +169,7 @@ class _CleanedCarsState extends ConsumerState<CleanedCars> {
                             Text(
                               employeeData!.name,
                               style: GoogleFonts.inter(
-                                  fontSize: 15.sp,
+                                  fontSize: 15.0,
                                   color: AppTemplate.textClr,
                                   fontWeight: FontWeight.w400),
                             ),
@@ -178,7 +178,7 @@ class _CleanedCarsState extends ConsumerState<CleanedCars> {
                               child: Text(
                                 employeeData!.address,
                                 style: GoogleFonts.inter(
-                                    fontSize: 11.sp,
+                                    fontSize: 11.0,
                                     color: const Color(0xFF001C63),
                                     fontWeight: FontWeight.w400),
                               ),
@@ -190,7 +190,7 @@ class _CleanedCarsState extends ConsumerState<CleanedCars> {
                               employeeData!.phone1,
                               style: GoogleFonts.inter(
                                   decorationThickness: 1.5.w,
-                                  fontSize: 11.sp,
+                                  fontSize: 11.0,
                                   color: AppTemplate.textClr,
                                   fontWeight: FontWeight.w800),
                             ),
@@ -209,7 +209,7 @@ class _CleanedCarsState extends ConsumerState<CleanedCars> {
                   child: Text(
                     'Previous Washes',
                     style: GoogleFonts.inter(
-                        fontSize: 15.sp,
+                        fontSize: 15.0,
                         color: AppTemplate.textClr,
                         fontWeight: FontWeight.bold),
                   ),
@@ -229,7 +229,7 @@ class _CleanedCarsState extends ConsumerState<CleanedCars> {
                         Text(
                           DateFormat('dd-MM-yyyy').format(selectedDate),
                           style: GoogleFonts.inter(
-                            fontSize: 14.sp,
+                            fontSize: 12.0,
                             color: AppTemplate.textClr,
                           ),
                         ),

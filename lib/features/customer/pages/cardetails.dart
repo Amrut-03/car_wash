@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:car_wash/common/widgets/header.dart';
-import 'package:car_wash/common/widgets/recentWashesList.dart';
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/features/customer/model/customer_profile_model.dart';
 import 'package:car_wash/features/customer/widgets/customer_recent_washes.dart';
@@ -10,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 import 'package:http/http.dart' as http;
@@ -25,36 +23,6 @@ class CarDetails extends ConsumerStatefulWidget {
 }
 
 class _CarDetailsState extends ConsumerState<CarDetails> {
-  // Future<void> gotoMap() async {
-  //   try {
-  //     var url = "https://www.google.com/maps/dir/?api=1&destination=$lat,$long";
-  //     final Uri url0 = Uri.parse(url);
-  //     if (!await launchUrl(url0)) {
-  //       throw 'Could not launch $url0';
-  //     }
-  //   } catch (e) {
-  //     print("Error launching map: $e");
-  //   }
-  // }
-
-  // Future<void> openMap() async {
-  //   if (lat!.isFinite && long!.isFinite) {
-  //     Position(
-  //       latitude: lat!,
-  //       longitude: long!,
-  //       timestamp: DateTime.now(),
-  //       accuracy: 1.0,
-  //       altitude: 1.0,
-  //       altitudeAccuracy: 1.0,
-  //       heading: 1.0,
-  //       headingAccuracy: 1.0,
-  //       speed: 1.0,
-  //       speedAccuracy: 1.0,
-  //     );
-  //     gotoMap();
-  //   }
-  // }
-
   final List<String> months = [
     'January',
     'February',
@@ -190,14 +158,14 @@ class _CarDetailsState extends ConsumerState<CarDetails> {
                               Text(
                                 widget.carItem.vehicleNo,
                                 style: GoogleFonts.inter(
-                                    fontSize: 15.sp,
+                                    fontSize: 15.0,
                                     color: AppTemplate.textClr,
                                     fontWeight: FontWeight.w400),
                               ),
                               Text(
                                 widget.carItem.modelName,
                                 style: GoogleFonts.inter(
-                                    fontSize: 11.sp,
+                                    fontSize: 11.0,
                                     color: const Color(0xFF001C63),
                                     fontWeight: FontWeight.w400),
                               ),
@@ -220,7 +188,7 @@ class _CarDetailsState extends ConsumerState<CarDetails> {
                                         decorationStyle:
                                             TextDecorationStyle.solid,
                                         decorationThickness: 1.5.w,
-                                        fontSize: 11.sp,
+                                        fontSize: 11.0,
                                         color: AppTemplate.textClr,
                                         fontWeight: FontWeight.w800,
                                       ),
@@ -249,7 +217,7 @@ class _CarDetailsState extends ConsumerState<CarDetails> {
                   child: Text(
                     'Previous Washes',
                     style: GoogleFonts.inter(
-                        fontSize: 13.sp,
+                        fontSize: 13.0,
                         color: AppTemplate.textClr,
                         fontWeight: FontWeight.bold),
                   ),
@@ -280,9 +248,9 @@ class _CarDetailsState extends ConsumerState<CarDetails> {
                             dropdownColor: AppTemplate.primaryClr,
                             value: selectedMonth,
                             onChanged: (String? newValue) {
-                              setState(()  {
+                              setState(() {
                                 selectedMonth = newValue!;
-                                 fetchCarWashList();
+                                fetchCarWashList();
                               });
                             },
                             items: months
@@ -318,7 +286,7 @@ class _CarDetailsState extends ConsumerState<CarDetails> {
                             onChanged: (int? newValue) {
                               setState(() {
                                 selectedYear = newValue!;
-                                 fetchCarWashList();
+                                fetchCarWashList();
                               });
                             },
                             items:
