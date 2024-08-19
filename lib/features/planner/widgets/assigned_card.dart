@@ -40,7 +40,7 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
   }
 
   Future<void> unAssign() async {
-    final admin = ref.read(authProvider);
+    final admin = ref.watch(authProvider);
     var url =
         Uri.parse('https://wash.sortbe.com/API/Admin/Planner/Car-UnAssign');
     var request = http.MultipartRequest('POST', url)
@@ -49,7 +49,10 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
       ..fields['planner_date'] = plannerDate
       ..fields['car_id'] = widget.assignedCar.carId
       ..fields['cleaner_key'] = widget.cleanerKey;
+
     try {
+      if (!mounted) return;
+      // throw 'Error';
       var streamResponse = await request.send();
       var response = await http.Response.fromStream(streamResponse);
 
@@ -67,6 +70,7 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
         }
       } else {
         if (mounted) {
+          Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(responseData['remarks']),
@@ -77,14 +81,19 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
       }
     } catch (e) {
       if (mounted) {
+        Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              backgroundColor: AppTemplate.bgClr,
-              content: Text(
-                'Exception: $e',
-                style: GoogleFonts.inter(
-                    color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-              )),
+            backgroundColor: Colors.red,
+            content: Text(
+              'Error: $e',
+              style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            duration: Duration(seconds: 4),
+          ),
         );
       }
     }
@@ -103,6 +112,7 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
       ..fields['service_id'] = currentOption!
       ..fields['remarks'] = remarks.text;
     try {
+      if (!mounted) return;
       var streamResponse = await request.send();
       var response = await http.Response.fromStream(streamResponse);
 
@@ -120,6 +130,7 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
         }
       } else {
         if (mounted) {
+          Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(responseData['remarks']),
@@ -130,14 +141,19 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
       }
     } catch (e) {
       if (mounted) {
+        Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              backgroundColor: AppTemplate.bgClr,
-              content: Text(
-                'Exception: $e',
-                style: GoogleFonts.inter(
-                    color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-              )),
+            backgroundColor: Colors.red,
+            content: Text(
+              'Error: $e',
+              style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            duration: Duration(seconds: 4),
+          ),
         );
       }
     }
@@ -195,7 +211,7 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
                                       title: Text(
                                         widget.washTypes[index].washName,
                                         style: const TextStyle(
-                                          fontSize: 15,
+                                          fontSize: 14,
                                         ),
                                       ),
                                       value: widget.washTypes[index].washId,
@@ -258,7 +274,7 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
                                           buttonClr: const Color(0xFFC80000),
                                           txt: 'Un-Assign',
                                           textClr: AppTemplate.primaryClr,
-                                          textSz: 18.sp,
+                                          textSz: 17,
                                           onClick: () async {
                                             await unAssign();
                                             plannerNotifier
@@ -275,7 +291,7 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
                                           buttonClr: const Color(0xFF1E3763),
                                           txt: 'Update',
                                           textClr: AppTemplate.primaryClr,
-                                          textSz: 18.sp,
+                                          textSz: 17,
                                           onClick: () async {
                                             await update();
                                           },

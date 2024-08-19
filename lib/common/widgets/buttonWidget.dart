@@ -24,15 +24,20 @@ class Buttonwidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.r)),
-          minimumSize: Size(width, height),
-          backgroundColor: buttonClr),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5.r),
+        ),
+        minimumSize: Size(width, height),
+        backgroundColor: buttonClr,
+      ),
       onPressed: onClick,
       child: Text(
         txt,
         style: GoogleFonts.inter(
-            color: textClr, fontSize: textSz, fontWeight: FontWeight.w700),
+          color: textClr,
+          fontSize: textSz,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }
