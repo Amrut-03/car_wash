@@ -78,7 +78,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     'Price List',
                     style: GoogleFonts.inter(
                       color: AppTemplate.textClr,
-                      fontSize: 20.sp,
+                      fontSize: 20.0,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

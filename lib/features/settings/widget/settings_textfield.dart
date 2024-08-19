@@ -18,7 +18,7 @@ class SettingsTextfield extends StatelessWidget {
         decoration: InputDecoration(
           hintText: 'Search by Name',
           hintStyle: GoogleFonts.inter(
-              fontSize: 12.sp,
+              fontSize: 12.0,
               color: const Color(0xFF929292),
               fontWeight: FontWeight.w400),
           enabledBorder: OutlineInputBorder(

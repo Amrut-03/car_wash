@@ -1,7 +1,6 @@
 import 'package:car_wash/common/utils/constants.dart';
-import 'package:car_wash/features/customer/carWashedDetails.dart';
+import 'package:car_wash/features/customer/pages/carWashedDetails.dart';
 import 'package:car_wash/features/customer/model/customer_profile_model.dart';
-import 'package:car_wash/features/employee/model/employee_data_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -21,7 +20,7 @@ class CustomerRecentWashesList extends StatelessWidget {
                 child: Text(
                   'No washes available',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 20.0,
                   ),
                 ),
               ),
@@ -72,7 +71,7 @@ class CustomerRecentWashesList extends StatelessWidget {
                                     style: GoogleFonts.inter(
                                         color: AppTemplate.textClr,
                                         fontWeight: FontWeight.w400,
-                                        fontSize: 15.sp),
+                                        fontSize: 13.0),
                                   ),
                                   Text(
                                     washList[index].washStatus,
@@ -81,7 +80,7 @@ class CustomerRecentWashesList extends StatelessWidget {
                                       fontWeight: FontWeight.w400,
                                       color: statusColor[
                                           washList[index].washStatus],
-                                      fontSize: 13.sp,
+                                      fontSize: 12.0,
                                     ),
                                   )
                                 ],

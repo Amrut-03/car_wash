@@ -1,5 +1,5 @@
 import 'package:car_wash/common/utils/constants.dart';
-import 'package:car_wash/features/customer/customerProfile.dart';
+import 'package:car_wash/features/customer/pages/customerProfile.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -66,7 +66,7 @@ class CustomerList extends ConsumerWidget {
                             style: GoogleFonts.inter(
                                 color: AppTemplate.textClr,
                                 fontWeight: FontWeight.w400,
-                                fontSize: 15.sp),
+                                fontSize: 12.0),
                           ),
                           SvgPicture.asset('assets/svg/forward.svg'),
                         ],

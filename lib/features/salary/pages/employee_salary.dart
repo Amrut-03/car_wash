@@ -127,7 +127,7 @@ class _EmployeeSalaryState extends ConsumerState<EmployeeSalary> {
                 'Salary Scheduler',
                 style: GoogleFonts.inter(
                   color: AppTemplate.textClr,
-                  fontSize: 20.sp,
+                  fontSize: 20.0,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -161,7 +161,7 @@ class _EmployeeSalaryState extends ConsumerState<EmployeeSalary> {
                             'No employee with this name',
                             style: GoogleFonts.inter(
                               color: AppTemplate.textClr,
-                              fontSize: 16.sp,
+                              fontSize: 16.0,
                               fontWeight: FontWeight.w400,
                             ),
                           ),
@@ -245,7 +245,7 @@ class _EmployeeSalaryState extends ConsumerState<EmployeeSalary> {
                                         filteredEmployeeSalaryData![index].name,
                                         style: GoogleFonts.inter(
                                           color: AppTemplate.textClr,
-                                          fontSize: 15.sp,
+                                          fontSize: 15.0,
                                           fontWeight: FontWeight.w400,
                                         ),
                                       ),

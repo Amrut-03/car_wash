@@ -1,12 +1,9 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/header.dart';
-import 'package:car_wash/common/widgets/textFieldWidget.dart';
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/features/salary/model/get_salary_model.dart';
-import 'package:car_wash/features/salary/pages/salary_calender.dart';
 import 'package:car_wash/provider/admin_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -185,7 +182,7 @@ class _IndividualSalaryFinalState extends ConsumerState<IndividualSalaryFinal> {
                               Text(
                                 widget.employeeName,
                                 style: GoogleFonts.inter(
-                                    fontSize: 15.sp,
+                                    fontSize: 15.0,
                                     color: AppTemplate.textClr,
                                     fontWeight: FontWeight.w400),
                               ),
@@ -194,7 +191,7 @@ class _IndividualSalaryFinalState extends ConsumerState<IndividualSalaryFinal> {
                                 child: Text(
                                   widget.address,
                                   style: GoogleFonts.inter(
-                                      fontSize: 11.sp,
+                                      fontSize: 11.0,
                                       color: const Color(0xFF001C63),
                                       fontWeight: FontWeight.w400),
                                 ),
@@ -206,7 +203,7 @@ class _IndividualSalaryFinalState extends ConsumerState<IndividualSalaryFinal> {
                                 widget.phone1,
                                 style: GoogleFonts.inter(
                                     decorationThickness: 1.5.w,
-                                    fontSize: 11.sp,
+                                    fontSize: 11.0,
                                     color: AppTemplate.textClr,
                                     fontWeight: FontWeight.w800),
                               ),

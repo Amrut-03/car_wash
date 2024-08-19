@@ -102,7 +102,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
     return Scaffold(
       backgroundColor: AppTemplate.primaryClr,
       body: isLoading
-         ? Center(
+          ? Center(
               child: Column(
               children: [
                 const Header(txt: 'Attendance'),
@@ -112,7 +112,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
                     'No records found',
                     style: GoogleFonts.inter(
                         color: AppTemplate.bgClr,
-                        fontSize: 15.sp,
+                        fontSize: 15.0,
                         fontWeight: FontWeight.w400),
                   ),
                 ),
@@ -210,7 +210,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
                             buttonClr: const Color(0xFFC80000),
                             txt: 'Reject',
                             textClr: AppTemplate.primaryClr,
-                            textSz: 18.sp,
+                            textSz: 18.0,
                             onClick: () async {
                               await attendenceUpdate('Reject');
                             },
@@ -224,7 +224,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
                             buttonClr: const Color(0xFF1E3763),
                             txt: 'Approve',
                             textClr: AppTemplate.primaryClr,
-                            textSz: 18.sp,
+                            textSz: 18.0,
                             onClick: () async {
                               await attendenceUpdate('Approve');
                             },

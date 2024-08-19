@@ -4,8 +4,8 @@ import 'dart:developer';
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/common/widgets/listedCarsList.dart';
-import 'package:car_wash/features/customer/customer.dart';
-import 'package:car_wash/features/customer/editCustomer.dart';
+import 'package:car_wash/features/customer/pages/customer.dart';
+import 'package:car_wash/features/customer/pages/editCustomer.dart';
 import 'package:car_wash/features/customer/model/customer_profile_model.dart';
 import 'package:car_wash/features/customer/widgets/customer_recent_washes.dart';
 import 'package:car_wash/provider/admin_provider.dart';
@@ -79,7 +79,7 @@ class _CustomerProfileState extends ConsumerState<CustomerProfile> {
                   leading: SvgPicture.asset('assets/svg/edit.svg'),
                   title: Text('Edit Customer',
                       style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w800, fontSize: 18.sp)),
+                          fontWeight: FontWeight.w800, fontSize: 18.0)),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -96,7 +96,7 @@ class _CustomerProfileState extends ConsumerState<CustomerProfile> {
                   leading: SvgPicture.asset('assets/svg/removePerson.svg'),
                   title: Text('Remove Customer',
                       style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w800, fontSize: 18.sp)),
+                          fontWeight: FontWeight.w800, fontSize: 18.0)),
                   onTap: () async {
                     final customerNotifier =
                         ref.read(customerProvider.notifier);
@@ -200,7 +200,7 @@ class _CustomerProfileState extends ConsumerState<CustomerProfile> {
                                 style: GoogleFonts.inter(
                                     color: AppTemplate.textClr,
                                     fontWeight: FontWeight.w400,
-                                    fontSize: 15.sp),
+                                    fontSize: 15.0),
                               ),
                               Row(
                                 mainAxisAlignment:
@@ -209,7 +209,7 @@ class _CustomerProfileState extends ConsumerState<CustomerProfile> {
                                   Text(
                                     customerData!.mobileNo,
                                     style: GoogleFonts.inter(
-                                      fontSize: 13.sp,
+                                      fontSize: 13.0,
                                       fontWeight: FontWeight.w800,
                                       color: const Color(0xFF001C63),
                                     ),
@@ -224,7 +224,7 @@ class _CustomerProfileState extends ConsumerState<CustomerProfile> {
                                         '${customerData!.carList.length}',
                                         style: GoogleFonts.inter(
                                           color: const Color(0xFF6750A4),
-                                          fontSize: 30.sp,
+                                          fontSize: 30.0,
                                           fontWeight: FontWeight.w800,
                                         ),
                                       )
@@ -233,7 +233,7 @@ class _CustomerProfileState extends ConsumerState<CustomerProfile> {
                                 ],
                               ),
                               SizedBox(
-                                height: 15.r,
+                                height: 10.r,
                               ),
                               Text(
                                 'Since ${customerData!.dateTime}',
@@ -241,7 +241,7 @@ class _CustomerProfileState extends ConsumerState<CustomerProfile> {
                                   fontWeight: FontWeight.w400,
                                   fontStyle: FontStyle.italic,
                                   color: AppTemplate.textClr,
-                                  fontSize: 12.sp,
+                                  fontSize: 10.0,
                                 ),
                               ),
                             ],
@@ -278,8 +278,9 @@ class _CustomerProfileState extends ConsumerState<CustomerProfile> {
                             child: Center(
                               child: Text(
                                 'Recent Washes',
+                                textAlign: TextAlign.center,
                                 style: GoogleFonts.inter(
-                                  fontSize: 13.sp,
+                                  fontSize: 12.0,
                                   fontWeight: FontWeight.w800,
                                   color: isCarWashed
                                       ? AppTemplate.primaryClr
@@ -318,8 +319,9 @@ class _CustomerProfileState extends ConsumerState<CustomerProfile> {
                             child: Center(
                               child: Text(
                                 'Listed Cars',
+                                textAlign: TextAlign.center,
                                 style: GoogleFonts.inter(
-                                  fontSize: 13.sp,
+                                  fontSize: 12.0,
                                   fontWeight: FontWeight.w800,
                                   color: !isCarWashed
                                       ? AppTemplate.primaryClr

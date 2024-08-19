@@ -176,7 +176,7 @@ class DashBoard extends ConsumerWidget {
                                 'Today\'s Wash',
                                 style: GoogleFonts.inter(
                                   color: AppTemplate.textClr,
-                                  fontSize: 20.sp,
+                                  fontSize: 20.0,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -253,7 +253,7 @@ class DashBoard extends ConsumerWidget {
                                                                     195,
                                                                     0,
                                                                     10),
-                                                        fontSize: 10.sp,
+                                                        fontSize: 10.0,
                                                       ),
                                                     ),
                                                   ],
@@ -281,7 +281,7 @@ class DashBoard extends ConsumerWidget {
                                                               'Unknown Wash Type',
                                                           style:
                                                               GoogleFonts.inter(
-                                                            fontSize: 8.sp,
+                                                            fontSize: 8.0,
                                                             fontWeight:
                                                                 FontWeight.w600,
                                                             color: AppTemplate
@@ -307,7 +307,7 @@ class DashBoard extends ConsumerWidget {
                                                   style: GoogleFonts.inter(
                                                     color: AppTemplate.textClr,
                                                     fontWeight: FontWeight.bold,
-                                                    fontSize: 8.sp,
+                                                    fontSize: 8.0,
                                                   ),
                                                 ),
                                                 SizedBox(width: 5.w),
@@ -357,7 +357,8 @@ class DashBoard extends ConsumerWidget {
                       color: AppTemplate.primaryClr,
                     ),
                     child: Padding(
-                      padding: EdgeInsets.all(15.h),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 15.w, vertical: 15.h),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -365,7 +366,7 @@ class DashBoard extends ConsumerWidget {
                             "Your Strength",
                             style: GoogleFonts.inter(
                               color: AppTemplate.textClr,
-                              fontSize: 12.sp,
+                              fontSize: 13.0,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -379,7 +380,7 @@ class DashBoard extends ConsumerWidget {
                                     data.employeeCount,
                                     style: GoogleFonts.inter(
                                       color: AppTemplate.buttonClr,
-                                      fontSize: 22.sp,
+                                      fontSize: 22.0,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -387,7 +388,7 @@ class DashBoard extends ConsumerWidget {
                                     "Employee",
                                     style: GoogleFonts.inter(
                                       color: AppTemplate.textClr,
-                                      fontSize: 12.sp,
+                                      fontSize: 12.0,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -401,7 +402,7 @@ class DashBoard extends ConsumerWidget {
                                     data.customerCount,
                                     style: GoogleFonts.inter(
                                       color: AppTemplate.buttonClr,
-                                      fontSize: 22.sp,
+                                      fontSize: 22.0,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -409,7 +410,7 @@ class DashBoard extends ConsumerWidget {
                                     "Customers",
                                     style: GoogleFonts.inter(
                                       color: AppTemplate.textClr,
-                                      fontSize: 12.sp,
+                                      fontSize: 12.0,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),

@@ -44,7 +44,7 @@ class Header extends ConsumerWidget {
                   txt,
                   style: GoogleFonts.inter(
                     color: AppTemplate.primaryClr,
-                    fontSize: 18.sp,
+                    fontSize: 18.0,
                     fontWeight: FontWeight.w800,
                   ),
                 ),

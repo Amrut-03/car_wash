@@ -249,7 +249,7 @@ class _AdminTextFieldState extends ConsumerState<AdminTextField> {
             decoration: InputDecoration(
               labelText: "Phone 1",
               labelStyle: GoogleFonts.inter(
-                fontSize: 12.sp,
+                fontSize: 12.0,
                 color: const Color(0xFF929292),
                 fontWeight: FontWeight.w400,
               ),
@@ -285,7 +285,7 @@ class _AdminTextFieldState extends ConsumerState<AdminTextField> {
             'Admin Photo',
             style: GoogleFonts.inter(
               color: AppTemplate.textClr,
-              fontSize: 12.sp,
+              fontSize: 12.0,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -332,7 +332,7 @@ class _AdminTextFieldState extends ConsumerState<AdminTextField> {
                             Text(
                               'Upload Photo',
                               style: GoogleFonts.inter(
-                                fontSize: 12.sp,
+                                fontSize: 12.0,
                                 color: const Color(0xFF6750A4),
                                 fontWeight: FontWeight.w600,
                               ),
@@ -364,7 +364,7 @@ class _AdminTextFieldState extends ConsumerState<AdminTextField> {
                     buttonClr: const Color(0xFf1E3763),
                     txt: 'Create',
                     textClr: AppTemplate.primaryClr,
-                    textSz: 18.sp,
+                    textSz: 18.0,
                     onClick: () async {
                       await createAdmin();
                       employeeController.fetchEmployeeList();

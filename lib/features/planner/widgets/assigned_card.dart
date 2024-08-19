@@ -240,7 +240,7 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
                                     decoration: InputDecoration(
                                       hintText: 'Remarks',
                                       hintStyle: GoogleFonts.inter(
-                                          fontSize: 15.sp,
+                                          fontSize: 15.0,
                                           color: const Color(0xFF929292),
                                           fontWeight: FontWeight.w400),
                                       enabledBorder: OutlineInputBorder(

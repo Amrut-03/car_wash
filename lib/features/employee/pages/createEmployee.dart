@@ -1,7 +1,7 @@
 import 'package:car_wash/common/widgets/employeedropdownMenu.dart';
 import 'package:car_wash/common/widgets/header.dart';
-import 'package:car_wash/features/employee/adminTextfield.dart';
-import 'package:car_wash/features/employee/employeeTextfield.dart';
+import 'package:car_wash/features/employee/pages/adminTextfield.dart';
+import 'package:car_wash/features/employee/pages/employeeTextfield.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:flutter/material.dart';

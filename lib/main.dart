@@ -12,10 +12,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 //     DeviceOrientation.portraitUp,
 //     DeviceOrientation.portraitDown,
 //   ]).then((_) {
-//     runApp(ProviderScope(child: DevicePreview(
-//     enabled: !kReleaseMode,
-//     builder: (context) => MyApp(), // Wrap your app
-//   ),));
+//     runApp(ProviderScope(
+//       child: DevicePreview(
+//         enabled: !kReleaseMode,
+//         builder: (context) => MyApp(), // Wrap your app
+//       ),
+//     ));
 //   });
 // }
 

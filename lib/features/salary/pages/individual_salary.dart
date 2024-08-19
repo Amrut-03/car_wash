@@ -253,7 +253,7 @@ class _IndividualSalaryState extends ConsumerState<IndividualSalary> {
                               Text(
                                 widget.employeeName,
                                 style: GoogleFonts.inter(
-                                    fontSize: 15.sp,
+                                    fontSize: 15.0,
                                     color: AppTemplate.textClr,
                                     fontWeight: FontWeight.w400),
                               ),
@@ -262,7 +262,7 @@ class _IndividualSalaryState extends ConsumerState<IndividualSalary> {
                                 child: Text(
                                   widget.address,
                                   style: GoogleFonts.inter(
-                                      fontSize: 11.sp,
+                                      fontSize: 11.0,
                                       color: const Color(0xFF001C63),
                                       fontWeight: FontWeight.w400),
                                 ),
@@ -274,7 +274,7 @@ class _IndividualSalaryState extends ConsumerState<IndividualSalary> {
                                 widget.phone1,
                                 style: GoogleFonts.inter(
                                     decorationThickness: 1.5.w,
-                                    fontSize: 11.sp,
+                                    fontSize: 11.0,
                                     color: AppTemplate.textClr,
                                     fontWeight: FontWeight.w800),
                               ),
@@ -538,7 +538,7 @@ class _IndividualSalaryState extends ConsumerState<IndividualSalary> {
       buttonClr: const Color(0xFF1E3763),
       txt: 'Generate Salary',
       textClr: AppTemplate.primaryClr,
-      textSz: 18.sp,
+      textSz: 18.0,
       onClick: () async {
         await updateSalary();
       },
