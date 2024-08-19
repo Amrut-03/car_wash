@@ -187,7 +187,7 @@ class DashBoard extends ConsumerWidget {
                                     final washInfo = data.washInfoList[index];
                                     return Visibility(
                                       visible: washInfo != null,
-                                      replacement: Text('No Record Found'),
+                                      replacement: Text('No Wahses for Today'),
                                       child: Stack(
                                         children: [
                                           Container(

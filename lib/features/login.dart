@@ -40,30 +40,281 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     await prefs.setString('emp_id', emp_id);
   }
 
+  // void _login(BuildContext context) async {
+  //   setState(() {
+  //     isLoading = true;
+  //   });
+
+  //   var connectivityResult = await (Connectivity().checkConnectivity());
+  //   if (connectivityResult == ConnectivityResult.none) {
+  //     setState(() {
+  //       isLoading = false;
+  //     });
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         backgroundColor: AppTemplate.bgClr,
+  //         content: Text(
+  //           'No internet connection',
+  //           style: GoogleFonts.inter(
+  //               color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+  //         ),
+  //       ),
+  //     );
+  //     return;
+  //   }
+
+  //   try {
+  //     var request = http.MultipartRequest(
+  //       'POST',
+  //       Uri.parse('https://wash.sortbe.com/API/Admin/Login/Login'),
+  //     );
+  //     request.fields.addAll({
+  //       'enc_key': encKey,
+  //       'mobile': mobileController.text,
+  //       'password': passwordController.text,
+  //     });
+
+  //     http.StreamedResponse response = await request.send();
+
+  //     String responseBody = await response.stream.bytesToString();
+  //     var jsonResponse = jsonDecode(responseBody);
+
+  //     final admin = Admin(
+  //       empName: jsonResponse['name'],
+  //       id: jsonResponse['emp_id'],
+  //       profilePic: jsonResponse['employee_pic'],
+  //     );
+
+  //     ref.read(authProvider.notifier).login(admin);
+
+  //     if (response.statusCode == 200) {
+  //       print('Nmae - ${admin.empName}');
+  //       print('id - ${admin.id}');
+  //       print('pic - ${admin.profilePic}');
+
+  //       String status = jsonResponse['status'];
+  //       if (status == 'Success') {
+  //         await _saveLoginStatus(jsonResponse['name'],
+  //             jsonResponse['employee_pic'], jsonResponse["emp_id"]);
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(
+  //             backgroundColor: AppTemplate.bgClr,
+  //             content: Text(
+  //               'Login Successfully',
+  //               style: GoogleFonts.inter(
+  //                   color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+  //             ),
+  //           ),
+  //         );
+  //         Navigator.pushAndRemoveUntil(
+  //           context,
+  //           MaterialPageRoute(builder: (context) => DashBoard()),
+  //           (Route<dynamic> route) => false,
+  //         );
+  //       } else {
+  //         setState(() {
+  //           isLoading = false;
+  //         });
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(
+  //               backgroundColor: AppTemplate.bgClr,
+  //               content: Text(
+  //                 jsonResponse['remarks'] ?? 'Login failed',
+  //                 style: GoogleFonts.inter(
+  //                     color: AppTemplate.primaryClr,
+  //                     fontWeight: FontWeight.w400),
+  //               )),
+  //         );
+  //       }
+  //     } else {
+  //       if (admin.empName.isEmpty ||
+  //           admin.empName == null ||
+  //           mobileController.text == null ||
+  //           mobileController.text.isEmpty) {
+  //         setState(() {
+  //           isLoading = false;
+  //         });
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(
+  //             backgroundColor: AppTemplate.bgClr,
+  //             content: Text(
+  //               'Mobile Number is required',
+  //               style: GoogleFonts.inter(
+  //                   color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+  //             ),
+  //           ),
+  //         );
+  //       }
+  //       if (passwordController.text.isEmpty) {
+  //         setState(() {
+  //           isLoading = false;
+  //         });
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(
+  //             backgroundColor: AppTemplate.bgClr,
+  //             content: Text(
+  //               'Password is required',
+  //               style: GoogleFonts.inter(
+  //                   color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+  //             ),
+  //           ),
+  //         );
+  //       } else {
+  //         setState(() {
+  //           isLoading = false;
+  //         });
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(
+  //             backgroundColor: AppTemplate.bgClr,
+  //             content: Text(
+  //               'Credentials are wrong',
+  //               style: GoogleFonts.inter(
+  //                   color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+  //             ),
+  //           ),
+  //         );
+  //       }
+  //     }
+  //   } on http.ClientException {
+  //     setState(() {
+  //       isLoading = false;
+  //     });
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         backgroundColor: AppTemplate.bgClr,
+  //         content: Text(
+  //           'This is a Network Error',
+  //           style: GoogleFonts.inter(
+  //               color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+  //         ),
+  //       ),
+  //     );
+  //   } catch (e) {
+  //     if (mounted) {
+  //       setState(() {
+  //         isLoading = false;
+  //       });
+  //       print("+++++++++++++++++++++++++++++++++++++++++++");
+  //       print('Unexpected error: ${e.toString()}');
+  //       print("+++++++++++++++++++++++++++++++++++++++++++");
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //             backgroundColor: AppTemplate.bgClr,
+  //             content: Text(
+  //               e.toString(),
+  //               style: GoogleFonts.inter(
+  //                   color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+  //             )),
+  //       );
+  //     }
+  //   }
+  // }
+
   void _login(BuildContext context) async {
     setState(() {
       isLoading = true;
     });
 
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
-      setState(() {
-        isLoading = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: AppTemplate.bgClr,
-          content: Text(
-            'No internet connection',
-            style: GoogleFonts.inter(
-                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-          ),
-        ),
-      );
-      return;
-    }
-
     try {
+      // Check for internet connectivity before making the request
+      var connectivityResult = await (Connectivity().checkConnectivity());
+      if (connectivityResult == ConnectivityResult.none) {
+        setState(() {
+          isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: AppTemplate.bgClr,
+            content: Text(
+              'No internet connection',
+              style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        );
+        return;
+      }
+
+      // Validate input fields before sending the request
+      if (mobileController.text.isEmpty && passwordController.text.isEmpty) {
+        setState(() {
+          isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: AppTemplate.bgClr,
+            content: Text(
+              'Mobile Number and Password is required',
+              style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        );
+        return;
+      }
+
+      if (mobileController.text.isEmpty) {
+        setState(() {
+          isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: AppTemplate.bgClr,
+            content: Text(
+              'Mobile Number is required',
+              style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        );
+        return;
+      }
+
+      if (mobileController.text.length < 10) {
+        setState(() {
+          isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: AppTemplate.bgClr,
+            content: Text(
+              'Mobile Number is invalid',
+              style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        );
+        return;
+      }
+
+      if (passwordController.text.isEmpty) {
+        setState(() {
+          isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: AppTemplate.bgClr,
+            content: Text(
+              'Password is required',
+              style: GoogleFonts.inter(
+                color: AppTemplate.primaryClr,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        );
+        return;
+      }
+
+      // Make the login request
       var request = http.MultipartRequest(
         'POST',
         Uri.parse('https://wash.sortbe.com/API/Admin/Login/Login'),
@@ -80,31 +331,30 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         String responseBody = await response.stream.bytesToString();
         var jsonResponse = jsonDecode(responseBody);
 
-        final admin = Admin(
-          empName: jsonResponse['name'],
-          id: jsonResponse['emp_id'],
-          profilePic: jsonResponse['employee_pic'],
-        );
-
-        ref.read(authProvider.notifier).login(admin);
-        print('Nmae - ${admin.empName}');
-        print('id - ${admin.id}');
-        print('pic - ${admin.profilePic}');
-
         String status = jsonResponse['status'];
         if (status == 'Success') {
-          await _saveLoginStatus(jsonResponse['name'],
-              jsonResponse['employee_pic'], jsonResponse["emp_id"]);
+          final admin = Admin(
+            empName: jsonResponse['name'],
+            id: jsonResponse['emp_id'],
+            profilePic: jsonResponse['employee_pic'],
+          );
+
+          ref.read(authProvider.notifier).login(admin);
+          await _saveLoginStatus(admin.empName, admin.profilePic, admin.id);
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: AppTemplate.bgClr,
               content: Text(
                 'Login Successfully',
                 style: GoogleFonts.inter(
-                    color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+                  color: AppTemplate.primaryClr,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
             ),
           );
+
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => DashBoard()),
@@ -116,31 +366,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                backgroundColor: AppTemplate.bgClr,
-                content: Text(
-                  jsonResponse['remarks'] ?? 'Login failed',
-                  style: GoogleFonts.inter(
-                      color: AppTemplate.primaryClr,
-                      fontWeight: FontWeight.w400),
-                )),
+              backgroundColor: AppTemplate.bgClr,
+              content: Text(
+                jsonResponse['remarks'] ?? 'Login failed',
+                style: GoogleFonts.inter(
+                  color: AppTemplate.primaryClr,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
           );
         }
       } else {
-        setState(() {
-          isLoading = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: AppTemplate.bgClr,
-            content: Text(
-              'Credentials are wrong',
-              style: GoogleFonts.inter(
-                  color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-            ),
-          ),
-        );
+        throw http.ClientException(
+            'Unexpected status code: ${response.statusCode}');
       }
-    } on http.ClientException {
+    } on http.ClientException catch (e) {
       setState(() {
         isLoading = false;
       });
@@ -148,30 +389,46 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         SnackBar(
           backgroundColor: AppTemplate.bgClr,
           content: Text(
-            'This is a Network Error',
+            'Network error: ${e.message}',
             style: GoogleFonts.inter(
-                color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+              color: AppTemplate.primaryClr,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ),
+      );
+    } on FormatException catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: AppTemplate.bgClr,
+          content: Text(
+            'Response format error: ${e.message}',
+            style: GoogleFonts.inter(
+              color: AppTemplate.primaryClr,
+              fontWeight: FontWeight.w400,
+            ),
           ),
         ),
       );
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-        print("+++++++++++++++++++++++++++++++++++++++++++");
-        print('Unexpected error: ${e.toString()}');
-        print("+++++++++++++++++++++++++++++++++++++++++++");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              backgroundColor: AppTemplate.bgClr,
-              content: Text(
-                'Credentials are wrong',
-                style: GoogleFonts.inter(
-                    color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-              )),
-        );
-      }
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: AppTemplate.bgClr,
+          content: Text(
+            'Unexpected error: ${e.toString()}',
+            style: GoogleFonts.inter(
+              color: AppTemplate.primaryClr,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ),
+      );
     }
   }
 

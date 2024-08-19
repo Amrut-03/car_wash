@@ -74,12 +74,11 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
   }
 
   Future<void> createEmployee(BuildContext context, WidgetRef ref) async {
-    final dob = ref.read(dobControllerProvider).text;
-    final formattedDob = DateFormat('dd-MM-yyyy').parse(dob);
-    final String dobForApi = DateFormat('dd-MM-yyyy').format(formattedDob);
-    print(dobForApi);
     final empName = ref.read(employeeNameProvider).text;
-    // final dob = ref.read(dobControllerProvider).text;
+    final dob = ref.read(dobControllerProvider).text;
+    // final formattedDob = DateFormat('dd-MM-yyyy').parse(dob);
+    // final String dobForApi = DateFormat('dd-MM-yyyy').format(formattedDob);
+    // print(dobForApi);
     final address = ref.read(addressControllerProvider).text;
     final phone1 = ref.read(phone1ControllerProvider).text;
     final phone2 = ref.read(phone2ControllerProvider).text;
@@ -89,6 +88,25 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
       isLoading = true;
     });
 
+    // if (empName.isEmpty &&
+    //     dob.isEmpty &&
+    //     address.isEmpty &&
+    //     phone1.isEmpty &&
+    //     phone2.isEmpty &&
+    //     password.isEmpty) {
+    //   setState(() {
+    //     isLoading = false;
+    //   });
+    //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    //     backgroundColor: AppTemplate.bgClr,
+    //     content: Text(
+    //       'All fields are required',
+    //       style: GoogleFonts.inter(
+    //           color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
+    //     ),
+    //   ));
+    //   return;
+    // }
     if (empName.isEmpty) {
       setState(() {
         isLoading = false;
