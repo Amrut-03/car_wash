@@ -176,11 +176,11 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
       return;
     }
     if (phone1.isEmpty) {
-      showValidationError("phone number 1 is required");
+      showValidationError("Phone number 1 is required");
       return;
     }
     if (phone2.isEmpty) {
-      showValidationError("phone number 2 is required");
+      showValidationError("Phone number 2 is required");
       return;
     }
 
@@ -247,13 +247,16 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
       });
 
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
             backgroundColor: AppTemplate.bgClr,
             content: Text(
               "Employee Updated Successfully",
               style: GoogleFonts.inter(
                   color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-            )));
+            ),
+          ),
+        );
         Navigator.pop(context);
         print(await response.stream.bytesToString());
       } else {
@@ -267,17 +270,54 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
     }
   }
 
+  void _showDownloadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible:
+          false, // Prevents the dialog from being dismissed by tapping outside
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: AppTemplate.primaryClr,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(AppTemplate.bgClr),
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'Downloading...',
+                  style: GoogleFonts.inter(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     isLoading = false;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      var employeeData = await EmployeeInfo(); // Fetch employee data
+      var employeeData = await EmployeeInfo();
 
       if (employeeData != null) {
         ref.read(employeeNameProvider).text =
             employeeData['employee_name'] ?? '';
         ref.read(dobControllerProvider).text = employeeData['dob'] ?? '';
+        print(employeeData['dob']);
+        print(ref.read(dobControllerProvider).text);
         ref.read(addressControllerProvider).text =
             employeeData['address'] ?? '';
         ref.read(phone1ControllerProvider).text = employeeData['phone_1'] ?? '';
@@ -415,46 +455,46 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                 color: const Color(0xFFD4D4D4), width: 1.5.w),
                           ),
                           suffixIcon: IconButton(
-                              icon: const Icon(Icons.calendar_month,
-                                  color: Color(0xFFD4D4D4)),
-                              onPressed: () async {
-                                final DateTime? selectedDate =
-                                    await showDatePicker(
-                                  context: context,
-                                  initialDate: DateTime.now(),
-                                  firstDate: DateTime(1900),
-                                  lastDate: DateTime.now(),
-                                  builder:
-                                      (BuildContext context, Widget? child) {
-                                    return Theme(
-                                      data: ThemeData.light().copyWith(
-                                        primaryColor: AppTemplate
-                                            .bgClr, // header background color
-                                        hintColor: AppTemplate
-                                            .bgClr, // header text color
-                                        colorScheme: const ColorScheme.light(
-                                          primary: AppTemplate.bgClr,
-                                        ), // selection color
-                                        buttonTheme: const ButtonThemeData(
-                                            textTheme: ButtonTextTheme
-                                                .primary), // button text color
-                                      ),
-                                      child: child!,
-                                    );
-                                  },
-                                );
+                            icon: const Icon(Icons.calendar_month,
+                                color: Color(0xFFD4D4D4)),
+                            onPressed: () async {
+                              final DateTime? selectedDate =
+                                  await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(1900),
+                                lastDate: DateTime.now(),
+                                builder: (BuildContext context, Widget? child) {
+                                  return Theme(
+                                    data: ThemeData.light().copyWith(
+                                      primaryColor: AppTemplate
+                                          .bgClr, // header background color
+                                      hintColor: AppTemplate
+                                          .bgClr, // header text color
+                                      colorScheme: const ColorScheme.light(
+                                        primary: AppTemplate.bgClr,
+                                      ), // selection color
+                                      buttonTheme: const ButtonThemeData(
+                                          textTheme: ButtonTextTheme
+                                              .primary), // button text color
+                                    ),
+                                    child: child!,
+                                  );
+                                },
+                              );
 
-                                if (selectedDate != null) {
-                                  final DateFormat formatter =
-                                      DateFormat('dd/MM/yyyy');
-                                  final String formattedDate =
-                                      formatter.format(selectedDate);
-                                  setState(() {
-                                    ref.read(dobControllerProvider).text =
-                                        formattedDate;
-                                  });
-                                }
-                              }),
+                              if (selectedDate != null) {
+                                final DateFormat formatter =
+                                    DateFormat('yyyy-MM-dd');
+                                final String formattedDate =
+                                    formatter.format(selectedDate);
+                                setState(() {
+                                  ref.read(dobControllerProvider).text =
+                                      formattedDate;
+                                });
+                              }
+                            },
+                          ),
                         ),
                       ),
                     ),
@@ -582,39 +622,28 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                         ref.read(aadharFrontUrlProvider);
 
                                     if (url != null) {
+                                      _showDownloadingDialog(context);
+
                                       await downloadAndSaveImage(url);
+
+                                      Navigator.of(context).pop();
+
                                       ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                              backgroundColor:
-                                                  AppTemplate.bgClr,
-                                              content: Text(
-                                                "Aaddhar front image saved to gallery",
-                                                style: GoogleFonts.inter(
-                                                    color:
-                                                        AppTemplate.primaryClr,
-                                                    fontWeight:
-                                                        FontWeight.w400),
-                                              )));
+                                          .showSnackBar(
+                                        SnackBar(
+                                          backgroundColor: AppTemplate.bgClr,
+                                          content: Text(
+                                            "Aadhaar front image saved to gallery",
+                                            style: GoogleFonts.inter(
+                                              color: AppTemplate.primaryClr,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                          ),
+                                        ),
+                                      );
                                     } else {
-                                      // final url = ref.read(aadharFrontProvider);
-                                      // if (url != null) {
-                                      //   await saveExistingFile(url);
-                                      //   ScaffoldMessenger.of(context)
-                                      //       .showSnackBar(SnackBar(
-                                      //           backgroundColor:
-                                      //               AppTemplate.bgClr,
-                                      //           content: Text(
-                                      //             "Aaddhar front image saved to gallery",
-                                      //             style: GoogleFonts.inter(
-                                      //                 color: AppTemplate
-                                      //                     .primaryClr,
-                                      //                 fontWeight:
-                                      //                     FontWeight.w400),
-                                      //           )));
-                                      // } else {
                                       _pickImage(
                                           context, ref, aadharFrontProvider);
-                                      // }
                                     }
                                   },
                                   child: SizedBox(
@@ -728,39 +757,28 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                     final url = ref.read(aadharBackUrlProvider);
 
                                     if (url != null) {
+                                      _showDownloadingDialog(context);
+
                                       await downloadAndSaveImage(url);
+
+                                      Navigator.of(context).pop();
+
                                       ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                              backgroundColor:
-                                                  AppTemplate.bgClr,
-                                              content: Text(
-                                                "Aaddhar back image saved to gallery",
-                                                style: GoogleFonts.inter(
-                                                    color:
-                                                        AppTemplate.primaryClr,
-                                                    fontWeight:
-                                                        FontWeight.w400),
-                                              )));
+                                          .showSnackBar(
+                                        SnackBar(
+                                          backgroundColor: AppTemplate.bgClr,
+                                          content: Text(
+                                            "Aadhaar Back image saved to gallery",
+                                            style: GoogleFonts.inter(
+                                              color: AppTemplate.primaryClr,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                          ),
+                                        ),
+                                      );
                                     } else {
-                                      // final url = ref.read(aadharBackProvider);
-                                      // if (url != null) {
-                                      //   await saveExistingFile(url);
-                                      //   ScaffoldMessenger.of(context)
-                                      //       .showSnackBar(SnackBar(
-                                      //           backgroundColor:
-                                      //               AppTemplate.bgClr,
-                                      //           content: Text(
-                                      //             "Aaddhar back image saved to gallery",
-                                      //             style: GoogleFonts.inter(
-                                      //                 color: AppTemplate
-                                      //                     .primaryClr,
-                                      //                 fontWeight:
-                                      //                     FontWeight.w400),
-                                      //           )));
-                                      // } else {
                                       _pickImage(
                                           context, ref, aadharBackProvider);
-                                      // }
                                     }
                                   },
                                   child: SizedBox(
@@ -895,39 +913,28 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                     final url = ref.read(driveFrontUrlProvider);
 
                                     if (url != null) {
+                                      _showDownloadingDialog(context);
+
                                       await downloadAndSaveImage(url);
+
+                                      Navigator.of(context).pop();
+
                                       ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                              backgroundColor:
-                                                  AppTemplate.bgClr,
-                                              content: Text(
-                                                "Driving License front image saved to gallery",
-                                                style: GoogleFonts.inter(
-                                                    color:
-                                                        AppTemplate.primaryClr,
-                                                    fontWeight:
-                                                        FontWeight.w400),
-                                              )));
+                                          .showSnackBar(
+                                        SnackBar(
+                                          backgroundColor: AppTemplate.bgClr,
+                                          content: Text(
+                                            "Driving License front image saved to gallery",
+                                            style: GoogleFonts.inter(
+                                              color: AppTemplate.primaryClr,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                          ),
+                                        ),
+                                      );
                                     } else {
-                                      // final url = ref.read(driveFrontProvider);
-                                      // if (url != null) {
-                                      //   await saveExistingFile(url);
-                                      //   ScaffoldMessenger.of(context)
-                                      //       .showSnackBar(SnackBar(
-                                      //           backgroundColor:
-                                      //               AppTemplate.bgClr,
-                                      //           content: Text(
-                                      //             "Driving License front image saved to gallery",
-                                      //             style: GoogleFonts.inter(
-                                      //                 color: AppTemplate
-                                      //                     .primaryClr,
-                                      //                 fontWeight:
-                                      //                     FontWeight.w400),
-                                      //           )));
-                                      // } else {
                                       _pickImage(
                                           context, ref, driveFrontProvider);
-                                      // }
                                     }
                                   },
                                   child: SizedBox(
@@ -1041,39 +1048,28 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                     final url = ref.read(driveBackUrlProvider);
 
                                     if (url != null) {
+                                      _showDownloadingDialog(context);
+
                                       await downloadAndSaveImage(url);
+
+                                      Navigator.of(context).pop();
+
                                       ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                              backgroundColor:
-                                                  AppTemplate.bgClr,
-                                              content: Text(
-                                                "Driving License Back image saved to gallery",
-                                                style: GoogleFonts.inter(
-                                                    color:
-                                                        AppTemplate.primaryClr,
-                                                    fontWeight:
-                                                        FontWeight.w400),
-                                              )));
+                                          .showSnackBar(
+                                        SnackBar(
+                                          backgroundColor: AppTemplate.bgClr,
+                                          content: Text(
+                                            "Driving License Back image saved to gallery",
+                                            style: GoogleFonts.inter(
+                                              color: AppTemplate.primaryClr,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                          ),
+                                        ),
+                                      );
                                     } else {
-                                      // final url = ref.read(driveBackProvider);
-                                      // if (url != null) {
-                                      //   saveExistingFile(url);
-                                      //   ScaffoldMessenger.of(context)
-                                      //       .showSnackBar(SnackBar(
-                                      //           backgroundColor:
-                                      //               AppTemplate.bgClr,
-                                      //           content: Text(
-                                      //             "Driving License Back image saved to gallery",
-                                      //             style: GoogleFonts.inter(
-                                      //                 color: AppTemplate
-                                      //                     .primaryClr,
-                                      //                 fontWeight:
-                                      //                     FontWeight.w400),
-                                      //           )));
-                                      // } else {
                                       _pickImage(
                                           context, ref, driveBackProvider);
-                                      // }
                                     }
                                   },
                                   child: SizedBox(
@@ -1209,41 +1205,28 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                         ref.read(employeePhotoUrlProvider);
 
                                     if (url != null) {
-                                      await downloadAndSaveImage(url);
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                              backgroundColor:
-                                                  AppTemplate.bgClr,
-                                              content: Text(
-                                                "Employee image saved to gallery",
-                                                style: GoogleFonts.inter(
-                                                    color:
-                                                        AppTemplate.primaryClr,
-                                                    fontWeight:
-                                                        FontWeight.w400),
-                                              )));
-                                    } else {
-                                      // final url =
-                                      //     ref.read(employeePhotoProvider);
+                                      _showDownloadingDialog(context);
 
-                                      // if (url != null) {
-                                      //   await saveExistingFile(url);
-                                      //   ScaffoldMessenger.of(context)
-                                      //       .showSnackBar(SnackBar(
-                                      //           backgroundColor:
-                                      //               AppTemplate.bgClr,
-                                      //           content: Text(
-                                      //             "Employee image saved to gallery",
-                                      //             style: GoogleFonts.inter(
-                                      //                 color: AppTemplate
-                                      //                     .primaryClr,
-                                      //                 fontWeight:
-                                      //                     FontWeight.w400),
-                                      //           )));
-                                      // } else {
+                                      await downloadAndSaveImage(url);
+
+                                      Navigator.of(context).pop();
+
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          backgroundColor: AppTemplate.bgClr,
+                                          content: Text(
+                                            "Employee image saved to gallery",
+                                            style: GoogleFonts.inter(
+                                              color: AppTemplate.primaryClr,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    } else {
                                       _pickImage(
                                           context, ref, employeePhotoProvider);
-                                      // }
                                     }
                                   },
                                   child: SizedBox(
