@@ -274,7 +274,7 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
                                           buttonClr: const Color(0xFFC80000),
                                           txt: 'Un-Assign',
                                           textClr: AppTemplate.primaryClr,
-                                          textSz: 17,
+                                          textSz: 18.0,
                                           onClick: () async {
                                             await unAssign();
                                             plannerNotifier
@@ -291,7 +291,7 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
                                           buttonClr: const Color(0xFF1E3763),
                                           txt: 'Update',
                                           textClr: AppTemplate.primaryClr,
-                                          textSz: 17,
+                                          textSz: 18.0,
                                           onClick: () async {
                                             await update();
                                           },
