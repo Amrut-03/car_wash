@@ -266,12 +266,24 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  washResponse!.clientName,
-                                  style: GoogleFonts.inter(
-                                      color: AppTemplate.textClr,
-                                      fontWeight: FontWeight.w400,
-                                      fontSize: 15.0),
+                                Row(
+                                  children: [
+                                    Icon(Icons.person),
+                                    SizedBox(width: 8),
+                                    Container(
+                                      constraints:
+                                          BoxConstraints(maxWidth: 150),
+                                      child: Text(
+                                        washResponse!.clientName,
+                                        style: GoogleFonts.inter(
+                                          color: AppTemplate.textClr,
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 15.0,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 Text(
                                   washResponse!.assignedDate,
@@ -282,24 +294,45 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                 ),
                               ],
                             ),
+                            SizedBox(height: 8.r),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  washResponse!.mobileNo,
-                                  style: GoogleFonts.inter(
-                                      fontSize: 13.0,
-                                      fontWeight: FontWeight.w800,
-                                      color: const Color(0xFF001C63)),
+                                Row(
+                                  children: [
+                                    Icon(Icons.engineering),
+                                    SizedBox(width: 8),
+                                    Container(
+                                      constraints:
+                                          BoxConstraints(maxWidth: 150),
+                                      child: Text(
+                                        washResponse!.cleanerName,
+                                        style: GoogleFonts.inter(
+                                          color: AppTemplate.textClr,
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 15.0,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 Text(
                                   washResponse!.cleanedTime,
                                   style: GoogleFonts.inter(
                                       color: AppTemplate.textClr,
                                       fontWeight: FontWeight.w800,
-                                      fontSize: 13.0),
+                                      fontSize: 12.0),
                                 ),
                               ],
+                            ),
+                            SizedBox(height: 8.r),
+                            Text(
+                              washResponse!.mobileNo,
+                              style: GoogleFonts.inter(
+                                  fontSize: 13.0,
+                                  fontWeight: FontWeight.w800,
+                                  color: const Color(0xFF001C63)),
                             ),
                             SizedBox(
                               height: 15.r,
