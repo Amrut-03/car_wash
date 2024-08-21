@@ -9,7 +9,6 @@ import 'package:car_wash/provider/admin_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
@@ -275,7 +274,7 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                       fontSize: 15.0),
                                 ),
                                 Text(
-                                  washResponse!.cleanedTime,
+                                  washResponse!.assignedDate,
                                   style: GoogleFonts.inter(
                                       color: AppTemplate.textClr,
                                       fontWeight: FontWeight.w800,
@@ -283,12 +282,24 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                 ),
                               ],
                             ),
-                            Text(
-                              washResponse!.mobileNo,
-                              style: GoogleFonts.inter(
-                                  fontSize: 13.0,
-                                  fontWeight: FontWeight.w800,
-                                  color: const Color(0xFF001C63)),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  washResponse!.mobileNo,
+                                  style: GoogleFonts.inter(
+                                      fontSize: 13.0,
+                                      fontWeight: FontWeight.w800,
+                                      color: const Color(0xFF001C63)),
+                                ),
+                                Text(
+                                  washResponse!.cleanedTime,
+                                  style: GoogleFonts.inter(
+                                      color: AppTemplate.textClr,
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 13.0),
+                                ),
+                              ],
                             ),
                             SizedBox(
                               height: 15.r,
@@ -849,43 +860,23 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                           },
                         ),
                   //create ticket and send to whatsapp
-                  // SizedBox(height: 40),
+
                   Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 25.w, vertical: 10.h),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GestureDetector(
-                          onTap: () => showModalBottomSheetCustom(context),
-                          child: Container(
-                            width: 69.w,
-                            height: 50.h,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5.r),
-                              border: Border.all(
-                                color: const Color(0xFFC80000),
-                                width: 1.5.w,
-                              ),
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.all(15.w),
-                              child: SvgPicture.asset(
-                                'assets/svg/puzzle.svg',
-                              ),
-                            ),
-                          ),
-                        ),
-                        Buttonwidget(
-                          width: 227.w,
-                          height: 50.h,
-                          buttonClr: const Color(0xFf1E3763),
-                          txt: 'Send to Whatsapp',
-                          textClr: AppTemplate.primaryClr,
-                          textSz: 14.0,
-                          onClick: () {},
-                        ),
-                      ],
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 25.w,
+                      vertical: 15.w,
+                    ),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Buttonwidget(
+                        width: 0,
+                        height: 50.h,
+                        buttonClr: const Color(0xFf1E3763),
+                        txt: 'Raise Ticket',
+                        textClr: AppTemplate.primaryClr,
+                        textSz: 16.0,
+                        onClick: () => showModalBottomSheetCustom(context),
+                      ),
                     ),
                   ),
                 ],
