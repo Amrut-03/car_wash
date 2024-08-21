@@ -100,9 +100,11 @@ class _CarDetailsState extends ConsumerState<CarDetails> {
       log('Error = $e');
     }
   }
+  
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       backgroundColor: AppTemplate.primaryClr,
       body: washListItem == null
@@ -304,6 +306,7 @@ class _CarDetailsState extends ConsumerState<CarDetails> {
                 ),
                 CustomerRecentWashesList(
                   washList: washListItem!,
+                  customerName: widget.name,
                 )
               ],
             ),

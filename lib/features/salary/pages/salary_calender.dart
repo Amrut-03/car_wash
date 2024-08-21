@@ -205,6 +205,16 @@ class _SalaryCalenderState extends ConsumerState<SalaryCalender> {
                                   height: 100.r,
                                 );
                               },
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                if (loadingProgress == null) {
+                                  return child;
+                                } else {
+                                  return Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                }
+                              },
                             ),
                           ),
                         ),
@@ -215,12 +225,17 @@ class _SalaryCalenderState extends ConsumerState<SalaryCalender> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(
-                              employeeSalaryMonthData!.employeeName,
-                              style: GoogleFonts.inter(
+                            SizedBox(
+                              width: 120.w,
+                              child: Text(
+                                employeeSalaryMonthData!.employeeName,
+                                style: GoogleFonts.inter(
                                   fontSize: 15.0,
                                   color: AppTemplate.textClr,
-                                  fontWeight: FontWeight.w400),
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                             SizedBox(
                               width: 120.w,

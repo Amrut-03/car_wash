@@ -44,6 +44,12 @@ class _IndividualSalaryState extends ConsumerState<IndividualSalary> {
   late List<bool> checkboxStates;
 
   @override
+  void initState() {
+    super.initState();
+    additional.text = '-';
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     getMonthSalary();
@@ -84,6 +90,9 @@ class _IndividualSalaryState extends ConsumerState<IndividualSalary> {
             checkboxStates =
                 List<bool>.filled(incentiveResponse!.data.length, false);
           });
+          if (incentiveResponse!.additionalIncentive != null) {
+            additional.text = incentiveResponse!.additionalIncentive!;
+          }
         }
       } else {
         throw Exception('Failed to load data');
@@ -118,7 +127,14 @@ class _IndividualSalaryState extends ConsumerState<IndividualSalary> {
       );
     }
     print('Record - $incentiveRecordsJson');
+    print('enckey - $encKey');
+    print('admin id - ${authState.admin!.id}');
+    print('emp id - ${widget.employeeId}');
+    print('month - ${widget.month}');
+    print('yr - ${widget.year}');
+    print('field - ${additional.text}');
     String salaryDataJson = jsonEncode(incentiveRecordsJson);
+    print('json - ${salaryDataJson}');
     final request = http.MultipartRequest('POST', Uri.parse(url))
       ..fields['enc_key'] = encKey
       ..fields['emp_id'] = authState.admin!.id
@@ -129,7 +145,9 @@ class _IndividualSalaryState extends ConsumerState<IndividualSalary> {
       ..fields['salary_data'] = salaryDataJson;
 
     try {
+      print('Before');
       final response = await request.send();
+      print('Sent');
       final responseBody = await response.stream.bytesToString();
 
       var responseData = jsonDecode(responseBody);
@@ -240,6 +258,16 @@ class _IndividualSalaryState extends ConsumerState<IndividualSalary> {
                                     height: 100.r,
                                   );
                                 },
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) {
+                                    return child;
+                                  } else {
+                                    return Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  }
+                                },
                               ),
                             ),
                           ),
@@ -250,12 +278,17 @@ class _IndividualSalaryState extends ConsumerState<IndividualSalary> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(
-                                widget.employeeName,
-                                style: GoogleFonts.inter(
+                              SizedBox(
+                                width: 120.w,
+                                child: Text(
+                                  widget.employeeName,
+                                  style: GoogleFonts.inter(
                                     fontSize: 15.0,
                                     color: AppTemplate.textClr,
-                                    fontWeight: FontWeight.w400),
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                               SizedBox(
                                 width: 120.w,
@@ -517,11 +550,11 @@ class _IndividualSalaryState extends ConsumerState<IndividualSalary> {
   }
 
   Widget _buildAdditionalIncentiveField() {
-    if (incentiveResponse!.additionalIncentive == null) {
-      additional.text = '-';
-    } else {
-      additional.text = incentiveResponse!.additionalIncentive;
-    }
+    // if (incentiveResponse!.additionalIncentive == null) {
+    //   additional.text = '-';
+    // } else {
+    //   additional.text = incentiveResponse!.additionalIncentive;
+    // }
     return Textfieldwidget(
       controller: additional,
       labelTxt: 'Additional Incentive',
@@ -539,8 +572,46 @@ class _IndividualSalaryState extends ConsumerState<IndividualSalary> {
       txt: 'Generate Salary',
       textClr: AppTemplate.primaryClr,
       textSz: 18.0,
-      onClick: () async {
-        await updateSalary();
+      onClick: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(
+                'Confirm Salary Generation',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              content: Text(
+                'Do you want to generate the salary?',
+                style: TextStyle(fontSize: 16),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(
+                    'No',
+                    style: TextStyle(fontSize: 18, color: AppTemplate.bgClr),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                    await updateSalary();
+                  },
+                  child: Text(
+                    'Yes',
+                    style: TextStyle(fontSize: 18, color: AppTemplate.bgClr),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
       },
     );
   }

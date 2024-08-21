@@ -40,7 +40,7 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
   }
 
   Future<void> unAssign() async {
-    final admin = ref.watch(authProvider);
+    final admin = ref.read(authProvider);
     var url =
         Uri.parse('https://wash.sortbe.com/API/Admin/Planner/Car-UnAssign');
     var request = http.MultipartRequest('POST', url)
@@ -100,7 +100,7 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
   }
 
   Future<void> update() async {
-    final admin = ref.watch(authProvider);
+    final admin = ref.read(authProvider);
     print('admin = ${admin.admin!.id}');
     var url = Uri.parse('https://wash.sortbe.com/API/Admin/Planner/Car-Update');
     var request = http.MultipartRequest('POST', url)

@@ -4,10 +4,35 @@ import 'package:car_wash/features/customer/model/customer_profile_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 class CustomerRecentWashesList extends StatelessWidget {
-  const CustomerRecentWashesList({super.key, required this.washList});
+  const CustomerRecentWashesList({
+    super.key,
+    required this.washList,
+    required this.customerName,
+  });
   final List<WashListItem> washList;
+  final String customerName;
+
+  String formatDate(String? date) {
+    String formattedDate;
+    print('Date - $date');
+    try {
+      if (date != null) {
+        DateTime parsedDate = DateFormat('dd MMM yyyy hh:mm a').parse(date);
+        print('Parsed - $parsedDate');
+        formattedDate = DateFormat('dd MMM yyyy').format(parsedDate);
+        print('Formatted - $formattedDate');
+      } else {
+        formattedDate = 'Date Unavailable';
+      }
+    } catch (e) {
+      print('Error - ${e.toString()}');
+      formattedDate = 'Invalid Date';
+    }
+    return formattedDate;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,9 +90,10 @@ class CustomerRecentWashesList extends StatelessWidget {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    washList[index].washDate == null
-                                        ? '00:00'
-                                        : '${washList[index].washDate}',
+                                    washList[index].washStatus == 'Pending'
+                                        ? 'Yet to Start'
+                                        : formatDate(washList[index].washDate) +
+                                            '  ${customerName}',
                                     style: GoogleFonts.inter(
                                         color: AppTemplate.textClr,
                                         fontWeight: FontWeight.w400,

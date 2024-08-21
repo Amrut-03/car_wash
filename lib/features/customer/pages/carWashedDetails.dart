@@ -448,7 +448,7 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Header(txt: washResponse!.cleanerName),
+                  Header(txt: washResponse!.clientName),
                   Padding(
                     padding:
                         EdgeInsets.symmetric(horizontal: 25.w, vertical: 25.h),
@@ -473,14 +473,14 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  washResponse!.cleanerName,
+                                  washResponse!.clientName,
                                   style: GoogleFonts.inter(
                                       color: AppTemplate.textClr,
                                       fontWeight: FontWeight.w400,
                                       fontSize: 15.0),
                                 ),
                                 Text(
-                                  washResponse!.assignedDate,
+                                  washResponse!.cleanedTime,
                                   style: GoogleFonts.inter(
                                       color: AppTemplate.textClr,
                                       fontWeight: FontWeight.w800,
@@ -642,7 +642,7 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                 height: 150.h,
                                 child: Center(
                                   child: Text(
-                                    'Work not started yet !!',
+                                    'Work in Progress',
                                     style: GoogleFonts.inter(
                                       color: AppTemplate.textClr,
                                       fontSize: 11.0,
@@ -653,7 +653,7 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                             if (beforeWashPhotos.isNotEmpty)
                               Container(
                                 padding: EdgeInsets.only(left: 25.w),
-                                height: 150.h,
+                                height: 220.h,
                                 child: ListView.builder(
                                   shrinkWrap: true,
                                   scrollDirection: Axis.horizontal,
@@ -776,9 +776,9 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                   },
                                 ),
                               ),
-                            SizedBox(
-                              height: 10.h,
-                            ),
+                            // SizedBox(
+                            //   height: 10.h,
+                            // ),
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 25.w),
                               child: Align(
@@ -801,7 +801,7 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                 height: 150.h,
                                 child: Center(
                                   child: Text(
-                                    'Work not started yet !!',
+                                    'Work in Progress',
                                     style: GoogleFonts.inter(
                                       color: AppTemplate.textClr,
                                       fontSize: 11.0,
@@ -812,66 +812,106 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                             if (beforeWashPhotos.isNotEmpty)
                               Container(
                                 padding: EdgeInsets.only(left: 25.w),
-                                height: 150.h,
+                                height: 220.h,
                                 child: ListView.builder(
                                   shrinkWrap: true,
                                   scrollDirection: Axis.horizontal,
                                   itemCount: afterWashPhotos.length,
                                   itemBuilder: (context, index) {
                                     return Padding(
-                                      padding: EdgeInsets.only(
-                                        right: 10.h,
-                                        bottom: 10.h,
-                                        top: 10.h,
-                                      ),
-                                      child: Container(
-                                        height: 150.h,
-                                        width: 220.w,
-                                        decoration: BoxDecoration(
-                                          color: AppTemplate.primaryClr,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: const Color(0xFFE1E1E1),
-                                              blurRadius: 4.r,
-                                              spreadRadius: 0.r,
-                                              offset: Offset(0.w, 4.h),
+                                        padding: EdgeInsets.only(
+                                          right: 10.h,
+                                          bottom: 10.h,
+                                          top: 10.h,
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            Container(
+                                              height: 150.h,
+                                              width: 220.w,
+                                              decoration: BoxDecoration(
+                                                color: AppTemplate.primaryClr,
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color:
+                                                        const Color(0xFFE1E1E1),
+                                                    blurRadius: 4.r,
+                                                    spreadRadius: 0.r,
+                                                    offset: Offset(0.w, 4.h),
+                                                  ),
+                                                ],
+                                                borderRadius:
+                                                    BorderRadius.circular(5.r),
+                                                border: Border.all(
+                                                  color:
+                                                      const Color(0xFFE1E1E1),
+                                                ),
+                                              ),
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(5.r),
+                                                child: Image.network(
+                                                  afterWashPhotos[index]
+                                                      .carImage,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (context, error,
+                                                      stackTrace) {
+                                                    return Container(
+                                                      height: 150.h,
+                                                      width: 220.w,
+                                                      child: Center(
+                                                        child: Align(
+                                                          alignment:
+                                                              Alignment.center,
+                                                          child: Text(
+                                                            'Invalid image data',
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                            style: TextStyle(
+                                                              fontSize: 16.sp,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color: Colors.red,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                  loadingBuilder: (context,
+                                                      child, loadingProgress) {
+                                                    if (loadingProgress ==
+                                                        null) {
+                                                      return child;
+                                                    } else {
+                                                      return Center(
+                                                          child:
+                                                              CircularProgressIndicator());
+                                                    }
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              padding: EdgeInsets.only(
+                                                  left: 10, top: 5),
+                                              // color: Colors.amber,
+                                              width: 220.w,
+                                              height: 50.h,
+                                              child: Text(
+                                                afterWashPhotos[index].viewName,
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                                softWrap: true,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
                                             ),
                                           ],
-                                          borderRadius:
-                                              BorderRadius.circular(5.r),
-                                          border: Border.all(
-                                            color: const Color(0xFFE1E1E1),
-                                          ),
-                                        ),
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(5.r),
-                                          child: Image.network(
-                                            afterWashPhotos[index].carImage,
-                                            fit: BoxFit.cover,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                              return Image.asset(
-                                                'assets/images/bmw1.jpeg',
-                                                height: 150.h,
-                                                width: 220.w,
-                                                fit: BoxFit.cover,
-                                              );
-                                            },
-                                            loadingBuilder: (context, child,
-                                                loadingProgress) {
-                                              if (loadingProgress == null) {
-                                                return child;
-                                              } else {
-                                                return Center(
-                                                    child:
-                                                        CircularProgressIndicator());
-                                              }
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                    );
+                                        ));
                                   },
                                 ),
                               ),
@@ -1034,6 +1074,7 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                           },
                         ),
                   //create ticket and send to whatsapp
+                  // SizedBox(height: 40),
                   Padding(
                     padding:
                         EdgeInsets.symmetric(horizontal: 25.w, vertical: 10.h),
