@@ -192,9 +192,13 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
     }
   }
 
-  Future<void> _shareToWhatsApp(String url, String fileName) async {
-    String phoneNumber = '918110023000';
-    String message = 'hii';
+  Future<void> _shareToWhatsApp(String url, String fileName, String msg) async {
+    String phoneNumber = "91+${washResponse!.mobileNo}";
+    String message = msg;
+
+    print("+++++++++++++");
+    print(message);
+    print("+++++++++++++");
 
     final response = await http.get(Uri.parse(url));
 
@@ -651,6 +655,203 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                 ),
                               ),
                             if (beforeWashPhotos.isNotEmpty)
+                              // Container(
+                              //   padding: EdgeInsets.only(left: 25.w),
+                              //   height: 220.h,
+                              //   child: ListView.builder(
+                              //     shrinkWrap: true,
+                              //     scrollDirection: Axis.horizontal,
+                              //     itemCount: beforeWashPhotos.length,
+                              //     itemBuilder: (context, index) {
+                              //       return Padding(
+                              //         padding: EdgeInsets.only(
+                              //           right: 10.h,
+                              //           bottom: 10.h,
+                              //           top: 10.h,
+                              //         ),
+                              //         child: Column(
+                              //           children: [
+                              //             Container(
+                              //           height: 150.h,
+                              //           width: 220.w,
+                              //           decoration: BoxDecoration(
+                              //             color: AppTemplate.primaryClr,
+                              //             boxShadow: [
+                              //               BoxShadow(
+                              //                     color:
+                              //                         const Color(0xFFE1E1E1),
+                              //                 blurRadius: 4.r,
+                              //                 spreadRadius: 0.r,
+                              //                 offset: Offset(0.w, 4.h),
+                              //                   ),
+                              //                 ],
+                              //                 borderRadius:
+                              //                     BorderRadius.circular(5.r),
+                              //                 border: Border.all(
+                              //                   color: const Color(0xFFE1E1E1),
+                              //                 ),
+                              //               ),
+                              //             ],
+                              //             borderRadius:
+                              //                 BorderRadius.circular(5.r),
+                              //             border: Border.all(
+                              //               color: const Color(0xFFE1E1E1),
+                              //             ),
+                              //           ),
+                              //           child: GestureDetector(
+                              //             onLongPress: () async {
+                              //               // share(beforeWashPhotos[index]
+                              //               //     .carImage);
+                              //               // final image = await File(
+                              //               //     beforeWashPhotos[index]
+                              //               //         .carImage);
+                              //               // shareImage(beforeWashPhotos[index]
+                              //               //     .carImage);
+                              //               _shareToWhatsApp(
+                              //                   beforeWashPhotos[index]
+                              //                       .carImage,
+                              //                   "Image 18");
+                              //               // shareFile(
+                              //               //     beforeWashPhotos[index]
+                              //               //         .carImage,
+                              //               //     "Image 16");
+                              //             },
+                              //             onTap: () async {
+                              //               final url = beforeWashPhotos[index]
+                              //                   .carImage;
+                              //               if (url.isNotEmpty) {
+                              //                 _showDownloadingDialog(context);
+
+                              //                 await downloadAndSaveImageToCustomDirectory(
+                              //                   url,
+                              //                   "Image 16",
+                              //                 );
+
+                              //                 Navigator.of(context).pop();
+
+                              //                 ScaffoldMessenger.of(context)
+                              //                     .showSnackBar(
+                              //                   SnackBar(
+                              //                     backgroundColor:
+                              //                         AppTemplate.bgClr,
+                              //                     content: Text(
+                              //                       "Image saved to gallery",
+                              //                       style: GoogleFonts.inter(
+                              //                         color: AppTemplate
+                              //                             .primaryClr,
+                              //                         fontWeight:
+                              //                             FontWeight.w400,
+                              //                       ),
+                              //                     ),
+                              //                   ),
+                              //                 );
+                              //               } else {
+                              //                 ScaffoldMessenger.of(context)
+                              //                     .showSnackBar(SnackBar(
+                              //                   backgroundColor:
+                              //                       AppTemplate.bgClr,
+                              //                   content: Text(
+                              //                     "Image not available",
+                              //                     style: GoogleFonts.inter(
+                              //                       color:
+                              //                           AppTemplate.primaryClr,
+                              //                       fontWeight: FontWeight.w400,
+                              //                     ),
+                              //                   ),
+                              //                 ));
+                              //               }
+                              //             },
+                              //             child: ClipRRect(
+                              //               borderRadius:
+                              //                   BorderRadius.circular(5.r),
+                              //               child: Image.network(
+                              //                 beforeWashPhotos[index].carImage,
+                              //                 fit: BoxFit.cover,
+                              //                 errorBuilder:
+                              //                     (context, error, stackTrace) {
+                              //                   return Text(
+                              //                       "Image not Available");
+                              //                 },
+                              //                 loadingBuilder: (context, child,
+                              //                     loadingProgress) {
+                              //                   if (loadingProgress == null) {
+                              //                     return child;
+                              //                   } else {
+                              //                     return Center(
+                              //                         child:
+                              //                             CircularProgressIndicator());
+                              //                   }
+                              //                 },
+                              //               child: ClipRRect(
+                              //                 borderRadius:
+                              //                     BorderRadius.circular(5.r),
+                              //                 child: Image.network(
+                              //                   beforeWashPhotos[index]
+                              //                       .carImage,
+                              //                   fit: BoxFit.cover,
+                              //                   errorBuilder: (context, error,
+                              //                       stackTrace) {
+                              //                     return Container(
+                              //                       height: 150.h,
+                              //                       width: 220.w,
+                              //                       child: Center(
+                              //                         child: Align(
+                              //                           alignment:
+                              //                               Alignment.center,
+                              //                           child: Text(
+                              //                             'Invalid image data',
+                              //                             textAlign:
+                              //                                 TextAlign.center,
+                              //                             style: TextStyle(
+                              //                               fontSize: 16.sp,
+                              //                               fontWeight:
+                              //                                   FontWeight.bold,
+                              //                               color: Colors.red,
+                              //                             ),
+                              //                           ),
+                              //                         ),
+                              //                       ),
+                              //                     );
+                              //                   },
+                              //                   loadingBuilder: (context, child,
+                              //                       loadingProgress) {
+                              //                     if (loadingProgress == null) {
+                              //                       return child;
+                              //                     } else {
+                              //                       return Center(
+                              //                         child:
+                              //                             CircularProgressIndicator(),
+                              //                       );
+                              //                     }
+                              //                   },
+                              //                 ),
+                              //               ),
+                              //             ),
+                              //             // SizedBox(height: 10),
+                              //                   Container(
+                              //                     padding: EdgeInsets.only(
+                              //                         left: 10, top: 5),
+                              //                     // color: Colors.amber,
+                              //                     width: 220.w,
+                              //                     height: 50.h,
+                              //                     child: Text(
+                              //                 beforeWashPhotos[index].viewName,
+                              //                       style: TextStyle(
+                              //                         fontSize: 16,
+                              //                   fontWeight: FontWeight.bold,
+                              //                       ),
+                              //                       softWrap: true,
+                              //                       maxLines: 2,
+                              //                 overflow: TextOverflow.ellipsis,
+                              //                     ),
+                              //             ),
+                              //           ],
+                              //                   ),
+                              //                 )
+                              //       );
+                              //     },
+                              //   ),
+                              // ),
                               Container(
                                 padding: EdgeInsets.only(left: 25.w),
                                 height: 220.h,
@@ -665,117 +866,154 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                         bottom: 10.h,
                                         top: 10.h,
                                       ),
-                                      child: Container(
-                                        height: 150.h,
-                                        width: 220.w,
-                                        decoration: BoxDecoration(
-                                          color: AppTemplate.primaryClr,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: const Color(0xFFE1E1E1),
-                                              blurRadius: 4.r,
-                                              spreadRadius: 0.r,
-                                              offset: Offset(0.w, 4.h),
-                                            ),
-                                          ],
-                                          borderRadius:
-                                              BorderRadius.circular(5.r),
-                                          border: Border.all(
-                                            color: const Color(0xFFE1E1E1),
-                                          ),
-                                        ),
-                                        child: GestureDetector(
-                                          onLongPress: () async {
-                                            // share(beforeWashPhotos[index]
-                                            //     .carImage);
-                                            // final image = await File(
-                                            //     beforeWashPhotos[index]
-                                            //         .carImage);
-                                            // shareImage(beforeWashPhotos[index]
-                                            //     .carImage);
-                                            _shareToWhatsApp(
-                                                beforeWashPhotos[index]
-                                                    .carImage,
-                                                "Image 18");
-                                            // shareFile(
-                                            //     beforeWashPhotos[index]
-                                            //         .carImage,
-                                            //     "Image 16");
-                                          },
-                                          onTap: () async {
-                                            final url = beforeWashPhotos[index]
-                                                .carImage;
-                                            if (url.isNotEmpty) {
-                                              _showDownloadingDialog(context);
+                                      child: Column(
+                                        children: [
+                                          GestureDetector(
+                                            onLongPress: () async {
+                                              _shareToWhatsApp(
+                                                  beforeWashPhotos[index]
+                                                      .carImage,
+                                                  "Image 18",
+                                                  beforeWashPhotos[index]
+                                                      .whatsapp_msg);
+                                            },
+                                            onTap: () async {
+                                              final url =
+                                                  beforeWashPhotos[index]
+                                                      .carImage;
+                                              if (url.isNotEmpty) {
+                                                _showDownloadingDialog(context);
 
-                                              await downloadAndSaveImageToCustomDirectory(
-                                                url,
-                                                "Image 16",
-                                              );
+                                                await downloadAndSaveImageToCustomDirectory(
+                                                  url,
+                                                  "Image 16",
+                                                );
 
-                                              Navigator.of(context).pop();
+                                                Navigator.of(context).pop();
 
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                SnackBar(
-                                                  backgroundColor:
-                                                      AppTemplate.bgClr,
-                                                  content: Text(
-                                                    "Image saved to gallery",
-                                                    style: GoogleFonts.inter(
-                                                      color: AppTemplate
-                                                          .primaryClr,
-                                                      fontWeight:
-                                                          FontWeight.w400,
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    backgroundColor:
+                                                        AppTemplate.bgClr,
+                                                    content: Text(
+                                                      "Image saved to gallery",
+                                                      style: GoogleFonts.inter(
+                                                        color: AppTemplate
+                                                            .primaryClr,
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                              );
-                                            } else {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(SnackBar(
-                                                backgroundColor:
-                                                    AppTemplate.bgClr,
-                                                content: Text(
-                                                  "Image not available",
-                                                  style: GoogleFonts.inter(
-                                                    color:
-                                                        AppTemplate.primaryClr,
-                                                    fontWeight: FontWeight.w400,
+                                                );
+                                              } else {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    backgroundColor:
+                                                        AppTemplate.bgClr,
+                                                    content: Text(
+                                                      "Image not available",
+                                                      style: GoogleFonts.inter(
+                                                        color: AppTemplate
+                                                            .primaryClr,
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                      ),
+                                                    ),
                                                   ),
+                                                );
+                                              }
+                                            },
+                                            child: Container(
+                                              height: 150.h,
+                                              width: 220.w,
+                                              decoration: BoxDecoration(
+                                                color: AppTemplate.primaryClr,
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color:
+                                                        const Color(0xFFE1E1E1),
+                                                    blurRadius: 4.r,
+                                                    spreadRadius: 0.r,
+                                                    offset: Offset(0.w, 4.h),
+                                                  ),
+                                                ],
+                                                borderRadius:
+                                                    BorderRadius.circular(5.r),
+                                                border: Border.all(
+                                                  color:
+                                                      const Color(0xFFE1E1E1),
                                                 ),
-                                              ));
-                                            }
-                                          },
-                                          child: ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(5.r),
-                                            child: Image.network(
-                                              beforeWashPhotos[index].carImage,
-                                              fit: BoxFit.cover,
-                                              errorBuilder:
-                                                  (context, error, stackTrace) {
-                                                return Text(
-                                                    "Image not Available");
-                                              },
-                                              loadingBuilder: (context, child,
-                                                  loadingProgress) {
-                                                if (loadingProgress == null) {
-                                                  return child;
-                                                } else {
-                                                  return Center(
-                                                      child:
-                                                          CircularProgressIndicator());
-                                                }
-                                              },
+                                              ),
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(5.r),
+                                                child: Image.network(
+                                                  beforeWashPhotos[index]
+                                                      .carImage,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (context, error,
+                                                      stackTrace) {
+                                                    return Container(
+                                                      height: 150.h,
+                                                      width: 220.w,
+                                                      child: Center(
+                                                        child: Text(
+                                                          'Invalid image data',
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                          style: TextStyle(
+                                                            fontSize: 16.sp,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: Colors.red,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                  loadingBuilder: (context,
+                                                      child, loadingProgress) {
+                                                    if (loadingProgress ==
+                                                        null) {
+                                                      return child;
+                                                    } else {
+                                                      return Center(
+                                                        child:
+                                                            CircularProgressIndicator(),
+                                                      );
+                                                    }
+                                                  },
+                                                ),
+                                              ),
                                             ),
                                           ),
-                                        ),
+                                          // SizedBox(height: 10.h),
+                                          // Container(
+                                          //   padding: EdgeInsets.only(
+                                          //       left: 10.w, top: 5.h),
+                                          //   width: 220.w,
+                                          //   height: 50.h,
+                                          //   child: Text(
+                                          //     beforeWashPhotos[index].viewName,
+                                          //     style: TextStyle(
+                                          //       fontSize: 16.sp,
+                                          //       fontWeight: FontWeight.bold,
+                                          //     ),
+                                          //     softWrap: true,
+                                          //     maxLines: 2,
+                                          //     overflow: TextOverflow.ellipsis,
+                                          //   ),
+                                          // ),
+                                        ],
                                       ),
                                     );
                                   },
                                 ),
                               ),
+
                             // SizedBox(
                             //   height: 10.h,
                             // ),
