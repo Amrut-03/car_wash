@@ -173,7 +173,7 @@ class _CustomWashtypeWidgetState extends ConsumerState<CustomWashtypeWidget> {
                                     padding: EdgeInsets.only(right: 10.w),
                                     child: Textfieldwidget(
                                       controller: _priceControllers[index],
-                                      labelTxt: "incentives",
+                                      labelTxt: "Price",
                                       labelTxtClr: const Color(0xFF929292),
                                       enabledBorderClr: const Color(0xFFD4D4D4),
                                       focusedBorderClr: const Color(0xFFD4D4D4),

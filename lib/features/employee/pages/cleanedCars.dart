@@ -221,8 +221,11 @@ class _CleanedCarsState extends ConsumerState<CleanedCars> {
                     height: 30.h,
                     width: 146.w,
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5.r),
-                        border: Border.all(color: const Color(0xFFD4D4D4))),
+                      borderRadius: BorderRadius.circular(5.r),
+                      border: Border.all(
+                        color: const Color(0xFFD4D4D4),
+                      ),
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [

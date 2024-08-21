@@ -2,11 +2,13 @@ class CleanedPhoto {
   String cleanDuration;
   String viewName;
   String carImage;
+  String whatsapp_msg;
 
   CleanedPhoto({
     required this.cleanDuration,
     required this.viewName,
     required this.carImage,
+    required this.whatsapp_msg,
   });
 
   factory CleanedPhoto.fromJson(Map<String, dynamic> json) {
@@ -14,6 +16,7 @@ class CleanedPhoto {
       cleanDuration: json['clean_duration'],
       viewName: json['view_name'],
       carImage: json['car_image'],
+      whatsapp_msg: json['wa_text'],
     );
   }
 
@@ -22,6 +25,7 @@ class CleanedPhoto {
       'clean_duration': cleanDuration,
       'view_name': viewName,
       'car_image': carImage,
+      'wa_text': whatsapp_msg,
     };
   }
 }

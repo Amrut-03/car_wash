@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/buttonWidget.dart';
@@ -11,6 +12,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:whatsapp_share/whatsapp_share.dart';
+import 'package:path/path.dart' as path;
+import 'package:share_plus/share_plus.dart';
 
 class CarWashedDetails extends ConsumerStatefulWidget {
   const CarWashedDetails({super.key, required this.washId});
@@ -147,6 +154,208 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
       }
     } catch (e) {
       log('Error = $e');
+    }
+  }
+
+  Future<File?> downloadAndSaveImageToCustomDirectory(
+      String url, String fileName) async {
+    // Request storage permissions
+    if (await Permission.storage.request().isGranted) {
+      // Step 1: Download the image from the URL
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        // Step 2: Define the custom directory path in public storage
+        final Directory customDirectory =
+            Directory('/storage/emulated/0/Pictures/Car');
+
+        // Step 3: Create the directory if it doesn't exist
+        if (!await customDirectory.exists()) {
+          await customDirectory.create(recursive: true);
+        }
+
+        // Step 4: Create the full file path in the custom directory
+        final String filePath =
+            path.join(customDirectory.path, '$fileName.jpg');
+
+        // Step 5: Save the image to the specified path
+        final file = File(filePath);
+        await file.writeAsBytes(response.bodyBytes);
+
+        return file;
+      } else {
+        throw Exception('Failed to download image');
+      }
+    } else {
+      throw Exception('Storage permission not granted');
+    }
+  }
+
+  Future<void> _shareToWhatsApp(String url, String fileName, String msg) async {
+    String phoneNumber = "91+${washResponse!.mobileNo}";
+    String message = msg;
+
+    print("+++++++++++++");
+    print(message);
+    print("+++++++++++++");
+
+    final response = await http.get(Uri.parse(url));
+
+    final Directory customDirectory =
+        Directory('/storage/emulated/0/Pictures/Car');
+
+    if (!await customDirectory.exists()) {
+      await customDirectory.create(recursive: true);
+    }
+
+    final String filePath = path.join(customDirectory.path, '$fileName.jpg');
+
+    final File file = File(filePath);
+    await file.writeAsBytes(response.bodyBytes);
+
+    if (phoneNumber.isNotEmpty) {
+      final String whatsappUrl =
+          "https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}";
+
+      if (await canLaunch(whatsappUrl)) {
+        await launch(whatsappUrl);
+        await Share.shareXFiles([XFile(filePath)]);
+
+        print("Success");
+      } else {
+        throw 'Could not launch $whatsappUrl';
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select an image and enter a phone number.'),
+        ),
+      );
+    }
+  }
+
+  // Future<void> shareFile(String url, String fileName) async {
+  //   if (await Permission.storage.request().isGranted) {
+  //     // Step 1: Download the image from the URL
+  //     final response = await http.get(Uri.parse(url));
+
+  //     if (response.statusCode == 200) {
+  //       // Step 2: Define the custom directory path in public storage
+  //       final Directory customDirectory =
+  //           Directory('/storage/emulated/0/Pictures/Car');
+
+  //       // Step 3: Create the directory if it doesn't exist
+  //       if (!await customDirectory.exists()) {
+  //         await customDirectory.create(recursive: true);
+  //       }
+
+  //       final String filePath =
+  //           path.join(customDirectory.path, '$fileName.jpg');
+
+  //       // Step 6: Save the image to the specified path
+  //       final File file = File(filePath);
+  //       await file.writeAsBytes(response.bodyBytes);
+
+  //       print("+++++++++++++++++++++++");
+  //       print(filePath);
+  //       print("+++++++++++++++++++++++");
+
+  //       print(washResponse!.mobileNo);
+
+  //       await WhatsappShare.shareFile(
+  //         phone:
+  //             // '91${washResponse!.mobileNo}',
+  //             '918111012000',
+  //         filePath: [filePath],
+  //       );
+  //     } else {
+  //       throw Exception('Failed to download image');
+  //     }
+  //   } else {
+  //     throw Exception('Storage permission not granted');
+  //   }
+  // }
+
+  // Future<void> shareImage() async {
+  //   await WhatsappShare.share(phone: '919172518904',);
+  // }
+
+  // Future<void> shareFile(File _image) async {
+  //   Directory? directory;
+  //   if (Platform.isAndroid) {
+  //     directory = await getExternalStorageDirectory();
+  //   } else {
+  //     directory = await getApplicationDocumentsDirectory();
+  //   }
+  //   debugPrint('${directory?.path} / ${_image.path}');
+
+  //   await WhatsappShare.shareFile(
+  //     phone: '911234567890',
+  //     filePath: ["${_image.path}"],
+  //   );
+  // }
+
+  void _showDownloadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: AppTemplate.primaryClr,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(AppTemplate.bgClr),
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'Downloading...',
+                  style: GoogleFonts.inter(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _shareImageOnWhatsApp(String imageUrl) async {
+    try {
+      final response = await http.get(Uri.parse(imageUrl));
+      if (response.statusCode != 200) {
+        throw Exception('Failed to download image');
+      }
+
+      final bytes = response.bodyBytes;
+      final tempDir = await getTemporaryDirectory();
+      final fileName = imageUrl.split('/').last;
+      final file = File('${tempDir.path}/$fileName');
+
+      await file.writeAsBytes(bytes);
+
+      final result = await WhatsappShare.shareFile(
+        filePath: [file.path],
+        text: 'Check out this image!',
+        phone: '919172518904',
+      );
+
+      if (result == null) {
+        print('Image sharing failed.');
+      } else {
+        print('Image shared on WhatsApp');
+      }
+    } catch (e) {
+      print('Error sharing image: $e');
     }
   }
 
@@ -457,6 +666,203 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                 ),
                               ),
                             if (beforeWashPhotos.isNotEmpty)
+                              // Container(
+                              //   padding: EdgeInsets.only(left: 25.w),
+                              //   height: 220.h,
+                              //   child: ListView.builder(
+                              //     shrinkWrap: true,
+                              //     scrollDirection: Axis.horizontal,
+                              //     itemCount: beforeWashPhotos.length,
+                              //     itemBuilder: (context, index) {
+                              //       return Padding(
+                              //         padding: EdgeInsets.only(
+                              //           right: 10.h,
+                              //           bottom: 10.h,
+                              //           top: 10.h,
+                              //         ),
+                              //         child: Column(
+                              //           children: [
+                              //             Container(
+                              //           height: 150.h,
+                              //           width: 220.w,
+                              //           decoration: BoxDecoration(
+                              //             color: AppTemplate.primaryClr,
+                              //             boxShadow: [
+                              //               BoxShadow(
+                              //                     color:
+                              //                         const Color(0xFFE1E1E1),
+                              //                 blurRadius: 4.r,
+                              //                 spreadRadius: 0.r,
+                              //                 offset: Offset(0.w, 4.h),
+                              //                   ),
+                              //                 ],
+                              //                 borderRadius:
+                              //                     BorderRadius.circular(5.r),
+                              //                 border: Border.all(
+                              //                   color: const Color(0xFFE1E1E1),
+                              //                 ),
+                              //               ),
+                              //             ],
+                              //             borderRadius:
+                              //                 BorderRadius.circular(5.r),
+                              //             border: Border.all(
+                              //               color: const Color(0xFFE1E1E1),
+                              //             ),
+                              //           ),
+                              //           child: GestureDetector(
+                              //             onLongPress: () async {
+                              //               // share(beforeWashPhotos[index]
+                              //               //     .carImage);
+                              //               // final image = await File(
+                              //               //     beforeWashPhotos[index]
+                              //               //         .carImage);
+                              //               // shareImage(beforeWashPhotos[index]
+                              //               //     .carImage);
+                              //               _shareToWhatsApp(
+                              //                   beforeWashPhotos[index]
+                              //                       .carImage,
+                              //                   "Image 18");
+                              //               // shareFile(
+                              //               //     beforeWashPhotos[index]
+                              //               //         .carImage,
+                              //               //     "Image 16");
+                              //             },
+                              //             onTap: () async {
+                              //               final url = beforeWashPhotos[index]
+                              //                   .carImage;
+                              //               if (url.isNotEmpty) {
+                              //                 _showDownloadingDialog(context);
+
+                              //                 await downloadAndSaveImageToCustomDirectory(
+                              //                   url,
+                              //                   "Image 16",
+                              //                 );
+
+                              //                 Navigator.of(context).pop();
+
+                              //                 ScaffoldMessenger.of(context)
+                              //                     .showSnackBar(
+                              //                   SnackBar(
+                              //                     backgroundColor:
+                              //                         AppTemplate.bgClr,
+                              //                     content: Text(
+                              //                       "Image saved to gallery",
+                              //                       style: GoogleFonts.inter(
+                              //                         color: AppTemplate
+                              //                             .primaryClr,
+                              //                         fontWeight:
+                              //                             FontWeight.w400,
+                              //                       ),
+                              //                     ),
+                              //                   ),
+                              //                 );
+                              //               } else {
+                              //                 ScaffoldMessenger.of(context)
+                              //                     .showSnackBar(SnackBar(
+                              //                   backgroundColor:
+                              //                       AppTemplate.bgClr,
+                              //                   content: Text(
+                              //                     "Image not available",
+                              //                     style: GoogleFonts.inter(
+                              //                       color:
+                              //                           AppTemplate.primaryClr,
+                              //                       fontWeight: FontWeight.w400,
+                              //                     ),
+                              //                   ),
+                              //                 ));
+                              //               }
+                              //             },
+                              //             child: ClipRRect(
+                              //               borderRadius:
+                              //                   BorderRadius.circular(5.r),
+                              //               child: Image.network(
+                              //                 beforeWashPhotos[index].carImage,
+                              //                 fit: BoxFit.cover,
+                              //                 errorBuilder:
+                              //                     (context, error, stackTrace) {
+                              //                   return Text(
+                              //                       "Image not Available");
+                              //                 },
+                              //                 loadingBuilder: (context, child,
+                              //                     loadingProgress) {
+                              //                   if (loadingProgress == null) {
+                              //                     return child;
+                              //                   } else {
+                              //                     return Center(
+                              //                         child:
+                              //                             CircularProgressIndicator());
+                              //                   }
+                              //                 },
+                              //               child: ClipRRect(
+                              //                 borderRadius:
+                              //                     BorderRadius.circular(5.r),
+                              //                 child: Image.network(
+                              //                   beforeWashPhotos[index]
+                              //                       .carImage,
+                              //                   fit: BoxFit.cover,
+                              //                   errorBuilder: (context, error,
+                              //                       stackTrace) {
+                              //                     return Container(
+                              //                       height: 150.h,
+                              //                       width: 220.w,
+                              //                       child: Center(
+                              //                         child: Align(
+                              //                           alignment:
+                              //                               Alignment.center,
+                              //                           child: Text(
+                              //                             'Invalid image data',
+                              //                             textAlign:
+                              //                                 TextAlign.center,
+                              //                             style: TextStyle(
+                              //                               fontSize: 16.sp,
+                              //                               fontWeight:
+                              //                                   FontWeight.bold,
+                              //                               color: Colors.red,
+                              //                             ),
+                              //                           ),
+                              //                         ),
+                              //                       ),
+                              //                     );
+                              //                   },
+                              //                   loadingBuilder: (context, child,
+                              //                       loadingProgress) {
+                              //                     if (loadingProgress == null) {
+                              //                       return child;
+                              //                     } else {
+                              //                       return Center(
+                              //                         child:
+                              //                             CircularProgressIndicator(),
+                              //                       );
+                              //                     }
+                              //                   },
+                              //                 ),
+                              //               ),
+                              //             ),
+                              //             // SizedBox(height: 10),
+                              //                   Container(
+                              //                     padding: EdgeInsets.only(
+                              //                         left: 10, top: 5),
+                              //                     // color: Colors.amber,
+                              //                     width: 220.w,
+                              //                     height: 50.h,
+                              //                     child: Text(
+                              //                 beforeWashPhotos[index].viewName,
+                              //                       style: TextStyle(
+                              //                         fontSize: 16,
+                              //                   fontWeight: FontWeight.bold,
+                              //                       ),
+                              //                       softWrap: true,
+                              //                       maxLines: 2,
+                              //                 overflow: TextOverflow.ellipsis,
+                              //                     ),
+                              //             ),
+                              //           ],
+                              //                   ),
+                              //                 )
+                              //       );
+                              //     },
+                              //   ),
+                              // ),
                               Container(
                                 padding: EdgeInsets.only(left: 25.w),
                                 height: 220.h,
@@ -473,42 +879,98 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                       ),
                                       child: Column(
                                         children: [
-                                          Container(
-                                            height: 150.h,
-                                            width: 220.w,
-                                            decoration: BoxDecoration(
-                                              color: AppTemplate.primaryClr,
-                                              boxShadow: [
-                                                BoxShadow(
+                                          GestureDetector(
+                                            onLongPress: () async {
+                                              _shareToWhatsApp(
+                                                  beforeWashPhotos[index]
+                                                      .carImage,
+                                                  "Image 18",
+                                                  beforeWashPhotos[index]
+                                                      .whatsapp_msg);
+                                            },
+                                            onTap: () async {
+                                              final url =
+                                                  beforeWashPhotos[index]
+                                                      .carImage;
+                                              if (url.isNotEmpty) {
+                                                _showDownloadingDialog(context);
+
+                                                await downloadAndSaveImageToCustomDirectory(
+                                                  url,
+                                                  "Image 16",
+                                                );
+
+                                                Navigator.of(context).pop();
+
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    backgroundColor:
+                                                        AppTemplate.bgClr,
+                                                    content: Text(
+                                                      "Image saved to gallery",
+                                                      style: GoogleFonts.inter(
+                                                        color: AppTemplate
+                                                            .primaryClr,
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              } else {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    backgroundColor:
+                                                        AppTemplate.bgClr,
+                                                    content: Text(
+                                                      "Image not available",
+                                                      style: GoogleFonts.inter(
+                                                        color: AppTemplate
+                                                            .primaryClr,
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                            child: Container(
+                                              height: 150.h,
+                                              width: 220.w,
+                                              decoration: BoxDecoration(
+                                                color: AppTemplate.primaryClr,
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color:
+                                                        const Color(0xFFE1E1E1),
+                                                    blurRadius: 4.r,
+                                                    spreadRadius: 0.r,
+                                                    offset: Offset(0.w, 4.h),
+                                                  ),
+                                                ],
+                                                borderRadius:
+                                                    BorderRadius.circular(5.r),
+                                                border: Border.all(
                                                   color:
                                                       const Color(0xFFE1E1E1),
-                                                  blurRadius: 4.r,
-                                                  spreadRadius: 0.r,
-                                                  offset: Offset(0.w, 4.h),
                                                 ),
-                                              ],
-                                              borderRadius:
-                                                  BorderRadius.circular(5.r),
-                                              border: Border.all(
-                                                color: const Color(0xFFE1E1E1),
                                               ),
-                                            ),
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(5.r),
-                                              child: Image.network(
-                                                beforeWashPhotos[index]
-                                                    .carImage,
-                                                fit: BoxFit.cover,
-                                                errorBuilder: (context, error,
-                                                    stackTrace) {
-                                                  return Container(
-                                                    height: 150.h,
-                                                    width: 220.w,
-                                                    child: Center(
-                                                      child: Align(
-                                                        alignment:
-                                                            Alignment.center,
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(5.r),
+                                                child: Image.network(
+                                                  beforeWashPhotos[index]
+                                                      .carImage,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (context, error,
+                                                      stackTrace) {
+                                                    return Container(
+                                                      height: 150.h,
+                                                      width: 220.w,
+                                                      child: Center(
                                                         child: Text(
                                                           'Invalid image data',
                                                           textAlign:
@@ -521,47 +983,48 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                                           ),
                                                         ),
                                                       ),
-                                                    ),
-                                                  );
-                                                },
-                                                loadingBuilder: (context, child,
-                                                    loadingProgress) {
-                                                  if (loadingProgress == null) {
-                                                    return child;
-                                                  } else {
-                                                    return Center(
-                                                      child:
-                                                          CircularProgressIndicator(),
                                                     );
-                                                  }
-                                                },
+                                                  },
+                                                  loadingBuilder: (context,
+                                                      child, loadingProgress) {
+                                                    if (loadingProgress ==
+                                                        null) {
+                                                      return child;
+                                                    } else {
+                                                      return Center(
+                                                        child:
+                                                            CircularProgressIndicator(),
+                                                      );
+                                                    }
+                                                  },
+                                                ),
                                               ),
                                             ),
                                           ),
-                                          // SizedBox(height: 10),
-                                          Container(
-                                            padding: EdgeInsets.only(
-                                                left: 10, top: 5),
-                                            // color: Colors.amber,
-                                            width: 220.w,
-                                            height: 50.h,
-                                            child: Text(
-                                              beforeWashPhotos[index].viewName,
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                              softWrap: true,
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
+                                          // SizedBox(height: 10.h),
+                                          // Container(
+                                          //   padding: EdgeInsets.only(
+                                          //       left: 10.w, top: 5.h),
+                                          //   width: 220.w,
+                                          //   height: 50.h,
+                                          //   child: Text(
+                                          //     beforeWashPhotos[index].viewName,
+                                          //     style: TextStyle(
+                                          //       fontSize: 16.sp,
+                                          //       fontWeight: FontWeight.bold,
+                                          //     ),
+                                          //     softWrap: true,
+                                          //     maxLines: 2,
+                                          //     overflow: TextOverflow.ellipsis,
+                                          //   ),
+                                          // ),
                                         ],
                                       ),
                                     );
                                   },
                                 ),
                               ),
+
                             // SizedBox(
                             //   height: 10.h,
                             // ),
