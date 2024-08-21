@@ -169,6 +169,16 @@ class _IndividualSalaryFinalState extends ConsumerState<IndividualSalaryFinal> {
                                     height: 100.r,
                                   );
                                 },
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) {
+                                    return child;
+                                  } else {
+                                    return Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  }
+                                },
                               ),
                             ),
                           ),
@@ -179,12 +189,17 @@ class _IndividualSalaryFinalState extends ConsumerState<IndividualSalaryFinal> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(
-                                widget.employeeName,
-                                style: GoogleFonts.inter(
+                              SizedBox(
+                                width: 120.w,
+                                child: Text(
+                                  widget.employeeName,
+                                  style: GoogleFonts.inter(
                                     fontSize: 15.0,
                                     color: AppTemplate.textClr,
-                                    fontWeight: FontWeight.w400),
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                               SizedBox(
                                 width: 120.w,

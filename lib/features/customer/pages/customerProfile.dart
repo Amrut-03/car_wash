@@ -340,6 +340,7 @@ class _CustomerProfileState extends ConsumerState<CustomerProfile> {
                   isCarWashed
                       ? CustomerRecentWashesList(
                           washList: customerData!.washList,
+                          customerName: customerData!.customerName,
                         )
                       : Listedcarslist(
                           carItem: customerData!.carList,

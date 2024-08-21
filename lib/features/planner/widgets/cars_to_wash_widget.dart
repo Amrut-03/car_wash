@@ -93,6 +93,7 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
         }
       } else {
         if (mounted) {
+          Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(responseData['remarks']),
@@ -123,168 +124,168 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
       children: [
         GestureDetector(
           onTap: () {
-            if (widget.car.alloted.isEmpty) {
-              showModalBottomSheet(
-                isScrollControlled: true,
-                context: context,
-                builder: (BuildContext context) {
-                  return StatefulBuilder(
-                    builder: (context, setState) {
-                      final keyboardHeight =
-                          MediaQuery.of(context).viewInsets.bottom;
-                      return SingleChildScrollView(
-                        child: Container(
-                          padding: EdgeInsets.only(
-                            top: 10,
-                            bottom: keyboardHeight + 20,
-                          ),
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: Colors.white,
-                          ),
-                          child: Column(
-                            children: [
-                              Container(
-                                height: 10,
-                                width: 150,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF9B9B9B),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
+            // if (widget.car.alloted.isEmpty) {
+            setState(() {
+              currentOption = null;
+            });
+            showModalBottomSheet(
+              isScrollControlled: true,
+              context: context,
+              builder: (BuildContext context) {
+                return StatefulBuilder(
+                  builder: (context, setState) {
+                    final keyboardHeight =
+                        MediaQuery.of(context).viewInsets.bottom;
+                    return SingleChildScrollView(
+                      child: Container(
+                        padding: EdgeInsets.only(
+                          top: 10,
+                          bottom: keyboardHeight + 20,
+                        ),
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: Colors.white,
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              height: 10,
+                              width: 150,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF9B9B9B),
+                                borderRadius: BorderRadius.circular(20),
                               ),
-                              SizedBox(height: 20.h),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  ListView.builder(
-                                    shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    itemCount: widget.washTypes.length,
-                                    itemBuilder: (context, index) {
-                                      return RadioListTile<WashType>(
-                                        fillColor: const WidgetStatePropertyAll(
-                                          Colors.black,
+                            ),
+                            SizedBox(height: 20.h),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: widget.washTypes.length,
+                                  itemBuilder: (context, index) {
+                                    return RadioListTile<WashType>(
+                                      fillColor: const WidgetStatePropertyAll(
+                                        Colors.black,
+                                      ),
+                                      title: Text(
+                                        widget.washTypes[index].washName,
+                                        style: const TextStyle(
+                                          fontSize: 15.0,
                                         ),
-                                        title: Text(
-                                          widget.washTypes[index].washName,
-                                          style: const TextStyle(
-                                            fontSize: 15.0,
-                                          ),
-                                        ),
-                                        value: widget.washTypes[index],
-                                        groupValue: currentOption,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            currentOption = value;
-                                          });
-                                        },
-                                      );
-                                    },
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 25, vertical: 15),
-                                    child: TextFormField(
-                                      controller: remarksController,
-                                      maxLines: 5,
-                                      textAlignVertical: TextAlignVertical.top,
-                                      cursorColor: AppTemplate.enabledBorderClr,
-                                      keyboardType: TextInputType.multiline,
-                                      decoration: InputDecoration(
-                                        hintText: 'Remarks',
-                                        hintStyle: GoogleFonts.inter(
-                                            fontSize: 15.0,
-                                            color: const Color(0xFF929292),
-                                            fontWeight: FontWeight.w400),
-                                        border: InputBorder.none,
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5.r),
-                                          borderSide: BorderSide(
-                                              color: AppTemplate.shadowClr,
-                                              width: 1.5.w),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5.r),
-                                          borderSide: BorderSide(
-                                              color: AppTemplate.shadowClr,
-                                              width: 1.5.w),
-                                        ),
+                                      ),
+                                      value: widget.washTypes[index],
+                                      groupValue: currentOption,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          currentOption = value;
+                                        });
+                                      },
+                                    );
+                                  },
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 25, vertical: 15),
+                                  child: TextFormField(
+                                    controller: remarksController,
+                                    maxLines: 5,
+                                    textAlignVertical: TextAlignVertical.top,
+                                    cursorColor: AppTemplate.enabledBorderClr,
+                                    keyboardType: TextInputType.multiline,
+                                    decoration: InputDecoration(
+                                      hintText: 'Remarks',
+                                      hintStyle: GoogleFonts.inter(
+                                          fontSize: 15.0,
+                                          color: const Color(0xFF929292),
+                                          fontWeight: FontWeight.w400),
+                                      border: InputBorder.none,
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(5.r),
+                                        borderSide: BorderSide(
+                                            color: AppTemplate.shadowClr,
+                                            width: 1.5.w),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(5.r),
+                                        borderSide: BorderSide(
+                                            color: AppTemplate.shadowClr,
+                                            width: 1.5.w),
                                       ),
                                     ),
                                   ),
-                                  SizedBox(height: 20.h),
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 25, right: 25, bottom: 20),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          flex: 4,
-                                          child: Buttonwidget(
-                                            width: 0.w,
-                                            height: 50.h,
-                                            buttonClr: const Color(0xFF929292),
-                                            txt: 'Cancel',
-                                            textClr: AppTemplate.primaryClr,
-                                            textSz: 16.0,
-                                            onClick: () {
-                                              Navigator.pop(context);
-                                            },
-                                          ),
+                                ),
+                                SizedBox(height: 20.h),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 25, right: 25, bottom: 20),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 4,
+                                        child: Buttonwidget(
+                                          width: 0.w,
+                                          height: 50.h,
+                                          buttonClr: const Color(0xFF929292),
+                                          txt: 'Cancel',
+                                          textClr: AppTemplate.primaryClr,
+                                          textSz: 16.0,
+                                          onClick: () {
+                                            Navigator.pop(context);
+                                          },
                                         ),
-                                        SizedBox(width: 10.w),
-                                        Expanded(
-                                          flex: 6,
-                                          child: Buttonwidget(
-                                            width: 0.w,
-                                            height: 50.h,
-                                            buttonClr: const Color(0xFF1E3763),
-                                            txt: 'Assign',
-                                            textClr: AppTemplate.primaryClr,
-                                            textSz: 16.0,
-                                            onClick: () async {
-                                              if (currentOption != null) {
-                                                await assign(currentOption!);
-                                                plannerNotifier
-                                                    .plannerEmployeeList();
-                                              } else {
-                                                Fluttertoast.showToast(
-                                                  msg:
-                                                      'Please select a wash type',
-                                                  toastLength:
-                                                      Toast.LENGTH_LONG,
-                                                  gravity: ToastGravity.TOP,
-                                                  backgroundColor: Colors.red,
-                                                  fontSize: 18.0,
-                                                  textColor: Colors.white,
-                                                  timeInSecForIosWeb: 3,
-                                                );
-                                                // showOverlaySnackBar(
-                                                //     context,
-                                                //     'Please select a wash type',
-                                                //     Colors.red);
-                                              }
-                                            },
-                                          ),
+                                      ),
+                                      SizedBox(width: 10.w),
+                                      Expanded(
+                                        flex: 6,
+                                        child: Buttonwidget(
+                                          width: 0.w,
+                                          height: 50.h,
+                                          buttonClr: const Color(0xFF1E3763),
+                                          txt: 'Assign',
+                                          textClr: AppTemplate.primaryClr,
+                                          textSz: 16.0,
+                                          onClick: () async {
+                                            if (currentOption != null) {
+                                              await assign(currentOption!);
+                                              plannerNotifier
+                                                  .plannerEmployeeList();
+                                            } else {
+                                              Fluttertoast.showToast(
+                                                msg:
+                                                    'Please select a wash type',
+                                                toastLength: Toast.LENGTH_LONG,
+                                                gravity: ToastGravity.TOP,
+                                                backgroundColor: Colors.red,
+                                                fontSize: 18.0,
+                                                textColor: Colors.white,
+                                                timeInSecForIosWeb: 3,
+                                              );
+                                              // showOverlaySnackBar(
+                                              //     context,
+                                              //     'Please select a wash type',
+                                              //     Colors.red);
+                                            }
+                                          },
                                         ),
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              )
-                            ],
-                          ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            )
+                          ],
                         ),
-                      );
-                    },
-                  );
-                },
-              );
-            }
+                      ),
+                    );
+                  },
+                );
+              },
+            );
           },
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 25.w),
