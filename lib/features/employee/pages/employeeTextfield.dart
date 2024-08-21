@@ -63,22 +63,25 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
       setState(() {
         isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
           backgroundColor: AppTemplate.bgClr,
           content: Text(
             "Image is Required",
             style: GoogleFonts.inter(
                 color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
-          )));
+          ),
+        ),
+      );
     }
   }
 
   Future<void> createEmployee(BuildContext context, WidgetRef ref) async {
     final empName = ref.read(employeeNameProvider).text;
     final dob = ref.read(dobControllerProvider).text;
-    // final formattedDob = DateFormat('dd-MM-yyyy').parse(dob);
-    // final String dobForApi = DateFormat('dd-MM-yyyy').format(formattedDob);
-    // print(dobForApi);
+    final formattedDob = DateFormat('dd-MM-yyyy').parse(dob);
+    final String dobForApi = DateFormat('dd-MM-yyyy').format(formattedDob);
+    print(dobForApi);
     final address = ref.read(addressControllerProvider).text;
     final phone1 = ref.read(phone1ControllerProvider).text;
     final phone2 = ref.read(phone2ControllerProvider).text;
@@ -156,7 +159,7 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: AppTemplate.bgClr,
         content: Text(
-          'Please Enter Mobile Number 1',
+          'Please Enter Phone number 1',
           style: GoogleFonts.inter(
               color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
         ),
@@ -170,7 +173,7 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: AppTemplate.bgClr,
         content: Text(
-          'Please Enter Mobile Number 2',
+          'Please Enter Phone number 2',
           style: GoogleFonts.inter(
               color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
         ),
@@ -222,7 +225,7 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           backgroundColor: AppTemplate.bgClr,
           content: Text(
-            "aadhar front image is Required",
+            "Aadhar front image is Required",
             style: GoogleFonts.inter(
                 color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
           )));
@@ -238,7 +241,7 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           backgroundColor: AppTemplate.bgClr,
           content: Text(
-            "aadhar Back image is Required",
+            "Aadhar Back image is Required",
             style: GoogleFonts.inter(
                 color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
           )));

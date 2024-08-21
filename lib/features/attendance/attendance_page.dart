@@ -54,7 +54,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
   }
 
   Future<void> attendenceUpdate(String status) async {
-    final admin = ref.read(authProvider); // Use ref to access the provider
+    final admin = ref.read(authProvider);
     if (currentAttendance == null) return;
 
     var request = http.MultipartRequest(
@@ -134,26 +134,38 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
                       height: 450,
                       width: double.infinity,
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(15),
-                        child: Image.network(
-                          currentAttendance!['attendance_image'],
-                          fit: BoxFit.cover,
-                          loadingBuilder: (BuildContext context, Widget child,
-                              ImageChunkEvent? loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Center(
-                              child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes !=
-                                        null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                        (loadingProgress.expectedTotalBytes ??
-                                            1)
-                                    : null,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
+                          borderRadius: BorderRadius.circular(15),
+                          child: currentAttendance!['attendance_image'].isEmpty
+                              ? Image.network(
+                                  currentAttendance!['attendance_image'],
+                                  fit: BoxFit.cover,
+                                  loadingBuilder: (BuildContext context,
+                                      Widget child,
+                                      ImageChunkEvent? loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return Center(
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                (loadingProgress
+                                                        .expectedTotalBytes ??
+                                                    1)
+                                            : null,
+                                      ),
+                                    );
+                                  },
+                                )
+                              : Center(
+                                  child: Text(
+                                    "Failed to Load...",
+                                    style: GoogleFonts.inter(
+                                      color: AppTemplate.textClr,
+                                    ),
+                                  ),
+                                )),
                     ),
                   ),
                   SizedBox(height: 20.h),
