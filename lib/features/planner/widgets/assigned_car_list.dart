@@ -16,13 +16,11 @@ class AssignedCarList extends ConsumerStatefulWidget {
   const AssignedCarList(
       {super.key,
       required this.assignedCars,
-      required this.washTypes,
       required this.start,
       required this.end,
       required this.cleanerKey,
       required this.onAssigned});
   final List<AssignedCar> assignedCars;
-  final List<WashType> washTypes;
   final String start;
   final String end;
   final String cleanerKey;
@@ -75,6 +73,8 @@ class _AssignedCarListState extends ConsumerState<AssignedCarList> {
       _assignedCars.insert(newIndex, item);
     });
   }
+
+  
 
   Future<void> sortlist() async {
     setState(() {
@@ -273,7 +273,6 @@ class _AssignedCarListState extends ConsumerState<AssignedCarList> {
                                       ],
                                     ),
                                     child: AssignedCard(
-                                      washTypes: widget.washTypes,
                                       assignedCar: _assignedCars[index],
                                       cleanerKey: widget.cleanerKey,
                                       onAssigned: widget.onAssigned,

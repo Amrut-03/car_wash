@@ -1034,23 +1034,23 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                               ),
                                             ),
                                           ),
-                                          // SizedBox(height: 10.h),
-                                          // Container(
-                                          //   padding: EdgeInsets.only(
-                                          //       left: 10.w, top: 5.h),
-                                          //   width: 220.w,
-                                          //   height: 50.h,
-                                          //   child: Text(
-                                          //     beforeWashPhotos[index].viewName,
-                                          //     style: TextStyle(
-                                          //       fontSize: 16.sp,
-                                          //       fontWeight: FontWeight.bold,
-                                          //     ),
-                                          //     softWrap: true,
-                                          //     maxLines: 2,
-                                          //     overflow: TextOverflow.ellipsis,
-                                          //   ),
-                                          // ),
+                                          //SizedBox(height: 10.h),
+                                          Container(
+                                            padding: EdgeInsets.only(
+                                                left: 10.w, top: 5.h),
+                                            width: 220.w,
+                                            height: 50.h,
+                                            child: Text(
+                                              beforeWashPhotos[index].viewName,
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              softWrap: true,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     );

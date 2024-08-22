@@ -28,7 +28,7 @@ class Planner extends ConsumerStatefulWidget {
 
 class _PlannerState extends ConsumerState<Planner> {
   TextEditingController searchEmployee = TextEditingController();
-  List<WashType> washTypes = [];
+  
   List<AllCar> allCars = [];
   List<AssignedCar> assignedCars = [];
   List<AllCar> filteredCars = [];
@@ -46,7 +46,6 @@ class _PlannerState extends ConsumerState<Planner> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     fetchCars();
-    fetchWashes();
   }
 
   @override
@@ -128,39 +127,42 @@ class _PlannerState extends ConsumerState<Planner> {
     }
   }
 
-  Future<void> fetchWashes() async {
-    var url = Uri.parse('https://wash.sortbe.com/API/Wash-Names');
+  // Future<void> fetchWashes() async {
+  //   var url = Uri.parse('https://wash.sortbe.com/API/Wash-Names');
 
-    try {
-      var response = await http.post(
-        url,
-        body: {'enc_key': encKey},
-      );
+  //   try {
+  //     var response = await http.post(
+  //       url,
+  //       body: {
+  //         'enc_key': encKey,
+  //         'emp_id': widget.empId,
+  //       },
+  //     );
 
-      final responseData = jsonDecode(response.body);
-      if (responseData['status'] == "Success") {
-        if (mounted) {
-          setState(() {
-            washTypes = (responseData['data'] as List)
-                .map((item) => WashType.fromJson(item))
-                .toList();
-          });
-        }
-      } else {
-        // Handle server error
-        print('Server error: ${response.statusCode}');
-      }
-    } on SocketException catch (e) {
-      // Handle network error
-      print('Network error: $e');
-    } on http.ClientException catch (e) {
-      // Handle client error
-      print('Client error: $e');
-    } catch (e) {
-      // Handle other errors
-      print('An error occurred: $e');
-    }
-  }
+  //     final responseData = jsonDecode(response.body);
+  //     if (responseData['status'] == "Success") {
+  //       if (mounted) {
+  //         setState(() {
+  //           washTypes = (responseData['data'] as List)
+  //               .map((item) => WashType.fromJson(item))
+  //               .toList();
+  //         });
+  //       }
+  //     } else {
+  //       // Handle server error
+  //       print('Server error: ${response.statusCode}');
+  //     }
+  //   } on SocketException catch (e) {
+  //     // Handle network error
+  //     print('Network error: $e');
+  //   } on http.ClientException catch (e) {
+  //     // Handle client error
+  //     print('Client error: $e');
+  //   } catch (e) {
+  //     // Handle other errors
+  //     print('An error occurred: $e');
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -218,7 +220,6 @@ class _PlannerState extends ConsumerState<Planner> {
               SizedBox(height: 20.h),
               AssignedCarList(
                 assignedCars: assignedCars,
-                washTypes: washTypes,
                 start: start.isEmpty ? '0' : start,
                 end: end.isEmpty ? '0' : end,
                 cleanerKey: widget.empId,
@@ -265,7 +266,6 @@ class _PlannerState extends ConsumerState<Planner> {
                             itemCount: filteredCars.length,
                             itemBuilder: (context, index) {
                               return CarsToWashWidget(
-                                washTypes: washTypes,
                                 car: filteredCars[index],
                                 cleanerKey: widget.empId,
                                 onAssigned: refreshPage,
