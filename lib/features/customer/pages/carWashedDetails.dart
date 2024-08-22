@@ -179,7 +179,6 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
         final String filePath =
             path.join(customDirectory.path, '$fileName.jpg');
 
-        // Step 5: Save the image to the specified path
         final file = File(filePath);
         await file.writeAsBytes(response.bodyBytes);
 
