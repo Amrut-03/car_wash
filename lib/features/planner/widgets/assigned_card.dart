@@ -33,6 +33,8 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
   final TextEditingController remarks = TextEditingController();
   List<WashType> washTypes = [];
   bool isLoading = false;
+  bool isUnassigning = false;
+  bool isUpdating = false;
 
   @override
   void initState() {
@@ -329,11 +331,26 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
                                               height: 50.h,
                                               buttonClr:
                                                   const Color(0xFFC80000),
-                                              txt: 'Un-Assign',
+                                              txt: isUnassigning
+                                                  ? 'Unassigning...'
+                                                  : 'Un-Assign',
                                               textClr: AppTemplate.primaryClr,
                                               textSz: 18.0,
                                               onClick: () async {
+                                                if (isUnassigning) {
+                                                  return;
+                                                }
+                                                setState(() {
+                                                  isUnassigning = true;
+                                                  print(
+                                                      "isUnassigning = $isUnassigning");
+                                                });
                                                 await unAssign();
+                                                setState(() {
+                                                  isUnassigning = false;
+                                                  print(
+                                                      "isUnassigning2 = $isUnassigning");
+                                                });
                                                 plannerNotifier
                                                     .plannerEmployeeList();
                                               },
@@ -347,11 +364,26 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
                                               height: 50.h,
                                               buttonClr:
                                                   const Color(0xFF1E3763),
-                                              txt: 'Update',
+                                              txt: isUpdating
+                                                  ? 'Updating...'
+                                                  : 'Update',
                                               textClr: AppTemplate.primaryClr,
-                                              textSz: 18.0,
+                                              textSz: isUpdating ? 16 : 18.0,
                                               onClick: () async {
+                                                if (isUpdating) {
+                                                  return;
+                                                }
+                                                setState(() {
+                                                  isUpdating = true;
+                                                  print(
+                                                      "isUpdating = $isUpdating");
+                                                });
                                                 await update();
+                                                setState(() {
+                                                  isUpdating = false;
+                                                  print(
+                                                      "isUpdating2 = $isUpdating");
+                                                });
                                               },
                                             ),
                                           ),

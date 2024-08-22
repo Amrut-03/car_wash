@@ -45,6 +45,15 @@ Widget imagePreview(Map<String, File> imagesMap, String? carImage) {
             ],
           );
         },
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) {
+            return child;
+          } else {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
       ),
     );
   } else {

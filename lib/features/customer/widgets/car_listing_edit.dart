@@ -389,37 +389,41 @@ class _CarListingEditState extends State<CarListingEdit> {
                                 ),
                               ),
                             ),
-                            Positioned(
-                              right: 0,
-                              top: 0,
-                              child: GestureDetector(
-                                onTap: () {
-                                  _removeImage();
-                                },
-                                child: Container(
-                                  height: 18.h,
-                                  width: 20.w,
-                                  decoration: BoxDecoration(
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: AppTemplate.enabledBorderClr,
-                                        offset: Offset(2.w, 4.h),
-                                        blurRadius: 4.r,
+                            widget.customerCar.carImage.isEmpty
+                                ? SizedBox()
+                                : Positioned(
+                                    right: 0,
+                                    top: 0,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        _removeImage();
+                                      },
+                                      child: Container(
+                                        height: 18.h,
+                                        width: 20.w,
+                                        decoration: BoxDecoration(
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  AppTemplate.enabledBorderClr,
+                                              offset: Offset(2.w, 4.h),
+                                              blurRadius: 4.r,
+                                            ),
+                                          ],
+                                          color: AppTemplate.primaryClr,
+                                          borderRadius:
+                                              BorderRadius.circular(10.r),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(5.0),
+                                          child: SvgPicture.asset(
+                                            'assets/svg/close.svg',
+                                            color: Color(0xFFFF0000),
+                                          ),
+                                        ),
                                       ),
-                                    ],
-                                    color: AppTemplate.primaryClr,
-                                    borderRadius: BorderRadius.circular(10.r),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(5.0),
-                                    child: SvgPicture.asset(
-                                      'assets/svg/close.svg',
-                                      color: Color(0xFFFF0000),
                                     ),
-                                  ),
-                                ),
-                              ),
-                            )
+                                  )
                           ],
                         ),
                         isLoading
