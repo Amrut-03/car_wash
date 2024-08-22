@@ -34,6 +34,7 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
   WashType? currentOption;
   List<WashType> washTypes = [];
   bool isLoading = false;
+  bool isAssigning = false;
 
   Future<void> fetchWashes() async {
     var url = Uri.parse('https://wash.sortbe.com/API/Wash-Names');
@@ -260,12 +261,22 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
                                               height: 50.h,
                                               buttonClr:
                                                   const Color(0xFF929292),
-                                              txt: 'Cancel',
+                                              txt: isLoading
+                                                  ? 'Loading...'
+                                                  : 'Cancel',
                                               textClr: AppTemplate.primaryClr,
                                               textSz: 16.0,
-                                              onClick: () {
-                                                Navigator.pop(context);
-                                              },
+                                              onClick: !isLoading
+                                                  ? () {
+                                                      setState(() {
+                                                        isLoading = true;
+                                                      });
+                                                      Navigator.pop(context);
+                                                      setState(() {
+                                                        isLoading = false;
+                                                      });
+                                                    }
+                                                  : () {},
                                             ),
                                           ),
                                           SizedBox(width: 10.w),
@@ -276,12 +287,30 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
                                               height: 50.h,
                                               buttonClr:
                                                   const Color(0xFF1E3763),
-                                              txt: 'Assign',
+                                              txt: isAssigning
+                                                  ? 'Assigning...'
+                                                  : 'Assign',
                                               textClr: AppTemplate.primaryClr,
                                               textSz: 16.0,
                                               onClick: () async {
+                                                if (isAssigning) {
+                                                  return;
+                                                }
                                                 if (currentOption != null) {
+                                                  setState(() {
+                                                    isAssigning = true;
+                                                    print(
+                                                        "isAssigning = $isAssigning");
+                                                  });
                                                   await assign(currentOption!);
+                                                  setState(() {
+                                                    isAssigning = false;
+                                                    print(
+                                                        "isAssigning2 = $isAssigning");
+                                                  });
+                                                  plannerNotifier
+                                                      .plannerEmployeeList();
+
                                                 } else {
                                                   Fluttertoast.showToast(
                                                     msg:

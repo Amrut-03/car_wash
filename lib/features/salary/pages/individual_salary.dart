@@ -43,11 +43,11 @@ class _IndividualSalaryState extends ConsumerState<IndividualSalary> {
   final TextEditingController additional = TextEditingController();
   late List<bool> checkboxStates;
 
-  @override
-  void initState() {
-    super.initState();
-    additional.text = '-';
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   additional.text = '-';
+  // }
 
   @override
   void didChangeDependencies() {
