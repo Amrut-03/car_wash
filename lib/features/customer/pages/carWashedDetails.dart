@@ -10,7 +10,6 @@ import 'package:car_wash/provider/admin_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -179,6 +178,7 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
         final String filePath =
             path.join(customDirectory.path, '$fileName.jpg');
 
+        // Step 5: Save the image to the specified path
         final file = File(filePath);
         await file.writeAsBytes(response.bodyBytes);
 
@@ -475,15 +475,27 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  washResponse!.clientName,
-                                  style: GoogleFonts.inter(
-                                      color: AppTemplate.textClr,
-                                      fontWeight: FontWeight.w400,
-                                      fontSize: 15.0),
+                                Row(
+                                  children: [
+                                    Icon(Icons.person),
+                                    SizedBox(width: 8),
+                                    Container(
+                                      constraints:
+                                          BoxConstraints(maxWidth: 150),
+                                      child: Text(
+                                        washResponse!.clientName,
+                                        style: GoogleFonts.inter(
+                                          color: AppTemplate.textClr,
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 15.0,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 Text(
-                                  washResponse!.cleanedTime,
+                                  washResponse!.assignedDate,
                                   style: GoogleFonts.inter(
                                       color: AppTemplate.textClr,
                                       fontWeight: FontWeight.w800,
@@ -491,6 +503,39 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                 ),
                               ],
                             ),
+                            SizedBox(height: 8.r),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(Icons.engineering),
+                                    SizedBox(width: 8),
+                                    Container(
+                                      constraints:
+                                          BoxConstraints(maxWidth: 150),
+                                      child: Text(
+                                        washResponse!.cleanerName,
+                                        style: GoogleFonts.inter(
+                                          color: AppTemplate.textClr,
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 15.0,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Text(
+                                  washResponse!.cleanedTime,
+                                  style: GoogleFonts.inter(
+                                      color: AppTemplate.textClr,
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 12.0),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 8.r),
                             Text(
                               washResponse!.mobileNo,
                               style: GoogleFonts.inter(
@@ -989,23 +1034,23 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                                               ),
                                             ),
                                           ),
-                                          // SizedBox(height: 10.h),
-                                          // Container(
-                                          //   padding: EdgeInsets.only(
-                                          //       left: 10.w, top: 5.h),
-                                          //   width: 220.w,
-                                          //   height: 50.h,
-                                          //   child: Text(
-                                          //     beforeWashPhotos[index].viewName,
-                                          //     style: TextStyle(
-                                          //       fontSize: 16.sp,
-                                          //       fontWeight: FontWeight.bold,
-                                          //     ),
-                                          //     softWrap: true,
-                                          //     maxLines: 2,
-                                          //     overflow: TextOverflow.ellipsis,
-                                          //   ),
-                                          // ),
+                                          //SizedBox(height: 10.h),
+                                          Container(
+                                            padding: EdgeInsets.only(
+                                                left: 10.w, top: 5.h),
+                                            width: 220.w,
+                                            height: 50.h,
+                                            child: Text(
+                                              beforeWashPhotos[index].viewName,
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              softWrap: true,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     );
@@ -1311,43 +1356,23 @@ class _CarWashedDetailsState extends ConsumerState<CarWashedDetails> {
                           },
                         ),
                   //create ticket and send to whatsapp
-                  // SizedBox(height: 40),
+
                   Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 25.w, vertical: 10.h),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GestureDetector(
-                          onTap: () => showModalBottomSheetCustom(context),
-                          child: Container(
-                            width: 69.w,
-                            height: 50.h,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5.r),
-                              border: Border.all(
-                                color: const Color(0xFFC80000),
-                                width: 1.5.w,
-                              ),
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.all(15.w),
-                              child: SvgPicture.asset(
-                                'assets/svg/puzzle.svg',
-                              ),
-                            ),
-                          ),
-                        ),
-                        Buttonwidget(
-                          width: 227.w,
-                          height: 50.h,
-                          buttonClr: const Color(0xFf1E3763),
-                          txt: 'Send to Whatsapp',
-                          textClr: AppTemplate.primaryClr,
-                          textSz: 14.0,
-                          onClick: () {},
-                        ),
-                      ],
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 25.w,
+                      vertical: 15.w,
+                    ),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Buttonwidget(
+                        width: 0,
+                        height: 50.h,
+                        buttonClr: const Color(0xFf1E3763),
+                        txt: 'Raise Ticket',
+                        textClr: AppTemplate.primaryClr,
+                        textSz: 16.0,
+                        onClick: () => showModalBottomSheetCustom(context),
+                      ),
                     ),
                   ),
                 ],

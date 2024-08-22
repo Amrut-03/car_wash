@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
+import 'package:car_wash/features/customer/model/car_type_model.dart';
 import 'package:car_wash/provider/admin_provider.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -38,16 +40,17 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
   double? lat;
   double? long;
   bool isLoading = false;
-  final Map<String, String> carTypes = {
-    'Hack Back': '1',
-    'Sedan': '2',
-    'SUV': '3',
-  };
+  // final Map<String, String> carTypes = {
+  //   'Hack Back': '1',
+  //   'Sedan': '2',
+  //   'SUV': '3',
+  // };
   @override
   void initState() {
     super.initState();
     _initializeControllers();
     isLoading = false;
+    carType();
     if (carModelNameControllers.isEmpty) {
       _addNewCard(); // Ensures that one card is always present
     }
@@ -74,6 +77,7 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
       carAddressControllers.add(TextEditingController());
       carTypeControllers.add(TextEditingController());
       imageFiles.add(null); // Or any initial value
+      _scrollToBottom();
     });
   }
 
@@ -171,9 +175,11 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
         }
       }
       if (!hasImage) {
-        setState(() {
-          isLoading = false;
-        });
+        setState(
+          () {
+            isLoading = false;
+          },
+        );
         _showErrorSnackBar("Car Image required");
         return;
       }
@@ -448,12 +454,50 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
     }
   }
 
+  ResponseModel? responseModel;
+
+  Future<void> carType() async {
+    const url = 'https://wash.sortbe.com/API/Car-Type';
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        body: {'enc_key': encKey},
+      );
+
+      var responseData = jsonDecode(response.body);
+      print('Cartype - $responseData');
+
+      if (responseData['status'] == 'Success') {
+        setState(() {
+          responseModel = ResponseModel.fromJson(responseData);
+          carTypeList = responseModel!.data; // Update the carTypeList
+          print(
+              'CarTypeList: $carTypeList'); // Check the content of carTypeList
+        });
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      print('Error = $e');
+      // log('Error = $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   double _scale = 1.0;
+  // ResponseModel? responsemodel;
+  // final List<CarType> carTypeList = responsemodel.data;
+  List<CarType> carTypeList = [];
 
   @override
   Widget build(BuildContext context) {
     final customerNotifier = ref.read(customerProvider.notifier);
     final dashboardNotifier = ref.read(dashboardProvider.notifier);
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: AppTemplate.primaryClr,
@@ -602,6 +646,14 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                         carAddressControllers[index]; // Add this
                     final carTypeController = carTypeControllers[index];
                     final imageFile = imageFiles[index];
+
+                    if (carTypeController.text.isEmpty &&
+                        carTypeList.isNotEmpty) {
+                      carTypeController.text = carTypeList
+                          .firstWhere(
+                              (carType) => carType.carType == "Hack Back")
+                          .typeId;
+                    }
                     return Stack(
                       children: [
                         Center(
@@ -687,6 +739,61 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                                             ),
                                           ),
                                           child:
+                                              //     DropdownButtonFormField<String>(
+                                              //   borderRadius:
+                                              //       BorderRadius.circular(10.r),
+                                              //   dropdownColor:
+                                              //       AppTemplate.primaryClr,
+                                              //   decoration: InputDecoration(
+                                              //     border: InputBorder.none,
+                                              //     contentPadding:
+                                              //         EdgeInsets.symmetric(
+                                              //             horizontal: 10.w),
+                                              //   ),
+                                              //   value: carTypes.keys.contains(
+                                              //           carTypeController.text)
+                                              //       ? carTypeController.text
+                                              //       : carTypes.keys.isNotEmpty
+                                              //           ? carTypes.keys.first
+                                              //           : null, // Set to null if no car types are available
+                                              //   icon: const Icon(
+                                              //       Icons.arrow_drop_down),
+                                              //   iconSize: 30,
+                                              //   elevation: 16,
+                                              //   style: const TextStyle(
+                                              //     color: AppTemplate.textClr,
+                                              //     fontSize: 15,
+                                              //   ),
+                                              //   onChanged: (String? newValue) {
+                                              //     if (newValue != null) {
+                                              //       setState(() {
+                                              //         // Update the TextEditingController with the value associated with the selected key
+                                              //         carTypeController.text =
+                                              //             carTypes[newValue] ?? '';
+                                              //         // Print the new value for debugging
+                                              //         print(
+                                              //             'Selected car type value: ${carTypes[newValue]}');
+                                              //       });
+                                              //     }
+                                              //   },
+                                              //   items: carTypes.keys.isNotEmpty
+                                              //       ? carTypes.keys.map<
+                                              //           DropdownMenuItem<
+                                              //               String>>((carType) {
+                                              //           return DropdownMenuItem<
+                                              //               String>(
+                                              //             value: carType,
+                                              //             child: Text(carType),
+                                              //           );
+                                              //         }).toList()
+                                              //       : [
+                                              //           DropdownMenuItem<String>(
+                                              //             value: '',
+                                              //             child: Text(
+                                              //                 'No car type found'), // Placeholder item
+                                              //           ),
+                                              //         ],
+                                              // ),
                                               DropdownButtonFormField<String>(
                                             borderRadius:
                                                 BorderRadius.circular(10.r),
@@ -698,12 +805,10 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                                                   EdgeInsets.symmetric(
                                                       horizontal: 10.w),
                                             ),
-                                            value: carTypes.keys.contains(
-                                                    carTypeController.text)
+                                            value: carTypeController
+                                                    .text.isNotEmpty
                                                 ? carTypeController.text
-                                                : carTypes.keys.isNotEmpty
-                                                    ? carTypes.keys.first
-                                                    : null, // Set to null if no car types are available
+                                                : null,
                                             icon: const Icon(
                                                 Icons.arrow_drop_down),
                                             iconSize: 30,
@@ -712,35 +817,21 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                                               color: AppTemplate.textClr,
                                               fontSize: 15,
                                             ),
-                                            onChanged: (String? newValue) {
-                                              if (newValue != null) {
-                                                setState(() {
-                                                  // Update the TextEditingController with the value associated with the selected key
-                                                  carTypeController.text =
-                                                      carTypes[newValue] ?? '';
-                                                  // Print the new value for debugging
-                                                  print(
-                                                      'Selected car type value: ${carTypes[newValue]}');
-                                                });
-                                              }
+                                            items: carTypeList
+                                                .map<DropdownMenuItem<String>>(
+                                                    (CarType carType) {
+                                              return DropdownMenuItem<String>(
+                                                value: carType.typeId,
+                                                child: Text(carType.carType),
+                                              );
+                                            }).toList(),
+                                            onChanged: (String? value) {
+                                              setState(() {
+                                                carTypeController.text = value!;
+                                              });
+                                              print(
+                                                  'Changed - ${carTypeController.text}');
                                             },
-                                            items: carTypes.keys.isNotEmpty
-                                                ? carTypes.keys.map<
-                                                    DropdownMenuItem<
-                                                        String>>((carType) {
-                                                    return DropdownMenuItem<
-                                                        String>(
-                                                      value: carType,
-                                                      child: Text(carType),
-                                                    );
-                                                  }).toList()
-                                                : [
-                                                    DropdownMenuItem<String>(
-                                                      value: '',
-                                                      child: Text(
-                                                          'No car type found'), // Placeholder item
-                                                    ),
-                                                  ],
                                           ),
                                         ),
                                       ],
@@ -891,7 +982,7 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                             ),
                           ),
                         ),
-                        if (index != 0)
+                        if (index != 0 || carModelNameControllers.length > 1)
                           Positioned(
                             right: 10.w,
                             top: -5.h,

@@ -383,7 +383,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
       }
     }
 
-    final employeeController = ref.read(employeeProvider.notifier);
+    // final employeeController = ref.read(employeeProvider.notifier);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -1358,7 +1358,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                                 textSz: 18.0,
                                 onClick: () async {
                                   await employeeEdit(context, ref);
-                                  employeeController.fetchEmployeeList();
+                                  // employeeController.fetchEmployeeList();
                                   dashboardNotifier.fetchDashboardData();
                                   print(
                                       "+++++++++++++++++++++++++++++++++++++++++++++");

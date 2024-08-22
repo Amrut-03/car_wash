@@ -39,6 +39,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
     var responseBody = jsonDecode(temp);
 
     if (response.statusCode == 200) {
+      print(responseBody);
       if (responseBody['status'] == 'No-Records' || responseBody.isEmpty) {
         Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) => const AttendanceRecord()));
@@ -76,6 +77,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
       setState(() {
         fetchAttendance();
       });
+      print(response);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: status == 'Approve' ? Colors.green : Colors.red,
@@ -99,6 +101,8 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
 
   @override
   Widget build(BuildContext context) {
+    print("+++++++++++");
+    print(currentAttendance!['attendance_image']);
     return Scaffold(
       backgroundColor: AppTemplate.primaryClr,
       body: isLoading
@@ -134,38 +138,39 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
                       height: 450,
                       width: double.infinity,
                       child: ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: currentAttendance!['attendance_image'].isEmpty
-                              ? Image.network(
-                                  currentAttendance!['attendance_image'],
-                                  fit: BoxFit.cover,
-                                  loadingBuilder: (BuildContext context,
-                                      Widget child,
-                                      ImageChunkEvent? loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    return Center(
-                                      child: CircularProgressIndicator(
-                                        value: loadingProgress
-                                                    .expectedTotalBytes !=
-                                                null
-                                            ? loadingProgress
-                                                    .cumulativeBytesLoaded /
-                                                (loadingProgress
-                                                        .expectedTotalBytes ??
-                                                    1)
-                                            : null,
-                                      ),
-                                    );
-                                  },
-                                )
-                              : Center(
-                                  child: Text(
-                                    "Failed to Load...",
-                                    style: GoogleFonts.inter(
-                                      color: AppTemplate.textClr,
+                        borderRadius: BorderRadius.circular(15),
+                        child: currentAttendance!['attendance_image'] != null
+                            ? Image.network(
+                                currentAttendance!['attendance_image'],
+                                fit: BoxFit.cover,
+                                loadingBuilder: (BuildContext context,
+                                    Widget child,
+                                    ImageChunkEvent? loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      value:
+                                          loadingProgress.expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  (loadingProgress
+                                                          .expectedTotalBytes ??
+                                                      1)
+                                              : null,
                                     ),
+                                  );
+                                },
+                              )
+                            : Center(
+                                child: Text(
+                                  "Failed to Load...",
+                                  style: GoogleFonts.inter(
+                                    color: AppTemplate.textClr,
                                   ),
-                                )),
+                                ),
+                              ),
+                      ),
                     ),
                   ),
                   SizedBox(height: 20.h),
