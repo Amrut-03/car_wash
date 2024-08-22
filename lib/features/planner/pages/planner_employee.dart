@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/header.dart';
 import 'package:car_wash/features/planner/pages/planner.dart';
+import 'package:car_wash/provider/admin_provider.dart';
 import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,46 +33,48 @@ class Employee {
   }
 }
 
-class PlannerState {
-  final List<Employee> employees;
-  final List<Employee> filteredEmployees;
-  final String searchEmployee;
+class EmployeePlanner extends ConsumerStatefulWidget {
+  const EmployeePlanner({super.key});
 
-  PlannerState({
-    required this.employees,
-    required this.filteredEmployees,
-    required this.searchEmployee,
-  });
-
-  PlannerState copyWith({
-    List<Employee>? employees,
-    List<Employee>? filteredEmployees,
-    String? searchEmployee,
-  }) {
-    return PlannerState(
-      employees: employees ?? this.employees,
-      filteredEmployees: filteredEmployees ?? this.filteredEmployees,
-      searchEmployee: searchEmployee ?? this.searchEmployee,
-    );
-  }
+  @override
+  ConsumerState<EmployeePlanner> createState() => _EmployeePlannerState();
 }
 
-class PlannerNotifier extends StateNotifier<PlannerState> {
-  PlannerNotifier()
-      : super(PlannerState(
-            employees: [], filteredEmployees: [], searchEmployee: '')) {
+class _EmployeePlannerState extends ConsumerState<EmployeePlanner> {
+  final TextEditingController searchController = TextEditingController();
+  List<Employee> employee = [];
+  List<Employee> filteredEmployee = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    searchController.addListener(_filterEmployee);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     plannerEmployeeList();
   }
 
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    searchController.removeListener(_filterEmployee);
+  }
+
   Future<void> plannerEmployeeList() async {
+    final admin = ref.read(authProvider);
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('https://wash.sortbe.com/API/Admin/Planner/Employee-Planner'),
     );
     request.fields.addAll({
       'enc_key': encKey,
-      'emp_id': '123',
-      'search_name': '',
+      'emp_id': admin.admin!.id,
+      'search_name': searchController.text,
       'planner_date': plannerDate,
     });
 
@@ -86,13 +89,12 @@ class PlannerNotifier extends StateNotifier<PlannerState> {
         print("++++++++++++++++++++++++++++++++++++++++++++++");
 
         if (parsedData['data'] != null) {
-          var employeesList = List<Employee>.from(
-            parsedData['data'].map((x) => Employee.fromJson(x)),
-          );
-          state = state.copyWith(
-            employees: employeesList,
-            filteredEmployees: employeesList,
-          );
+          setState(() {
+            employee = List<Employee>.from(
+              parsedData['data'].map((x) => Employee.fromJson(x)),
+            );
+            filteredEmployee = employee;
+          });
         } else {
           print('Data key is null in the response');
         }
@@ -104,28 +106,19 @@ class PlannerNotifier extends StateNotifier<PlannerState> {
     }
   }
 
-  void updateSearchQuery(String query) {
-    state = state.copyWith(searchEmployee: query);
-    _filterEmployees();
+  void _filterEmployee() {
+    final query = searchController.text.toLowerCase();
+    setState(() {
+      filteredEmployee = employee.where((emp) {
+        final employee = emp.empName.toLowerCase();
+        // final clientName = car.clientName.toLowerCase();
+        return employee.contains(query);
+      }).toList();
+    });
   }
-
-  void _filterEmployees() {
-    String query = state.searchEmployee.toLowerCase();
-    var filteredList = state.employees
-        .where((employee) => employee.empName.toLowerCase().contains(query))
-        .toList();
-    state = state.copyWith(filteredEmployees: filteredList);
-  }
-}
-
-class EmployeePlanner extends ConsumerWidget {
-  final TextEditingController searchController = TextEditingController();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final plannerState = ref.watch(plannerProvider);
-    final plannerNotifier = ref.read(plannerProvider.notifier);
-
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTemplate.primaryClr,
       body: Column(
@@ -149,7 +142,7 @@ class EmployeePlanner extends ConsumerWidget {
             padding: EdgeInsets.symmetric(horizontal: 25.w),
             child: TextField(
               controller: searchController,
-              onChanged: (value) => plannerNotifier.updateSearchQuery(value),
+              // onChanged: (value) => plannerNotifier.updateSearchQuery(value),
               decoration: InputDecoration(
                 labelText: 'Search by Employee Name',
                 labelStyle: GoogleFonts.inter(
@@ -178,20 +171,26 @@ class EmployeePlanner extends ConsumerWidget {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               color: AppTemplate.primaryClr,
-              child: plannerState.filteredEmployees.isEmpty
-                  ? Center(
-                      child: Text(
-                        'No Record Found',
-                        style: GoogleFonts.inter(
-                          color: AppTemplate.textClr,
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
+              child: filteredEmployee.isEmpty
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Center(
+                          child: Text(
+                            'No employees found',
+                            style: GoogleFonts.inter(
+                              color: AppTemplate.textClr,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        )
+                      ],
                     )
                   : GridView.builder(
                       scrollDirection: Axis.vertical,
-                      itemCount: plannerState.filteredEmployees.length,
+                      itemCount: filteredEmployee.length,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                         crossAxisSpacing: 10.w,
@@ -199,15 +198,15 @@ class EmployeePlanner extends ConsumerWidget {
                         childAspectRatio: 150.w / 157.h,
                       ),
                       itemBuilder: (context, index) {
-                        final employee = plannerState.filteredEmployees[index];
+                        // final employee = plannerState.filteredEmployees[index];
                         return GestureDetector(
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => Planner(
-                                  empName: employee.empName,
-                                  empId: employee.empId,
+                                  empName: filteredEmployee[index].empName,
+                                  empId: filteredEmployee[index].empId,
                                 ),
                               ),
                             );
@@ -220,8 +219,11 @@ class EmployeePlanner extends ConsumerWidget {
                                   height: 157.h,
                                   width: 150.w,
                                   decoration: BoxDecoration(
-                                    color: employee.carCount.isNotEmpty &&
-                                            employee.carCount != '0'
+                                    color: filteredEmployee[index]
+                                                .carCount
+                                                .isNotEmpty &&
+                                            filteredEmployee[index].carCount !=
+                                                '0'
                                         ? const Color(0xFFF0FFDE)
                                         : Colors.white,
                                     borderRadius: BorderRadius.circular(10.r),
@@ -244,7 +246,7 @@ class EmployeePlanner extends ConsumerWidget {
                                             'assets/images/noavatar.png'),
                                         child: ClipOval(
                                           child: Image.network(
-                                            employee.imageUrl,
+                                            filteredEmployee[index].imageUrl,
                                             fit: BoxFit.cover,
                                             width: 100.r,
                                             height: 100.r,
@@ -262,7 +264,7 @@ class EmployeePlanner extends ConsumerWidget {
                                       ),
                                       SizedBox(height: 10.h),
                                       Text(
-                                        employee.empName,
+                                        filteredEmployee[index].empName,
                                         style: GoogleFonts.inter(
                                           color: AppTemplate.textClr,
                                           fontSize: 15.0,
@@ -272,8 +274,10 @@ class EmployeePlanner extends ConsumerWidget {
                                     ],
                                   ),
                                 ),
-                                if (employee.carCount.isNotEmpty &&
-                                    employee.carCount != '0')
+                                if (filteredEmployee[index]
+                                        .carCount
+                                        .isNotEmpty &&
+                                    filteredEmployee[index].carCount != '0')
                                   Positioned(
                                     right: 8.w,
                                     top: 8.h,
@@ -281,7 +285,7 @@ class EmployeePlanner extends ConsumerWidget {
                                       radius: 10.r,
                                       backgroundColor: AppTemplate.textClr,
                                       child: Text(
-                                        employee.carCount,
+                                        filteredEmployee[index].carCount,
                                         style: GoogleFonts.inter(
                                             color: AppTemplate.primaryClr),
                                       ),

@@ -207,7 +207,6 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
 
   @override
   Widget build(BuildContext context) {
-    final plannerNotifier = ref.read(plannerProvider.notifier);
     return Column(
       children: [
         GestureDetector(

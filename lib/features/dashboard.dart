@@ -180,15 +180,29 @@ class DashBoard extends ConsumerWidget {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              Expanded(
-                                child: ListView.builder(
-                                  itemCount: data.washInfoList.length,
-                                  itemBuilder: (context, index) {
-                                    final washInfo = data.washInfoList[index];
-                                    return Visibility(
-                                      visible: washInfo != null,
-                                      replacement: Text('No Wahses for Today'),
-                                      child: Stack(
+                              Visibility(
+                                visible: data.washInfoList.length != 0,
+                                replacement: Column(
+                                  children: [
+                                    SizedBox(
+                                      height: 150.h,
+                                    ),
+                                    Center(
+                                        child: Text(
+                                      'No Wahses for Today',
+                                      style: GoogleFonts.inter(
+                                          color: AppTemplate.textClr,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w400),
+                                    )),
+                                  ],
+                                ),
+                                child: Expanded(
+                                  child: ListView.builder(
+                                    itemCount: data.washInfoList.length,
+                                    itemBuilder: (context, index) {
+                                      final washInfo = data.washInfoList[index];
+                                      return Stack(
                                         children: [
                                           Container(
                                             margin: EdgeInsets.symmetric(
@@ -325,9 +339,9 @@ class DashBoard extends ConsumerWidget {
                                             ),
                                           ),
                                         ],
-                                      ),
-                                    );
-                                  },
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
                             ],

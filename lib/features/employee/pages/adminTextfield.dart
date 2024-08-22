@@ -218,7 +218,7 @@ class _AdminTextFieldState extends ConsumerState<AdminTextField> {
 
   @override
   Widget build(BuildContext context) {
-    final employeeController = ref.watch(employeeProvider.notifier);
+    // final employeeController = ref.watch(employeeProvider.notifier);
     final dashboardNotifier = ref.read(dashboardProvider.notifier);
 
     return Column(
@@ -367,7 +367,7 @@ class _AdminTextFieldState extends ConsumerState<AdminTextField> {
                     textSz: 18.0,
                     onClick: () async {
                       await createAdmin();
-                      employeeController.fetchEmployeeList();
+                      // employeeController.fetchEmployeeList();
                       // dashboardController.fetchDashboardData();
                       dashboardNotifier.fetchDashboardData();
                     },

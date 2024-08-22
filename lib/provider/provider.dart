@@ -101,22 +101,18 @@ final customerProvider = StateNotifierProvider<CustomerNotifier, CustomerState>(
   (ref) => CustomerNotifier(ref),
 );
 
-final employeeProvider = StateNotifierProvider<EmployeeNotifier, EmployeeState>(
-  (ref) {
-    final adminId = ref.read(authProvider).admin!.id;
-    final searchController =
-        TextEditingController(); // Create the searchController here
-    return EmployeeNotifier(ref, adminId, searchController);
-  },
-);
+// final employeeProvider = StateNotifierProvider<EmployeeNotifier, EmployeeState>(
+//   (ref) {
+//     final adminId = ref.read(authProvider).admin!.id;
+//     final searchController =
+//         TextEditingController(); // Create the searchController here
+//     return EmployeeNotifier(ref, adminId, searchController);
+//   },
+// );
 
 final dashboardProvider =
     StateNotifierProvider<DashboardNotifier, AsyncValue<DashboardData>>(
   (ref) => DashboardNotifier(),
-);
-
-final plannerProvider = StateNotifierProvider<PlannerNotifier, PlannerState>(
-  (ref) => PlannerNotifier(),
 );
 
 final empIdProvider = StateProvider<String>((ref) => '');

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/header.dart';
@@ -7,10 +6,10 @@ import 'package:car_wash/common/widgets/textFieldWidget.dart';
 import 'package:car_wash/features/planner/model/all_car.dart';
 import 'package:car_wash/features/planner/model/assigned_car.dart';
 import 'package:car_wash/features/planner/model/car_params.dart';
-import 'package:car_wash/features/planner/model/wash_type.dart';
 import 'package:car_wash/features/planner/widgets/assigned_car_list.dart';
 import 'package:car_wash/features/planner/widgets/cars_to_wash_widget.dart';
 import 'package:car_wash/provider/admin_provider.dart';
+import 'package:car_wash/provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -28,7 +27,7 @@ class Planner extends ConsumerStatefulWidget {
 
 class _PlannerState extends ConsumerState<Planner> {
   TextEditingController searchEmployee = TextEditingController();
-  
+
   List<AllCar> allCars = [];
   List<AssignedCar> assignedCars = [];
   List<AllCar> filteredCars = [];
@@ -39,6 +38,7 @@ class _PlannerState extends ConsumerState<Planner> {
   @override
   void initState() {
     super.initState();
+    ref.read(empIdProvider.notifier);
     searchEmployee.addListener(_filterCars);
   }
 

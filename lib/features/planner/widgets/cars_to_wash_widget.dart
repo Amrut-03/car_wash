@@ -137,8 +137,6 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final plannerNotifier = ref.read(plannerProvider.notifier);
-
     return Column(
       children: [
         GestureDetector(
@@ -312,6 +310,7 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
                                                   });
                                                   plannerNotifier
                                                       .plannerEmployeeList();
+
                                                 } else {
                                                   Fluttertoast.showToast(
                                                     msg:
