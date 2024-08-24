@@ -2,11 +2,13 @@ class Wash {
   final String washTime;
   final String washStatus;
   final String washId;
+  final String clientName;
 
   Wash({
     required this.washTime,
     required this.washStatus,
     required this.washId,
+    required this.clientName,
   });
 
   factory Wash.fromJson(Map<String, dynamic> json) {
@@ -14,6 +16,7 @@ class Wash {
       washTime: json['wash_time'],
       washStatus: json['wash_status'],
       washId: json['wash_id'],
+      clientName: json['client_name'],
     );
   }
   Map<String, dynamic> toJson() {
@@ -21,6 +24,7 @@ class Wash {
       'id': washId,
       'wash_date': washTime,
       'wash_status': washStatus,
+      'client_name': clientName,
     };
   }
 }

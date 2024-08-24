@@ -26,11 +26,11 @@ String getPlannerDate(String format) {
   return DateFormat(format).format(dateToShow);
 }
 
-String plannerDate1 = getPlannerDate('yyyy-MM-dd');
-String plannerDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+String plannerDate = getPlannerDate('yyyy-MM-dd');
+String plannerDate1 = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
-String formattedDate1 = getPlannerDate('d MMMM yyyy');
-String formattedDate = DateFormat('d MMMM yyyy').format(DateTime.now());
+String formattedDate = getPlannerDate('d MMMM yyyy');
+String formattedDate1 = DateFormat('d MMMM yyyy').format(DateTime.now());
 
 Map<String, Color> statusColor = {
   'Pending': const Color.fromRGBO(255, 195, 0, 10),

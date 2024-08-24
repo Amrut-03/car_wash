@@ -350,8 +350,6 @@ class _AssignedCardState extends ConsumerState<AssignedCard> {
                                                   print(
                                                       "isUnassigning2 = $isUnassigning");
                                                 });
-                                                plannerNotifier
-                                                    .plannerEmployeeList();
                                               },
                                             ),
                                           ),

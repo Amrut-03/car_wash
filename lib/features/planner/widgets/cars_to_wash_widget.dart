@@ -308,8 +308,6 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
                                                     print(
                                                         "isAssigning2 = $isAssigning");
                                                   });
-                                                  plannerNotifier
-                                                      .plannerEmployeeList();
 
                                                 } else {
                                                   Fluttertoast.showToast(

@@ -65,7 +65,7 @@ class RecentWashesList extends StatelessWidget {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    wash[index].washTime,
+                                    wash[index].clientName,
                                     style: GoogleFonts.inter(
                                         color: AppTemplate.textClr,
                                         fontWeight: FontWeight.w400,

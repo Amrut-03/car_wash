@@ -92,7 +92,7 @@ class CustomerRecentWashesList extends StatelessWidget {
                                   Text(
                                     washList[index].washStatus == 'Pending'
                                         ? 'Yet to Start'
-                                        : '${customerName}',
+                                        : formatDate(washList[index].washDate),
                                     style: GoogleFonts.inter(
                                         color: AppTemplate.textClr,
                                         fontWeight: FontWeight.w400,
