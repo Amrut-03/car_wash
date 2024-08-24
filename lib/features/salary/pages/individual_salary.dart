@@ -368,7 +368,7 @@ class _IndividualSalaryState extends ConsumerState<IndividualSalary> {
       incentiveResponse!.data.length,
       (index) {
         final incentive = incentiveResponse!.data[index];
-        final total = (double.parse(incentive.dailyIncentive.toString()) +
+        final total = (double.parse(incentiveResponse!.defaultDailyIncentive.toString()) +
                 double.parse(incentive.washIncentive) +
                 double.parse(incentive.kmIncentive))
             .toString();
@@ -376,7 +376,7 @@ class _IndividualSalaryState extends ConsumerState<IndividualSalary> {
           incentive.assignedDate,
           incentive.washIncentive,
           incentive.kmIncentive,
-          incentive.dailyIncentive.toString(),
+          incentiveResponse!.defaultDailyIncentive.toString(),
           total,
           index,
         );
@@ -385,7 +385,7 @@ class _IndividualSalaryState extends ConsumerState<IndividualSalary> {
 
     // Calculate totals
     final totalDaily = incentiveResponse!.data.fold(
-        0.0, (sum, item) => sum + double.parse(item.dailyIncentive.toString()));
+        0.0, (sum, item) => sum + double.parse(incentiveResponse!.defaultDailyIncentive.toString()));
     final totalWash = incentiveResponse!.data
         .fold(0.0, (sum, item) => sum + double.parse(item.washIncentive));
     final totalKm = incentiveResponse!.data

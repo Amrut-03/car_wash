@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:car_wash/common/utils/constants.dart';
 import 'package:car_wash/common/widgets/buttonWidget.dart';
 import 'package:car_wash/common/widgets/textFieldWidget.dart';
+import 'package:car_wash/features/employee/pages/employee.dart';
 import 'package:car_wash/features/planner/pages/planner_employee.dart';
 import 'package:car_wash/provider/admin_provider.dart';
 import 'package:car_wash/provider/provider.dart';
@@ -313,7 +314,12 @@ class _EmployeeTextfieldState extends ConsumerState<EmployeeTextfield> {
               style: GoogleFonts.inter(
                   color: AppTemplate.primaryClr, fontWeight: FontWeight.w400),
             )));
-        Navigator.pop(context);
+        // Navigator.pop(context);
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => EmployeePage(),
+          ),
+        );
       } else {
         setState(() {
           isLoading = false;

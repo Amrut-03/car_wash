@@ -925,44 +925,6 @@ class _EmployeePageState extends ConsumerState<EmployeePage> {
     });
   }
 
-  // void searchEmployee(String query) {
-  //   if (query.trim().isEmpty) {
-  //     // When the query is empty, reset to the full employee list
-  //     // state = state.copyWith(
-  //     //   employeeList: _fullEmployeeList,
-  //     //   noRecordsFound: _fullEmployeeList.isEmpty,
-  //     // );
-  //   } else {
-  //     final normalizedQuery = query.trim().toLowerCase();
-  //     print('Search Query: $normalizedQuery');
-
-  //     final filteredList = _fullEmployeeList.where((employee) {
-  //       final name =
-  //           (employee['employee_name'] ?? '').toString().trim().toLowerCase();
-  //       print('Employee Name: $name');
-  //       return name.contains(normalizedQuery);
-  //     }).toList();
-
-  //     print('Filtered List Length: ${filteredList.length}');
-
-  //     // state = state.copyWith(
-  //     //   employeeList: filteredList,
-  //     //   noRecordsFound: filteredList.isEmpty,
-  //     // );
-  //   }
-  // }
-
-  // void _onSearchTextChanged() {
-  //   searchEmployee(searchController.text);
-  // }
-
-  // @override
-  // void dispose() {
-  //   searchController.removeListener(_onSearchTextChanged);
-  //   searchController.dispose();
-  //   super.dispose();
-  // }
-
   Future<void> removeEmployee(BuildContext context, String empId) async {
     final admin = ref.read(authProvider);
     final request = http.MultipartRequest('POST',
@@ -986,20 +948,13 @@ class _EmployeePageState extends ConsumerState<EmployeePage> {
               style: GoogleFonts.inter(color: AppTemplate.primaryClr),
             )),
       );
-      // final updatedList = state.employeeList
-      //     .where((employee) => employee['employee_id'] != empId)
-      //     .toList();
-      // state = state.copyWith(
-      //   employeeList: updatedList,
-      //   noRecordsFound: updatedList.isEmpty,
-      // );
     } else {
       print('Failed to remove employee: ${response.reasonPhrase}');
     }
   }
 
   Future<void> confirmRemoveEmployee(BuildContext context, String empId) async {
-    final shouldRemove = await showDialog<bool>(
+    await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -1034,7 +989,11 @@ class _EmployeePageState extends ConsumerState<EmployeePage> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 3),
                 child: TextButton(
-                  onPressed: () => Navigator.of(context).pop(true),
+                  onPressed: () async {
+                    await removeEmployee(context, empId);
+                    await fetchEmployeeList();
+                    Navigator.of(context).pop(true);
+                  },
                   child: Text(
                     'Yes',
                     style: GoogleFonts.inter(color: AppTemplate.primaryClr),
@@ -1047,14 +1006,14 @@ class _EmployeePageState extends ConsumerState<EmployeePage> {
       },
     );
 
-    if (shouldRemove == true) {
-      await removeEmployee(context, empId);
-      await fetchEmployeeList();
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => EmployeePage()),
-        (route) => false,
-      ); // Re-fetch employee list after removal
-    }
+    // if (shouldRemove == true) {
+    //   await removeEmployee(context, empId);
+    //   await fetchEmployeeList();
+    //   Navigator.of(context).pushAndRemoveUntil(
+    //     MaterialPageRoute(builder: (context) => EmployeePage()),
+    //     (route) => false,
+    //   ); // Re-fetch employee list after removal
+    // }
   }
 
   Future<void> changePassword(String empId) async {
@@ -1306,10 +1265,7 @@ class _EmployeePageState extends ConsumerState<EmployeePage> {
                       style: GoogleFonts.inter(
                           fontWeight: FontWeight.w800, fontSize: 18.0)),
                   onTap: () async {
-                    // await employeeNotifier.removeEmployee(context, employee_id);
-                    // await employeeNotifier.confirmRemoveEmployee(
-                    //     context, employee_id);
-                    // await plannerNotifier.plannerEmployeeList();
+                    await confirmRemoveEmployee(context, employee_id);
                     await dashboardNotifier.fetchDashboardData();
                     Navigator.pop(context);
                   },

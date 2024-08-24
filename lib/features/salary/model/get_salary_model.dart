@@ -24,6 +24,7 @@ class IncentiveData {
 class IncentiveResponse {
   final List<IncentiveData> data;
   final dynamic additionalIncentive;
+  final dynamic defaultDailyIncentive;
   final dynamic count;
   final String status;
   final String remarks;
@@ -31,6 +32,7 @@ class IncentiveResponse {
   IncentiveResponse({
     required this.data,
     required this.additionalIncentive,
+    required this.defaultDailyIncentive,
     required this.count,
     required this.status,
     required this.remarks,
@@ -45,6 +47,7 @@ class IncentiveResponse {
     return IncentiveResponse(
       data: incentiveDataList,
       additionalIncentive: json['additional_incentive'],
+      defaultDailyIncentive: json['default_daily_incentive'],
       count: json['count'] ?? 0,
       status: json['status'] ?? '',
       remarks: json['remarks'] ?? '',

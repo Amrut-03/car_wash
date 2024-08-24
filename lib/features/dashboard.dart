@@ -189,7 +189,7 @@ class DashBoard extends ConsumerWidget {
                                     ),
                                     Center(
                                         child: Text(
-                                      'No Wahses for Today',
+                                      'No Washes for Today',
                                       style: GoogleFonts.inter(
                                           color: AppTemplate.textClr,
                                           fontSize: 15,

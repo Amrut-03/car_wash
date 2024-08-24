@@ -310,6 +310,11 @@ class _CarsToWashWidgetState extends ConsumerState<CarsToWashWidget> {
                                                           "isAssigning2 = $isAssigning");
                                                     },
                                                   );
+                                                  // setState(() {
+                                                  //   isAssigning = false;
+                                                  //   print(
+                                                  //       "isAssigning2 = $isAssigning");
+                                                  // });
                                                 } else {
                                                   Fluttertoast.showToast(
                                                     msg:
