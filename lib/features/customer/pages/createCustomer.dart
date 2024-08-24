@@ -471,14 +471,15 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
       if (responseData['status'] == 'Success') {
         setState(() {
           responseModel = ResponseModel.fromJson(responseData);
-          carTypeList = responseModel!.data; // Update the carTypeList
-          print(
-              'CarTypeList: $carTypeList'); // Check the content of carTypeList
+          carTypeList = responseModel!.data;
+          print('CarTypeList: $carTypeList');
         });
       } else {
         throw Exception('Failed to load data');
       }
     } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.toString())));
       print('Error = $e');
       // log('Error = $e');
     } finally {
@@ -642,17 +643,13 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                   itemBuilder: (context, index) {
                     final carModelController = carModelNameControllers[index];
                     final carNoController = carNoControllers[index];
-                    final carAddressController =
-                        carAddressControllers[index]; // Add this
+                    final carAddressController = carAddressControllers[index];
                     final carTypeController = carTypeControllers[index];
                     final imageFile = imageFiles[index];
 
                     if (carTypeController.text.isEmpty &&
                         carTypeList.isNotEmpty) {
-                      carTypeController.text = carTypeList
-                          .firstWhere(
-                              (carType) => carType.carType == "Hack Back")
-                          .typeId;
+                      carTypeController.text = carTypeList.first.typeId;
                     }
                     return Stack(
                       children: [
@@ -738,62 +735,63 @@ class _CreateCustomerState extends ConsumerState<CreateCustomer> {
                                               width: 1.w,
                                             ),
                                           ),
+                                          // child:
+                                          //     DropdownButtonFormField<String>(
+                                          //   borderRadius:
+                                          //       BorderRadius.circular(10.r),
+                                          //   dropdownColor:
+                                          //       AppTemplate.primaryClr,
+                                          //   decoration: InputDecoration(
+                                          //     border: InputBorder.none,
+                                          //     contentPadding:
+                                          //         EdgeInsets.symmetric(
+                                          //             horizontal: 10.w),
+                                          //   ),
+                                          //   value: carTypes.keys.contains(
+                                          //           carTypeController.text)
+                                          //       ? carTypeController.text
+                                          //       : carTypes.keys.isNotEmpty
+                                          //           ? carTypes.keys.first
+                                          //           : null, // Set to null if no car types are available
+                                          //   icon: const Icon(
+                                          //       Icons.arrow_drop_down),
+                                          //   iconSize: 30,
+                                          //   elevation: 16,
+                                          //   style: const TextStyle(
+                                          //     color: AppTemplate.textClr,
+                                          //     fontSize: 15,
+                                          //   ),
+                                          //   onChanged: (String? newValue) {
+                                          //     if (newValue != null) {
+                                          //       setState(() {
+                                          //         // Update the TextEditingController with the value associated with the selected key
+                                          //         carTypeController.text =
+                                          //             carTypes[newValue] ?? '';
+                                          //         // Print the new value for debugging
+                                          //         print(
+                                          //             'Selected car type value: ${carTypes[newValue]}');
+                                          //       });
+                                          //     }
+                                          //   },
+                                          //   items: carTypes.keys.isNotEmpty
+                                          //       ? carTypes.keys.map<
+                                          //           DropdownMenuItem<
+                                          //               String>>((carType) {
+                                          //           return DropdownMenuItem<
+                                          //               String>(
+                                          //             value: carType,
+                                          //             child: Text(carType),
+                                          //           );
+                                          //         }).toList()
+                                          //       : [
+                                          //           DropdownMenuItem<String>(
+                                          //             value: '',
+                                          //             child: Text(
+                                          //                 'No car type found'), // Placeholder item
+                                          //           ),
+                                          //         ],
+                                          // ),
                                           child:
-                                              //     DropdownButtonFormField<String>(
-                                              //   borderRadius:
-                                              //       BorderRadius.circular(10.r),
-                                              //   dropdownColor:
-                                              //       AppTemplate.primaryClr,
-                                              //   decoration: InputDecoration(
-                                              //     border: InputBorder.none,
-                                              //     contentPadding:
-                                              //         EdgeInsets.symmetric(
-                                              //             horizontal: 10.w),
-                                              //   ),
-                                              //   value: carTypes.keys.contains(
-                                              //           carTypeController.text)
-                                              //       ? carTypeController.text
-                                              //       : carTypes.keys.isNotEmpty
-                                              //           ? carTypes.keys.first
-                                              //           : null, // Set to null if no car types are available
-                                              //   icon: const Icon(
-                                              //       Icons.arrow_drop_down),
-                                              //   iconSize: 30,
-                                              //   elevation: 16,
-                                              //   style: const TextStyle(
-                                              //     color: AppTemplate.textClr,
-                                              //     fontSize: 15,
-                                              //   ),
-                                              //   onChanged: (String? newValue) {
-                                              //     if (newValue != null) {
-                                              //       setState(() {
-                                              //         // Update the TextEditingController with the value associated with the selected key
-                                              //         carTypeController.text =
-                                              //             carTypes[newValue] ?? '';
-                                              //         // Print the new value for debugging
-                                              //         print(
-                                              //             'Selected car type value: ${carTypes[newValue]}');
-                                              //       });
-                                              //     }
-                                              //   },
-                                              //   items: carTypes.keys.isNotEmpty
-                                              //       ? carTypes.keys.map<
-                                              //           DropdownMenuItem<
-                                              //               String>>((carType) {
-                                              //           return DropdownMenuItem<
-                                              //               String>(
-                                              //             value: carType,
-                                              //             child: Text(carType),
-                                              //           );
-                                              //         }).toList()
-                                              //       : [
-                                              //           DropdownMenuItem<String>(
-                                              //             value: '',
-                                              //             child: Text(
-                                              //                 'No car type found'), // Placeholder item
-                                              //           ),
-                                              //         ],
-                                              // ),
                                               DropdownButtonFormField<String>(
                                             borderRadius:
                                                 BorderRadius.circular(10.r),
