@@ -281,47 +281,47 @@ class Customer extends ConsumerWidget {
                 ),
               ),
             ),
-            SizedBox(height: 20.h),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.h),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Search Result',
-                    style: GoogleFonts.inter(
-                        color: AppTemplate.textClr,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w400),
-                  ),
-                  customerController.isLoading
-                      ? Center(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              SizedBox(
-                                height: 10.h,
-                                width: 10.w,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 1.w,
-                                  color: const Color.fromARGB(255, 0, 52, 182),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : Text(
-                          customerController.noRecordsFound
-                              ? 'Showing 0 of 250'
-                              : 'Showing ${customerController.body.length} of 250',
-                          style: GoogleFonts.inter(
-                              color: AppTemplate.textClr,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w400),
-                        ),
-                ],
-              ),
-            ),
+            SizedBox(height: 0.h),
+            // Padding(
+            //   padding: EdgeInsets.symmetric(horizontal: 20.h),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //     children: [
+            //       Text(
+            //         'Search Result',
+            //         style: GoogleFonts.inter(
+            //             color: AppTemplate.textClr,
+            //             fontSize: 10,
+            //             fontWeight: FontWeight.w400),
+            //       ),
+            //       customerController.isLoading
+            //           ? Center(
+            //               child: Column(
+            //                 crossAxisAlignment: CrossAxisAlignment.end,
+            //                 children: [
+            //                   SizedBox(
+            //                     height: 10.h,
+            //                     width: 10.w,
+            //                     child: CircularProgressIndicator(
+            //                       strokeWidth: 1.w,
+            //                       color: const Color.fromARGB(255, 0, 52, 182),
+            //                     ),
+            //                   ),
+            //                 ],
+            //               ),
+            //             )
+            //           : Text(
+            //               customerController.noRecordsFound
+            //                   ? 'Showing 0 of 250'
+            //                   : 'Showing ${customerController.body.length} of 250',
+            //               style: GoogleFonts.inter(
+            //                   color: AppTemplate.textClr,
+            //                   fontSize: 10,
+            //                   fontWeight: FontWeight.w400),
+            //             ),
+            //     ],
+            //   ),
+            // ),
             customerController.isLoading
                 ? Center(
                     child: Column(

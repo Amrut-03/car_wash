@@ -30,19 +30,20 @@ Widget imagePreview(Map<String, File> imagesMap, String? carImage) {
         width: 120.w,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SvgPicture.asset('assets/svg/Camera.svg'),
-              Text(
-                'Car Picture',
-                style: GoogleFonts.inter(
-                  fontSize: 12.0,
-                  color: const Color(0xFF6750A4),
-                  fontWeight: FontWeight.w600,
+          return Container(
+            height: 78.h,
+            width: 120.w,
+            child: Center(
+              child: Text(
+                'Failed to load',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
                 ),
               ),
-            ],
+            ),
           );
         },
         loadingBuilder: (context, child, loadingProgress) {

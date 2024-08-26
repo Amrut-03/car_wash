@@ -251,11 +251,20 @@ class _IndividualSalaryState extends ConsumerState<IndividualSalary> {
                                 width: 100.r,
                                 height: 100.r,
                                 errorBuilder: (context, error, stackTrace) {
-                                  return Image.asset(
-                                    'assets/images/noavatar.png',
-                                    fit: BoxFit.cover,
-                                    width: 100.r,
+                                  return Container(
                                     height: 100.r,
+                                    width: 100.r,
+                                    child: Center(
+                                      child: Text(
+                                        'Failed to load',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 16.sp,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    ),
                                   );
                                 },
                                 loadingBuilder:
@@ -368,10 +377,11 @@ class _IndividualSalaryState extends ConsumerState<IndividualSalary> {
       incentiveResponse!.data.length,
       (index) {
         final incentive = incentiveResponse!.data[index];
-        final total = (double.parse(incentiveResponse!.defaultDailyIncentive.toString()) +
-                double.parse(incentive.washIncentive) +
-                double.parse(incentive.kmIncentive))
-            .toString();
+        final total =
+            (double.parse(incentiveResponse!.defaultDailyIncentive.toString()) +
+                    double.parse(incentive.washIncentive) +
+                    double.parse(incentive.kmIncentive))
+                .toString();
         return _buildTableRow(
           incentive.assignedDate,
           incentive.washIncentive,
@@ -385,7 +395,10 @@ class _IndividualSalaryState extends ConsumerState<IndividualSalary> {
 
     // Calculate totals
     final totalDaily = incentiveResponse!.data.fold(
-        0.0, (sum, item) => sum + double.parse(incentiveResponse!.defaultDailyIncentive.toString()));
+        0.0,
+        (sum, item) =>
+            sum +
+            double.parse(incentiveResponse!.defaultDailyIncentive.toString()));
     final totalWash = incentiveResponse!.data
         .fold(0.0, (sum, item) => sum + double.parse(item.washIncentive));
     final totalKm = incentiveResponse!.data

@@ -162,11 +162,20 @@ class _IndividualSalaryFinalState extends ConsumerState<IndividualSalaryFinal> {
                                 width: 100.r,
                                 height: 100.r,
                                 errorBuilder: (context, error, stackTrace) {
-                                  return Image.asset(
-                                    'assets/images/noavatar.png',
-                                    fit: BoxFit.cover,
-                                    width: 100.r,
+                                  return Container(
                                     height: 100.r,
+                                    width: 100.r,
+                                    child: Center(
+                                      child: Text(
+                                        'Failed to load',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 16.sp,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    ),
                                   );
                                 },
                                 loadingBuilder:

@@ -149,11 +149,20 @@ class _CleanedCarsState extends ConsumerState<CleanedCars> {
                               employeeData!.employeePic,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
-                                return Image.asset(
-                                  'assets/images/noavatar.png',
+                                return Container(
                                   height: 150.h,
-                                  width: 220.w,
-                                  fit: BoxFit.cover,
+                                  width: 220.h,
+                                  child: Center(
+                                    child: Text(
+                                      'Failed to load',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 16.sp,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ),
                                 );
                               },
                             ),

@@ -366,7 +366,21 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
               width: 120.w,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
-                return SvgPicture.asset('assets/svg/Camera.svg');
+                return Container(
+                  height: 77.h,
+                  width: 120.w,
+                  child: Center(
+                    child: Text(
+                      'Failed to load',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ),
+                );
               },
               loadingBuilder: (context, child, loadingProgress) {
                 if (loadingProgress == null) {

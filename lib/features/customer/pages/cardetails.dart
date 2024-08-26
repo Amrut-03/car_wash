@@ -100,11 +100,9 @@ class _CarDetailsState extends ConsumerState<CarDetails> {
       log('Error = $e');
     }
   }
-  
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       backgroundColor: AppTemplate.primaryClr,
       body: washListItem == null
@@ -140,11 +138,20 @@ class _CarDetailsState extends ConsumerState<CarDetails> {
                             width: 120.h,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
-                              return Image.asset(
-                                'assets/images/car.jpg',
-                                fit: BoxFit.cover,
+                              return Container(
                                 height: 100.h,
                                 width: 120.h,
+                                child: Center(
+                                  child: Text(
+                                    'Failed to load',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ),
                               );
                             },
                           ),
